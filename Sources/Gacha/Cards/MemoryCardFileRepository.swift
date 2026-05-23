@@ -16,7 +16,7 @@ final class MemoryCardFileRepository {
   init(
     directories: AppDirectories,
     fileManager: FileManager = .default,
-    randomIDSuffix: @escaping () -> String = makeRandomMemoryCardIDSuffix,
+    randomIDSuffix: @escaping () -> String = MemoryCardFileRepository.makeRandomIDSuffix,
     now: @escaping () -> Date = Date.init
   ) {
     self.directories = directories
@@ -264,11 +264,11 @@ extension MemoryCardFileRepository {
     formatter.dateFormat = "yyyyMMdd-HHmmss"
     return formatter
   }()
-}
 
-private func makeRandomMemoryCardIDSuffix() -> String {
-  let alphabet = Array("0123456789abcdefghijklmnopqrstuvwxyz")
-  return String((0..<6).map { _ in alphabet[Int.random(in: alphabet.indices)] })
+  static func makeRandomIDSuffix() -> String {
+    let alphabet = Array("0123456789abcdefghijklmnopqrstuvwxyz")
+    return String((0..<6).map { _ in alphabet[Int.random(in: alphabet.indices)] })
+  }
 }
 
 private struct MemoryCardMetadata: Codable {

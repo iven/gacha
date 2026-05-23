@@ -12,3 +12,9 @@ struct MemoryCard: Card, Equatable, Identifiable {
   var lastSeen: Date?
   var createdAt: Date
 }
+
+extension MemoryCard {
+  var relativeFilePath: String {
+    "\(directory)/\(id).md"
+  }
+}

@@ -53,6 +53,16 @@ final class MemoryCardIndexStore {
     }
   }
 
+  func find(id: String) throws -> MemoryCard? {
+    try dbQueue.read { database in
+      try Row.fetchOne(
+        database,
+        sql: "SELECT * FROM memory_cards WHERE id = ?",
+        arguments: [id]
+      ).map(memoryCard)
+    }
+  }
+
   func list(directory: String? = nil) throws -> [MemoryCard] {
     try dbQueue.read { database in
       let rows: [Row]
@@ -98,7 +108,7 @@ final class MemoryCardIndexStore {
             card.id,
             card.title,
             card.body,
-            relativeFilePath(for: card),
+            card.relativeFilePath,
             card.directory,
             card.due.map(formatDate),
             card.stability,
@@ -147,10 +157,6 @@ final class MemoryCardIndexStore {
       difficulty: row["difficulty"],
       lastSeen: parseDate(row["last_seen"]),
       createdAt: parseDate(row["created_at"]) ?? Date(timeIntervalSince1970: 0))
-  }
-
-  private func relativeFilePath(for card: MemoryCard) -> String {
-    "\(card.directory)/\(card.id).md"
   }
 
   private func formatDate(_ date: Date) -> String {
