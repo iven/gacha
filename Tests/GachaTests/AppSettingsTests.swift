@@ -3,15 +3,32 @@ import Testing
 
 @testable import Gacha
 
-@Test func appSettingsDefaultsUseKnowledgeAutoCollapseTimeout() {
-  #expect(AppSettings.defaults.knowledgeAutoCollapseSeconds == 30)
+@Test func appSettingsDefaultsUseDefaultValues() {
+  let defaultUserStorageURL = URL(fileURLWithPath: "/tmp/GachaTests/Documents/Gacha")
+  let settings = AppSettings.defaults(userStorageURL: defaultUserStorageURL)
+
+  #expect(settings.userStorageURL == defaultUserStorageURL)
+  #expect(settings.knowledgeAutoCollapseSeconds == 30)
 }
 
 @Test func settingsStoreReadsRegisteredDefaults() {
+  let defaultUserStorageURL = URL(fileURLWithPath: "/tmp/GachaTests/Documents/Gacha")
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults, defaultUserStorageURL: defaultUserStorageURL)
+
+  #expect(store.settings == AppSettings.defaults(userStorageURL: defaultUserStorageURL))
+}
+
+@Test func settingsStorePersistsUserStorageURL() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
+  let userStorageURL = URL(fileURLWithPath: "/tmp/GachaTests/Custom Storage", isDirectory: true)
 
-  #expect(store.settings == AppSettings.defaults)
+  store.userStorageURL = userStorageURL
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(reloadedStore.userStorageURL == userStorageURL)
 }
 
 @Test func settingsStorePersistsKnowledgeAutoCollapseSeconds() {
@@ -28,9 +45,13 @@ import Testing
 @Test func settingsStorePersistsTypedSettings() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
+  let userStorageURL = URL(fileURLWithPath: "/tmp/GachaTests/Typed Storage", isDirectory: true)
 
-  store.settings = AppSettings(knowledgeAutoCollapseSeconds: 60)
+  store.settings = AppSettings(
+    userStorageURL: userStorageURL,
+    knowledgeAutoCollapseSeconds: 60)
 
+  #expect(store.settings.userStorageURL == userStorageURL)
   #expect(store.settings.knowledgeAutoCollapseSeconds == 60)
 }
 

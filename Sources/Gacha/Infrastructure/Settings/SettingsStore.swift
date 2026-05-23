@@ -5,24 +5,53 @@ struct SettingsStore {
   static let knowledgeAutoCollapseStep: TimeInterval = 5
 
   private enum Key {
+    static let userStoragePath = "userStoragePath"
     static let knowledgeAutoCollapseSeconds = "knowledgeAutoCollapseSeconds"
   }
 
   private let defaults: UserDefaults
+  private let defaultUserStorageURL: URL
 
-  init(defaults: UserDefaults = .standard) {
+  init(
+    defaults: UserDefaults = .standard,
+    defaultUserStorageURL: URL = Self.defaultUserStorageURL()
+  ) {
     self.defaults = defaults
+    self.defaultUserStorageURL = defaultUserStorageURL
     defaults.register(defaults: [
-      Key.knowledgeAutoCollapseSeconds: AppSettings.defaults.knowledgeAutoCollapseSeconds
+      Key.knowledgeAutoCollapseSeconds: AppSettings.defaultKnowledgeAutoCollapseSeconds
     ])
+  }
+
+  static func defaultUserStorageURL(fileManager: FileManager = .default) -> URL {
+    fileManager.urls(
+      for: .documentDirectory,
+      in: .userDomainMask
+    )[0].appendingPathComponent(AppMetadata.userStorageDirectoryName, isDirectory: true)
   }
 
   var settings: AppSettings {
     get {
-      AppSettings(knowledgeAutoCollapseSeconds: knowledgeAutoCollapseSeconds)
+      AppSettings(
+        userStorageURL: userStorageURL,
+        knowledgeAutoCollapseSeconds: knowledgeAutoCollapseSeconds)
     }
     nonmutating set {
+      userStorageURL = newValue.userStorageURL
       knowledgeAutoCollapseSeconds = newValue.knowledgeAutoCollapseSeconds
+    }
+  }
+
+  var userStorageURL: URL {
+    get {
+      guard let path = defaults.string(forKey: Key.userStoragePath) else {
+        return defaultUserStorageURL
+      }
+
+      return URL(fileURLWithPath: path, isDirectory: true)
+    }
+    nonmutating set {
+      defaults.set(newValue.path, forKey: Key.userStoragePath)
     }
   }
 

@@ -3,8 +3,9 @@ import AppKit
 @MainActor
 struct AppBootstrapper {
   func bootstrap(fileManager: FileManager = .default) -> AppEnvironment {
-    let directories = AppDirectories(fileManager: fileManager)
-    let settingsStore = SettingsStore()
+    let settingsStore = SettingsStore(
+      defaultUserStorageURL: SettingsStore.defaultUserStorageURL(fileManager: fileManager))
+    let directories = AppDirectories(settingsStore: settingsStore, fileManager: fileManager)
     let windowCoordinator = WindowCoordinator(
       directories: directories,
       settingsStore: settingsStore)
