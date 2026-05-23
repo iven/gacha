@@ -1,1 +1,6 @@
 "default.category.uncategorized" = "Uncategorized";
+"menu.newCard" = "New Card...";
+"menu.pauseDisplay" = "Pause Display";
+"menu.resumeDisplay" = "Resume Display";
+"menu.settings" = "Settings...";
+"menu.quit" = "Quit Gacha";

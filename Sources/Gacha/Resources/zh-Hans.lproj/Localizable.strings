@@ -1,1 +1,6 @@
 "default.category.uncategorized" = "未分类";
+"menu.newCard" = "新建卡片...";
+"menu.pauseDisplay" = "暂停显示";
+"menu.resumeDisplay" = "恢复显示";
+"menu.settings" = "设置...";
+"menu.quit" = "退出 Gacha";

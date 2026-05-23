@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 final class AppEnvironment {
   let directories: AppDirectories
   let settingsStore: SettingsStore

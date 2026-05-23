@@ -1,6 +1,77 @@
-import Foundation
+import AppKit
 
-final class MenuBarController {
+@MainActor
+final class MenuBarController: NSObject {
+  private let actions: MenuBarActions
+  private var state = MenuBarState()
+  private var statusItem: NSStatusItem?
+  private var pauseItem: NSMenuItem?
+
+  init(actions: MenuBarActions = .live) {
+    self.actions = actions
+  }
+
   func start() {
+    let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    statusItem.button?.title = AppMetadata.name
+    statusItem.menu = makeMenu()
+    self.statusItem = statusItem
+  }
+
+  private func makeMenu() -> NSMenu {
+    let menu = NSMenu()
+
+    let newCardItem = NSMenuItem(
+      title: MenuBarStrings.newCard,
+      action: #selector(openNewCard),
+      keyEquivalent: "n")
+    newCardItem.target = self
+    newCardItem.isEnabled = false
+    menu.addItem(newCardItem)
+
+    let pauseItem = NSMenuItem(
+      title: state.pauseDisplayTitle,
+      action: #selector(togglePause),
+      keyEquivalent: "")
+    pauseItem.target = self
+    menu.addItem(pauseItem)
+    self.pauseItem = pauseItem
+
+    let settingsItem = NSMenuItem(
+      title: MenuBarStrings.settings,
+      action: #selector(openSettings),
+      keyEquivalent: ",")
+    settingsItem.target = self
+    settingsItem.isEnabled = false
+    menu.addItem(settingsItem)
+
+    menu.addItem(.separator())
+
+    let quitItem = NSMenuItem(
+      title: MenuBarStrings.quit,
+      action: #selector(quit),
+      keyEquivalent: "q")
+    quitItem.target = self
+    menu.addItem(quitItem)
+
+    return menu
+  }
+
+  @objc private func openNewCard() {
+    actions.openNewCard()
+  }
+
+  @objc private func openSettings() {
+    actions.openSettings()
+  }
+
+  @objc private func togglePause() {
+    state.isPaused.toggle()
+    pauseItem?.title = state.pauseDisplayTitle
+    actions.setPaused(state.isPaused)
+  }
+
+  @objc private func quit() {
+    actions.quit()
   }
 }

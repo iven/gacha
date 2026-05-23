@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 struct AppBootstrapper {
   func bootstrap(fileManager: FileManager = .default) -> AppEnvironment {
     let directories = AppDirectories(fileManager: fileManager)
