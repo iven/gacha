@@ -15,12 +15,16 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.1")
+    .package(url: "https://github.com/groue/GRDB.swift.git", from: "7.10.0"),
+    .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.1"),
   ],
   targets: [
     .executableTarget(
       name: "Gacha",
-      dependencies: ["Yams"],
+      dependencies: [
+        .product(name: "GRDB", package: "GRDB.swift"),
+        "Yams",
+      ],
       path: "Sources/Gacha",
       resources: [
         .process("Resources")
@@ -28,7 +32,10 @@ let package = Package(
     ),
     .testTarget(
       name: "GachaTests",
-      dependencies: ["Gacha"],
+      dependencies: [
+        "Gacha",
+        .product(name: "GRDB", package: "GRDB.swift"),
+      ],
       path: "Tests/GachaTests"
     ),
   ]

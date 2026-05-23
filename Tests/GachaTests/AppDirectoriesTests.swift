@@ -10,6 +10,7 @@ import Testing
     userStorageURL: testRootURL.appendingPathComponent("Documents"))
 
   #expect(directories.applicationSupportURL.path == "/tmp/GachaTests/Application Support")
+  #expect(directories.indexDatabaseURL.path == "/tmp/GachaTests/Application Support/index.db")
   #expect(directories.userStorageURL.path == "/tmp/GachaTests/Documents")
   #expect(directories.memoryURL.lastPathComponent == "memory")
   #expect(directories.defaultMemoryCategoryURL.lastPathComponent == "Uncategorized")

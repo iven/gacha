@@ -3,6 +3,7 @@ import Foundation
 struct AppDirectories {
   let applicationSupportURL: URL
   let userStorageURL: URL
+  let indexDatabaseURL: URL
   let memoryURL: URL
   let defaultMemoryCategoryURL: URL
 
@@ -17,6 +18,7 @@ struct AppDirectories {
   init(applicationSupportURL: URL, userStorageURL: URL) {
     self.applicationSupportURL = applicationSupportURL
     self.userStorageURL = userStorageURL
+    indexDatabaseURL = applicationSupportURL.appendingPathComponent("index.db")
     memoryURL = userStorageURL.appendingPathComponent(
       AppMetadata.memoryDirectoryName,
       isDirectory: true)
