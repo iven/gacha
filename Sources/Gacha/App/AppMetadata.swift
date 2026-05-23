@@ -6,6 +6,5 @@ enum AppMetadata {
   static let applicationSupportDirectoryName = "Gacha"
   static let userStorageDirectoryName = "Gacha"
   static let knowledgeCardsDirectoryName = "Knowledge Cards"
-  static let defaultCategoryName = String(
-    localized: "default.category.uncategorized", bundle: .module)
+  static let defaultCategoryDirectoryName = "Uncategorized"
 }

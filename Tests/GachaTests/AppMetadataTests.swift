@@ -6,4 +6,5 @@ import Testing
   #expect(AppMetadata.name == "Gacha")
   #expect(AppMetadata.bundleIdentifier == "com.iven.gacha")
   #expect(AppMetadata.knowledgeCardsDirectoryName == "Knowledge Cards")
+  #expect(AppMetadata.defaultCategoryDirectoryName == "Uncategorized")
 }
