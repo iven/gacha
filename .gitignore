@@ -1,0 +1,48 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+build/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.pins
+
+# CocoaPods (如未来使用)
+Pods/
+*.xcworkspace/xcuserdata/
+
+# Carthage (如未来使用)
+Carthage/Build/
+
+# 设计 / 讨论文档（本地参考用，不进 git）
+.design-notes/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 日志 / 临时文件
+*.log
+tmp/
