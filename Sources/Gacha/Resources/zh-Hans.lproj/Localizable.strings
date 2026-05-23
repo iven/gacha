@@ -4,3 +4,10 @@
 "menu.resumeDisplay" = "恢复显示";
 "menu.settings" = "设置...";
 "menu.quit" = "退出 Gacha";
+"settings.window.title" = "设置";
+"settings.tab.overview" = "概览";
+"settings.tab.cards" = "卡片";
+"settings.tab.advanced" = "高级";
+"settings.overview.storageLocation" = "存储位置";
+"settings.overview.autoCollapse" = "自动收回";
+"settings.advanced.dataDirectory" = "数据目录";

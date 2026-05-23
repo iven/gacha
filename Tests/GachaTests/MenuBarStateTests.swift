@@ -23,9 +23,9 @@ import Testing
 @Test func menuBarStringsResolveSimplifiedChinesePreferences() {
   let preferences = ["zh-Hans-CN", "en-CN"]
 
-  #expect(MenuBarStrings.localized("menu.newCard", preferences: preferences) == "新建卡片...")
-  #expect(MenuBarStrings.localized("menu.pauseDisplay", preferences: preferences) == "暂停显示")
-  #expect(MenuBarStrings.localized("menu.resumeDisplay", preferences: preferences) == "恢复显示")
-  #expect(MenuBarStrings.localized("menu.settings", preferences: preferences) == "设置...")
-  #expect(MenuBarStrings.localized("menu.quit", preferences: preferences) == "退出 Gacha")
+  #expect(AppStrings.localized("menu.newCard", preferences: preferences) == "新建卡片...")
+  #expect(AppStrings.localized("menu.pauseDisplay", preferences: preferences) == "暂停显示")
+  #expect(AppStrings.localized("menu.resumeDisplay", preferences: preferences) == "恢复显示")
+  #expect(AppStrings.localized("menu.settings", preferences: preferences) == "设置...")
+  #expect(AppStrings.localized("menu.quit", preferences: preferences) == "退出 Gacha")
 }

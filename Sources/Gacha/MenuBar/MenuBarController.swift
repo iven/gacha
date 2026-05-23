@@ -42,7 +42,6 @@ final class MenuBarController: NSObject {
       action: #selector(openSettings),
       keyEquivalent: ",")
     settingsItem.target = self
-    settingsItem.isEnabled = false
     menu.addItem(settingsItem)
 
     menu.addItem(.separator())

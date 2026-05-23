@@ -4,3 +4,10 @@
 "menu.resumeDisplay" = "Resume Display";
 "menu.settings" = "Settings...";
 "menu.quit" = "Quit Gacha";
+"settings.window.title" = "Settings";
+"settings.tab.overview" = "Overview";
+"settings.tab.cards" = "Cards";
+"settings.tab.advanced" = "Advanced";
+"settings.overview.storageLocation" = "Storage Location";
+"settings.overview.autoCollapse" = "Auto-Collapse";
+"settings.advanced.dataDirectory" = "Data Directory";

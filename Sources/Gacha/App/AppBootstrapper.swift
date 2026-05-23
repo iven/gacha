@@ -1,16 +1,26 @@
-import Foundation
+import AppKit
 
 @MainActor
 struct AppBootstrapper {
   func bootstrap(fileManager: FileManager = .default) -> AppEnvironment {
     let directories = AppDirectories(fileManager: fileManager)
     let settingsStore = SettingsStore(settingsURL: directories.settingsURL)
+    let windowCoordinator = WindowCoordinator(directories: directories)
 
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
-      menuBarController: MenuBarController(),
-      windowCoordinator: WindowCoordinator(),
+      menuBarController: MenuBarController(
+        actions: MenuBarActions(
+          openNewCard: {},
+          openSettings: {
+            windowCoordinator.openSettings()
+          },
+          setPaused: { _ in },
+          quit: {
+            NSApp.terminate(nil)
+          })),
+      windowCoordinator: windowCoordinator,
       presentationController: PresentationController(),
       suppressionController: SuppressionController())
     environment.start()
