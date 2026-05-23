@@ -6,6 +6,15 @@ struct AppBootstrapper {
     let settingsStore = SettingsStore(
       defaultUserStorageURL: SettingsStore.defaultUserStorageURL(fileManager: fileManager))
     let directories = AppDirectories(settingsStore: settingsStore, fileManager: fileManager)
+    do {
+      try MemoryCardFileRepository(
+        directories: directories,
+        fileManager: fileManager
+      ).prepareStorage()
+    } catch {
+      AppLogger.app.error("Failed to prepare app directories: \(error.localizedDescription)")
+    }
+
     let launchAtLoginController = LaunchAtLoginController()
     let windowCoordinator = WindowCoordinator(
       directories: directories,

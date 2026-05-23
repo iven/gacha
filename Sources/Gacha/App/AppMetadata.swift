@@ -5,6 +5,6 @@ enum AppMetadata {
   static let bundleIdentifier = "com.iven.gacha"
   static let applicationSupportDirectoryName = "Gacha"
   static let userStorageDirectoryName = "Gacha"
-  static let knowledgeCardsDirectoryName = "Knowledge Cards"
+  static let memoryDirectoryName = "memory"
   static let defaultCategoryDirectoryName = "Uncategorized"
 }

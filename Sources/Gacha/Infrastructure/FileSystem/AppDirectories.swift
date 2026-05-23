@@ -3,8 +3,8 @@ import Foundation
 struct AppDirectories {
   let applicationSupportURL: URL
   let userStorageURL: URL
-  let knowledgeCardsURL: URL
-  let defaultKnowledgeCategoryURL: URL
+  let memoryURL: URL
+  let defaultMemoryCategoryURL: URL
 
   init(settingsStore: SettingsStore, fileManager: FileManager = .default) {
     self.init(
@@ -17,10 +17,10 @@ struct AppDirectories {
   init(applicationSupportURL: URL, userStorageURL: URL) {
     self.applicationSupportURL = applicationSupportURL
     self.userStorageURL = userStorageURL
-    knowledgeCardsURL = userStorageURL.appendingPathComponent(
-      AppMetadata.knowledgeCardsDirectoryName,
+    memoryURL = userStorageURL.appendingPathComponent(
+      AppMetadata.memoryDirectoryName,
       isDirectory: true)
-    defaultKnowledgeCategoryURL = knowledgeCardsURL.appendingPathComponent(
+    defaultMemoryCategoryURL = memoryURL.appendingPathComponent(
       AppMetadata.defaultCategoryDirectoryName,
       isDirectory: true)
   }

@@ -9,7 +9,7 @@ import Testing
 
   #expect(settings.userStorageURL == defaultUserStorageURL)
   #expect(settings.launchAtLoginEnabled)
-  #expect(settings.knowledgeAutoCollapseSeconds == 30)
+  #expect(settings.memoryAutoCollapseSeconds == 30)
 }
 
 @Test func settingsStoreReadsRegisteredDefaults() {
@@ -32,15 +32,15 @@ import Testing
   #expect(reloadedStore.userStorageURL == userStorageURL)
 }
 
-@Test func settingsStorePersistsKnowledgeAutoCollapseSeconds() {
+@Test func settingsStorePersistsMemoryAutoCollapseSeconds() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
-  store.knowledgeAutoCollapseSeconds = 45
+  store.memoryAutoCollapseSeconds = 45
 
   let reloadedStore = SettingsStore(defaults: defaults)
 
-  #expect(reloadedStore.knowledgeAutoCollapseSeconds == 45)
+  #expect(reloadedStore.memoryAutoCollapseSeconds == 45)
 }
 
 @Test func settingsStorePersistsLaunchAtLoginEnabled() {
@@ -62,25 +62,25 @@ import Testing
   store.settings = AppSettings(
     userStorageURL: userStorageURL,
     launchAtLoginEnabled: false,
-    knowledgeAutoCollapseSeconds: 60)
+    memoryAutoCollapseSeconds: 60)
 
   #expect(store.settings.userStorageURL == userStorageURL)
   #expect(!store.settings.launchAtLoginEnabled)
-  #expect(store.settings.knowledgeAutoCollapseSeconds == 60)
+  #expect(store.settings.memoryAutoCollapseSeconds == 60)
 }
 
-@Test func settingsStoreNormalizesKnowledgeAutoCollapseSeconds() {
+@Test func settingsStoreNormalizesMemoryAutoCollapseSeconds() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
-  store.knowledgeAutoCollapseSeconds = 3
-  #expect(store.knowledgeAutoCollapseSeconds == 5)
+  store.memoryAutoCollapseSeconds = 3
+  #expect(store.memoryAutoCollapseSeconds == 5)
 
-  store.knowledgeAutoCollapseSeconds = 42
-  #expect(store.knowledgeAutoCollapseSeconds == 40)
+  store.memoryAutoCollapseSeconds = 42
+  #expect(store.memoryAutoCollapseSeconds == 40)
 
-  store.knowledgeAutoCollapseSeconds = 300
-  #expect(store.knowledgeAutoCollapseSeconds == 120)
+  store.memoryAutoCollapseSeconds = 300
+  #expect(store.memoryAutoCollapseSeconds == 120)
 }
 
 private func makeTestDefaults() -> UserDefaults {

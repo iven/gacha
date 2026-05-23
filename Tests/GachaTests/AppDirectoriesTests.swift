@@ -11,8 +11,8 @@ import Testing
 
   #expect(directories.applicationSupportURL.path == "/tmp/GachaTests/Application Support")
   #expect(directories.userStorageURL.path == "/tmp/GachaTests/Documents")
-  #expect(directories.knowledgeCardsURL.lastPathComponent == "Knowledge Cards")
-  #expect(directories.defaultKnowledgeCategoryURL.lastPathComponent == "Uncategorized")
+  #expect(directories.memoryURL.lastPathComponent == "memory")
+  #expect(directories.defaultMemoryCategoryURL.lastPathComponent == "Uncategorized")
 }
 
 @Test func appDirectoriesUseSettingsStorageLocation() {
@@ -26,7 +26,7 @@ import Testing
     fileManager: .default)
 
   #expect(directories.userStorageURL == userStorageURL)
-  #expect(directories.knowledgeCardsURL.path == "/tmp/GachaTests/Custom Storage/Knowledge Cards")
+  #expect(directories.memoryURL.path == "/tmp/GachaTests/Custom Storage/memory")
 }
 
 private func makeTestDefaults() -> UserDefaults {

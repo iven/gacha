@@ -5,6 +5,6 @@ import Testing
 @Test func appMetadataUsesExpectedNames() {
   #expect(AppMetadata.name == "Gacha")
   #expect(AppMetadata.bundleIdentifier == "com.iven.gacha")
-  #expect(AppMetadata.knowledgeCardsDirectoryName == "Knowledge Cards")
+  #expect(AppMetadata.memoryDirectoryName == "memory")
   #expect(AppMetadata.defaultCategoryDirectoryName == "Uncategorized")
 }

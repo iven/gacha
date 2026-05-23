@@ -1,13 +1,13 @@
 import Foundation
 
 struct SettingsStore {
-  static let knowledgeAutoCollapseRange: ClosedRange<TimeInterval> = 5...120
-  static let knowledgeAutoCollapseStep: TimeInterval = 5
+  static let memoryAutoCollapseRange: ClosedRange<TimeInterval> = 5...120
+  static let memoryAutoCollapseStep: TimeInterval = 5
 
   private enum Key {
     static let userStoragePath = "userStoragePath"
     static let launchAtLoginEnabled = "launchAtLoginEnabled"
-    static let knowledgeAutoCollapseSeconds = "knowledgeAutoCollapseSeconds"
+    static let memoryAutoCollapseSeconds = "memoryAutoCollapseSeconds"
   }
 
   private let defaults: UserDefaults
@@ -21,7 +21,7 @@ struct SettingsStore {
     self.defaultUserStorageURL = defaultUserStorageURL
     defaults.register(defaults: [
       Key.launchAtLoginEnabled: AppSettings.defaultLaunchAtLoginEnabled,
-      Key.knowledgeAutoCollapseSeconds: AppSettings.defaultKnowledgeAutoCollapseSeconds,
+      Key.memoryAutoCollapseSeconds: AppSettings.defaultMemoryAutoCollapseSeconds,
     ])
   }
 
@@ -37,12 +37,12 @@ struct SettingsStore {
       AppSettings(
         userStorageURL: userStorageURL,
         launchAtLoginEnabled: launchAtLoginEnabled,
-        knowledgeAutoCollapseSeconds: knowledgeAutoCollapseSeconds)
+        memoryAutoCollapseSeconds: memoryAutoCollapseSeconds)
     }
     nonmutating set {
       userStorageURL = newValue.userStorageURL
       launchAtLoginEnabled = newValue.launchAtLoginEnabled
-      knowledgeAutoCollapseSeconds = newValue.knowledgeAutoCollapseSeconds
+      memoryAutoCollapseSeconds = newValue.memoryAutoCollapseSeconds
     }
   }
 
@@ -68,26 +68,26 @@ struct SettingsStore {
     }
   }
 
-  var knowledgeAutoCollapseSeconds: TimeInterval {
+  var memoryAutoCollapseSeconds: TimeInterval {
     get {
-      normalizedKnowledgeAutoCollapseSeconds(
-        defaults.double(forKey: Key.knowledgeAutoCollapseSeconds))
+      normalizedMemoryAutoCollapseSeconds(
+        defaults.double(forKey: Key.memoryAutoCollapseSeconds))
     }
     nonmutating set {
       defaults.set(
-        normalizedKnowledgeAutoCollapseSeconds(newValue),
-        forKey: Key.knowledgeAutoCollapseSeconds)
+        normalizedMemoryAutoCollapseSeconds(newValue),
+        forKey: Key.memoryAutoCollapseSeconds)
     }
   }
 
-  private func normalizedKnowledgeAutoCollapseSeconds(
+  private func normalizedMemoryAutoCollapseSeconds(
     _ value: TimeInterval
   ) -> TimeInterval {
     let steppedValue =
-      (value / Self.knowledgeAutoCollapseStep).rounded()
-      * Self.knowledgeAutoCollapseStep
+      (value / Self.memoryAutoCollapseStep).rounded()
+      * Self.memoryAutoCollapseStep
     return min(
-      max(steppedValue, Self.knowledgeAutoCollapseRange.lowerBound),
-      Self.knowledgeAutoCollapseRange.upperBound)
+      max(steppedValue, Self.memoryAutoCollapseRange.lowerBound),
+      Self.memoryAutoCollapseRange.upperBound)
   }
 }

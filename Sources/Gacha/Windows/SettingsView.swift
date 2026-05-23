@@ -5,7 +5,7 @@ struct SettingsView: View {
   let launchAtLoginController: LaunchAtLoginController
   let settingsStore: SettingsStore
   @State private var launchAtLoginEnabled: Bool
-  @State private var knowledgeAutoCollapseSeconds: TimeInterval
+  @State private var memoryAutoCollapseSeconds: TimeInterval
 
   init(
     directories: AppDirectories,
@@ -16,8 +16,8 @@ struct SettingsView: View {
     self.launchAtLoginController = launchAtLoginController
     self.settingsStore = settingsStore
     _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginEnabled)
-    _knowledgeAutoCollapseSeconds = State(
-      initialValue: settingsStore.knowledgeAutoCollapseSeconds)
+    _memoryAutoCollapseSeconds = State(
+      initialValue: settingsStore.memoryAutoCollapseSeconds)
   }
 
   var body: some View {
@@ -68,15 +68,15 @@ struct SettingsView: View {
           Slider(
             value: Binding(
               get: {
-                knowledgeAutoCollapseSeconds
+                memoryAutoCollapseSeconds
               },
               set: { newValue in
-                knowledgeAutoCollapseSeconds = newValue
-                settingsStore.knowledgeAutoCollapseSeconds = newValue
+                memoryAutoCollapseSeconds = newValue
+                settingsStore.memoryAutoCollapseSeconds = newValue
               }),
-            in: SettingsStore.knowledgeAutoCollapseRange,
-            step: SettingsStore.knowledgeAutoCollapseStep)
-          Text("\(Int(knowledgeAutoCollapseSeconds)) s")
+            in: SettingsStore.memoryAutoCollapseRange,
+            step: SettingsStore.memoryAutoCollapseStep)
+          Text("\(Int(memoryAutoCollapseSeconds)) s")
             .monospacedDigit()
             .frame(width: 48, alignment: .trailing)
         }

@@ -14,9 +14,13 @@ let package = Package(
       targets: ["Gacha"]
     )
   ],
+  dependencies: [
+    .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.1")
+  ],
   targets: [
     .executableTarget(
       name: "Gacha",
+      dependencies: ["Yams"],
       path: "Sources/Gacha",
       resources: [
         .process("Resources")
