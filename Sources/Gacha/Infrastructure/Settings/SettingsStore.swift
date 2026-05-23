@@ -6,6 +6,7 @@ struct SettingsStore {
 
   private enum Key {
     static let userStoragePath = "userStoragePath"
+    static let launchAtLoginEnabled = "launchAtLoginEnabled"
     static let knowledgeAutoCollapseSeconds = "knowledgeAutoCollapseSeconds"
   }
 
@@ -19,7 +20,8 @@ struct SettingsStore {
     self.defaults = defaults
     self.defaultUserStorageURL = defaultUserStorageURL
     defaults.register(defaults: [
-      Key.knowledgeAutoCollapseSeconds: AppSettings.defaultKnowledgeAutoCollapseSeconds
+      Key.launchAtLoginEnabled: AppSettings.defaultLaunchAtLoginEnabled,
+      Key.knowledgeAutoCollapseSeconds: AppSettings.defaultKnowledgeAutoCollapseSeconds,
     ])
   }
 
@@ -34,10 +36,12 @@ struct SettingsStore {
     get {
       AppSettings(
         userStorageURL: userStorageURL,
+        launchAtLoginEnabled: launchAtLoginEnabled,
         knowledgeAutoCollapseSeconds: knowledgeAutoCollapseSeconds)
     }
     nonmutating set {
       userStorageURL = newValue.userStorageURL
+      launchAtLoginEnabled = newValue.launchAtLoginEnabled
       knowledgeAutoCollapseSeconds = newValue.knowledgeAutoCollapseSeconds
     }
   }
@@ -52,6 +56,15 @@ struct SettingsStore {
     }
     nonmutating set {
       defaults.set(newValue.path, forKey: Key.userStoragePath)
+    }
+  }
+
+  var launchAtLoginEnabled: Bool {
+    get {
+      defaults.bool(forKey: Key.launchAtLoginEnabled)
+    }
+    nonmutating set {
+      defaults.set(newValue, forKey: Key.launchAtLoginEnabled)
     }
   }
 

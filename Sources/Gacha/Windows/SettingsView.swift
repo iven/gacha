@@ -2,12 +2,20 @@ import SwiftUI
 
 struct SettingsView: View {
   let directories: AppDirectories
+  let launchAtLoginController: LaunchAtLoginController
   let settingsStore: SettingsStore
+  @State private var launchAtLoginEnabled: Bool
   @State private var knowledgeAutoCollapseSeconds: TimeInterval
 
-  init(directories: AppDirectories, settingsStore: SettingsStore) {
+  init(
+    directories: AppDirectories,
+    launchAtLoginController: LaunchAtLoginController,
+    settingsStore: SettingsStore
+  ) {
     self.directories = directories
+    self.launchAtLoginController = launchAtLoginController
     self.settingsStore = settingsStore
+    _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginEnabled)
     _knowledgeAutoCollapseSeconds = State(
       initialValue: settingsStore.knowledgeAutoCollapseSeconds)
   }
@@ -39,6 +47,20 @@ struct SettingsView: View {
           .lineLimit(1)
           .truncationMode(.middle)
           .textSelection(.enabled)
+      }
+
+      settingsRow(SettingsStrings.launchAtLogin) {
+        Toggle(
+          "",
+          isOn: Binding(
+            get: {
+              launchAtLoginEnabled
+            },
+            set: { newValue in
+              setLaunchAtLoginEnabled(newValue)
+            })
+        )
+        .labelsHidden()
       }
 
       settingsRow(SettingsStrings.autoCollapse) {
@@ -102,6 +124,20 @@ struct SettingsView: View {
 
       content()
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+  }
+
+  private func setLaunchAtLoginEnabled(_ enabled: Bool) {
+    launchAtLoginEnabled = enabled
+    settingsStore.launchAtLoginEnabled = enabled
+
+    do {
+      let status = try launchAtLoginController.synchronize(enabled: enabled)
+      if enabled && status == .requiresApproval {
+        launchAtLoginController.openSystemSettingsLoginItems()
+      }
+    } catch {
+      AppLogger.app.warning("Failed to synchronize launch at login: \(error.localizedDescription)")
     }
   }
 }

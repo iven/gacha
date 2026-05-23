@@ -8,6 +8,7 @@ import Testing
   let settings = AppSettings.defaults(userStorageURL: defaultUserStorageURL)
 
   #expect(settings.userStorageURL == defaultUserStorageURL)
+  #expect(settings.launchAtLoginEnabled)
   #expect(settings.knowledgeAutoCollapseSeconds == 30)
 }
 
@@ -42,6 +43,17 @@ import Testing
   #expect(reloadedStore.knowledgeAutoCollapseSeconds == 45)
 }
 
+@Test func settingsStorePersistsLaunchAtLoginEnabled() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.launchAtLoginEnabled = false
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(!reloadedStore.launchAtLoginEnabled)
+}
+
 @Test func settingsStorePersistsTypedSettings() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
@@ -49,9 +61,11 @@ import Testing
 
   store.settings = AppSettings(
     userStorageURL: userStorageURL,
+    launchAtLoginEnabled: false,
     knowledgeAutoCollapseSeconds: 60)
 
   #expect(store.settings.userStorageURL == userStorageURL)
+  #expect(!store.settings.launchAtLoginEnabled)
   #expect(store.settings.knowledgeAutoCollapseSeconds == 60)
 }
 

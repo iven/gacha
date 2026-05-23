@@ -6,13 +6,16 @@ struct AppBootstrapper {
     let settingsStore = SettingsStore(
       defaultUserStorageURL: SettingsStore.defaultUserStorageURL(fileManager: fileManager))
     let directories = AppDirectories(settingsStore: settingsStore, fileManager: fileManager)
+    let launchAtLoginController = LaunchAtLoginController()
     let windowCoordinator = WindowCoordinator(
       directories: directories,
+      launchAtLoginController: launchAtLoginController,
       settingsStore: settingsStore)
 
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
+      launchAtLoginController: launchAtLoginController,
       menuBarController: MenuBarController(
         actions: MenuBarActions(
           openNewCard: {},

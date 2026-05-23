@@ -4,11 +4,17 @@ import SwiftUI
 @MainActor
 final class WindowCoordinator: NSObject, NSWindowDelegate {
   private let directories: AppDirectories
+  private let launchAtLoginController: LaunchAtLoginController
   private let settingsStore: SettingsStore
   private var settingsWindow: NSWindow?
 
-  init(directories: AppDirectories, settingsStore: SettingsStore) {
+  init(
+    directories: AppDirectories,
+    launchAtLoginController: LaunchAtLoginController,
+    settingsStore: SettingsStore
+  ) {
     self.directories = directories
+    self.launchAtLoginController = launchAtLoginController
     self.settingsStore = settingsStore
     super.init()
   }
@@ -32,7 +38,10 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     window.collectionBehavior = [.auxiliary]
     window.delegate = self
     window.contentViewController = NSHostingController(
-      rootView: SettingsView(directories: directories, settingsStore: settingsStore))
+      rootView: SettingsView(
+        directories: directories,
+        launchAtLoginController: launchAtLoginController,
+        settingsStore: settingsStore))
     window.center()
     return window
   }

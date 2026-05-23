@@ -6,6 +6,7 @@ enum SettingsStrings {
   static let cardsTab = AppStrings.localized("settings.tab.cards")
   static let advancedTab = AppStrings.localized("settings.tab.advanced")
   static let storageLocation = AppStrings.localized("settings.overview.storageLocation")
+  static let launchAtLogin = AppStrings.localized("settings.overview.launchAtLogin")
   static let autoCollapse = AppStrings.localized("settings.overview.autoCollapse")
   static let dataDirectory = AppStrings.localized("settings.advanced.dataDirectory")
 }

@@ -9,5 +9,6 @@
 "settings.tab.cards" = "卡片";
 "settings.tab.advanced" = "高级";
 "settings.overview.storageLocation" = "存储位置";
+"settings.overview.launchAtLogin" = "登录时打开";
 "settings.overview.autoCollapse" = "自动收回";
 "settings.advanced.dataDirectory" = "数据目录";
