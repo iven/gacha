@@ -1,0 +1,52 @@
+# Meta hooks validate this configuration.
+[[repos]]
+repo = "meta"
+hooks = [
+  { id = "check-useless-excludes", always_run = true },
+]
+
+# Builtin hooks are local Rust hooks, so they are fast and do not fetch remote repositories.
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "check-added-large-files" },
+  { id = "check-case-conflict" },
+  { id = "check-executables-have-shebangs" },
+  { id = "check-json" },
+  { id = "check-merge-conflict" },
+  { id = "check-symlinks" },
+  { id = "check-toml" },
+  { id = "check-yaml" },
+  { id = "detect-private-key" },
+  { id = "end-of-file-fixer" },
+  { id = "fix-byte-order-marker" },
+  { id = "mixed-line-ending" },
+  { id = "trailing-whitespace" },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+  {
+    id = "swift-format",
+    name = "swift-format",
+    entry = "swift format format --in-place",
+    language = "system",
+    types = ["swift"],
+  },
+  {
+    id = "swiftlint",
+    name = "SwiftLint",
+    entry = "swiftlint lint --strict --config .swiftlint.yml",
+    language = "system",
+    types = ["swift"],
+  },
+  {
+    id = "swift-test",
+    name = "Swift tests",
+    entry = "swift test",
+    language = "system",
+    types = ["swift"],
+    pass_filenames = false,
+  },
+]

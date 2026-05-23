@@ -1,0 +1,18 @@
+included:
+  - Package.swift
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - .swiftpm
+
+disabled_rules:
+  - trailing_comma
+
+line_length:
+  warning: 100
+  error: 120
+  ignores_comments: true
+
+reporter: "xcode"

@@ -2,11 +2,11 @@ import SwiftUI
 
 @main
 struct GachaApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+  @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    var body: some Scene {
-        Settings {
-            EmptyView()
-        }
+  var body: some Scene {
+    Settings {
+      EmptyView()
     }
+  }
 }
