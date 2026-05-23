@@ -1,6 +1,6 @@
 import Foundation
 
-struct AppSettings: Codable, Equatable {
+struct AppSettings: Equatable {
   var knowledgeAutoCollapseSeconds: TimeInterval
 
   static let defaults = AppSettings(knowledgeAutoCollapseSeconds: 30)

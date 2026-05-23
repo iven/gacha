@@ -13,5 +13,4 @@ import Testing
   #expect(directories.userStorageURL.path == "/tmp/GachaTests/Documents")
   #expect(directories.knowledgeCardsURL.lastPathComponent == "Knowledge Cards")
   #expect(directories.defaultKnowledgeCategoryURL.lastPathComponent == "Uncategorized")
-  #expect(directories.settingsURL.lastPathComponent == "settings.json")
 }

@@ -5,7 +5,6 @@ struct AppDirectories {
   let userStorageURL: URL
   let knowledgeCardsURL: URL
   let defaultKnowledgeCategoryURL: URL
-  let settingsURL: URL
 
   init(fileManager: FileManager = .default) {
     self.init(
@@ -26,6 +25,5 @@ struct AppDirectories {
     defaultKnowledgeCategoryURL = knowledgeCardsURL.appendingPathComponent(
       AppMetadata.defaultCategoryDirectoryName,
       isDirectory: true)
-    settingsURL = applicationSupportURL.appendingPathComponent("settings.json")
   }
 }
