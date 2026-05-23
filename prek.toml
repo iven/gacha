@@ -35,6 +35,13 @@ hooks = [
     types = ["swift"],
   },
   {
+    id = "swiftlint-fix",
+    name = "SwiftLint fix",
+    entry = "swiftlint lint --fix --config .swiftlint.yml",
+    language = "system",
+    types = ["swift"],
+  },
+  {
     id = "swiftlint",
     name = "SwiftLint",
     entry = "swiftlint lint --strict --config .swiftlint.yml",

@@ -1,19 +1,22 @@
 SWIFT_FORMAT := swift format
 SWIFTLINT := swiftlint
+SWIFT_SOURCES := Package.swift Sources Tests
 
-.PHONY: format lint test check app dmg
+.PHONY: format fix lint test check app dmg
 
 format:
-	$(SWIFT_FORMAT) format --in-place --recursive Package.swift Sources Tests
+	$(SWIFT_FORMAT) format --in-place --recursive $(SWIFT_SOURCES)
+
+fix: format
+	$(SWIFTLINT) lint --fix --config .swiftlint.yml
 
 lint:
-	$(SWIFT_FORMAT) lint --recursive --strict Package.swift Sources Tests
 	$(SWIFTLINT) lint --strict --config .swiftlint.yml
 
 test:
 	swift test
 
-check: lint test
+check: fix lint test
 
 app:
 	scripts/build-app.sh
