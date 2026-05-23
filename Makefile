@@ -1,7 +1,7 @@
 SWIFT_FORMAT := swift format
 SWIFTLINT := swiftlint
 
-.PHONY: format lint test check
+.PHONY: format lint test check app dmg
 
 format:
 	$(SWIFT_FORMAT) format --in-place --recursive Package.swift Sources Tests
@@ -14,3 +14,9 @@ test:
 	swift test
 
 check: lint test
+
+app:
+	scripts/build-app.sh
+
+dmg:
+	scripts/build-dmg.sh

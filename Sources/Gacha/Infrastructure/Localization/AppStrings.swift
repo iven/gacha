@@ -4,8 +4,9 @@ enum AppStrings {
   static func localized(
     _ key: String,
     preferences: [String] = Locale.preferredLanguages,
-    bundle: Bundle = .module
+    bundle: Bundle? = nil
   ) -> String {
+    let bundle = bundle ?? defaultBundle
     let localizations =
       CFBundleCopyLocalizationsForPreferences(
         bundle.localizations as CFArray,
@@ -35,5 +36,13 @@ enum AppStrings {
 
     let value = localizedBundle.localizedString(forKey: key, value: key, table: nil)
     return value == key ? nil : value
+  }
+
+  private static var defaultBundle: Bundle {
+    if Bundle.main.bundleURL.pathExtension == "app" {
+      return .main
+    }
+
+    return .module
   }
 }
