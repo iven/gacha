@@ -3,6 +3,7 @@ import Yams
 
 enum MemoryCardFileRepositoryError: Error, Equatable {
   case invalidCategoryName(String)
+  case categoryAlreadyExists(String)
   case invalidCardID(String)
   case missingFrontMatter(URL)
 }
@@ -68,6 +69,18 @@ final class MemoryCardFileRepository {
       to: fileURL(for: card),
       atomically: true,
       encoding: .utf8)
+  }
+
+  func createDirectory(name: String) throws {
+    try validateCategoryName(name)
+    try prepareStorage()
+
+    let categoryURL = directories.memoryURL.appendingPathComponent(name, isDirectory: true)
+    if fileManager.fileExists(atPath: categoryURL.path) {
+      throw MemoryCardFileRepositoryError.categoryAlreadyExists(name)
+    }
+
+    try fileManager.createDirectory(at: categoryURL, withIntermediateDirectories: true)
   }
 
   func delete(id: String, directory: String) throws {
@@ -184,16 +197,18 @@ extension MemoryCardFileRepository {
     return content.index(after: bodyStart)
   }
 
+  static func isValidCategoryName(_ name: String) -> Bool {
+    !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      && name.count <= 100
+      && !name.hasPrefix(".")
+      && !name.hasPrefix("_")
+      && !name.contains("/")
+      && !name.contains(":")
+      && !name.contains("\\")
+  }
+
   private func validateCategoryName(_ name: String) throws {
-    guard
-      !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-      name.count <= 100,
-      !name.hasPrefix("."),
-      !name.hasPrefix("_"),
-      !name.contains("/"),
-      !name.contains(":"),
-      !name.contains("\\")
-    else {
+    guard Self.isValidCategoryName(name) else {
       throw MemoryCardFileRepositoryError.invalidCategoryName(name)
     }
   }

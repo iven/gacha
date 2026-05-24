@@ -33,6 +33,10 @@ final class MemoryCardRepository {
     try fileRepository.prepareStorage()
   }
 
+  func createDirectory(name: String) throws {
+    try fileRepository.createDirectory(name: name)
+  }
+
   func create(
     body: String,
     directory: String = AppMetadata.defaultCategoryDirectoryName

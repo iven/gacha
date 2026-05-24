@@ -8,6 +8,14 @@
 "cards.toolbar.newCategory" = "新建分类";
 "cards.toolbar.newCard" = "新建卡片";
 "cards.toolbar.deleteCard" = "删除卡片";
+"cards.newCategory.title" = "新建分类";
+"cards.newCategory.message" = "为新分类输入一个名称。";
+"cards.newCategory.defaultName" = "新建分类";
+"cards.newCategory.create" = "创建";
+"cards.newCategory.cancel" = "取消";
+"cards.newCategory.error.empty" = "分类名称不能为空。";
+"cards.newCategory.error.invalid" = "“%@”不是有效的分类名称。";
+"cards.newCategory.error.exists" = "已经存在名为“%@”的分类。";
 "cards.delete.confirmationTitle" = "删除“%@”？";
 "cards.delete.confirmationMessage" = "这张卡片会被永久删除。";
 "cards.delete.confirmationCancel" = "取消";

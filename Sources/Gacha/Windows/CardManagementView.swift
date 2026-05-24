@@ -92,6 +92,17 @@ final class CardManagementSplitViewController: NSSplitViewController {
     }
   }
 
+  func selectCategory(named directory: String) {
+    saveDraft()
+    selectedDirectory = directory
+    selectedCardID = nil
+    reloadData()
+  }
+
+  var existingCategoryDirectories: [String] {
+    categories.map(\.directory)
+  }
+
   var selectedCard: MemoryCard? {
     guard let selectedCardID else {
       return nil

@@ -117,6 +117,34 @@ import Testing
   #expect(try fixture.repository.list().isEmpty)
 }
 
+@Test func memoryCardRepositoryCreatesCategoryDirectory() throws {
+  let fixture = makeRepositoryFixture()
+
+  try fixture.repository.createDirectory(name: "Product")
+
+  let categoryURL = fixture.directories.memoryURL
+    .appendingPathComponent("Product", isDirectory: true)
+  #expect(fixture.fileManager.fileExists(atPath: categoryURL.path))
+  #expect(try fixture.repository.listDirectories().contains("Product"))
+}
+
+@Test func memoryCardRepositoryRejectsDuplicateCategoryDirectory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.createDirectory(name: "Product")
+
+  #expect(throws: MemoryCardFileRepositoryError.categoryAlreadyExists("Product")) {
+    try fixture.repository.createDirectory(name: "Product")
+  }
+}
+
+@Test func memoryCardRepositoryRejectsInvalidNewCategoryNames() throws {
+  let fixture = makeRepositoryFixture()
+
+  #expect(throws: MemoryCardFileRepositoryError.invalidCategoryName("bad/name")) {
+    try fixture.repository.createDirectory(name: "bad/name")
+  }
+}
+
 @Test func memoryCardRepositoryRejectsInvalidCategoryNames() throws {
   let fixture = makeRepositoryFixture()
 

@@ -8,6 +8,14 @@
 "cards.toolbar.newCategory" = "New Category";
 "cards.toolbar.newCard" = "New Card";
 "cards.toolbar.deleteCard" = "Delete Card";
+"cards.newCategory.title" = "New Category";
+"cards.newCategory.message" = "Choose a name for the new category.";
+"cards.newCategory.defaultName" = "New Category";
+"cards.newCategory.create" = "Create";
+"cards.newCategory.cancel" = "Cancel";
+"cards.newCategory.error.empty" = "The category name cannot be empty.";
+"cards.newCategory.error.invalid" = "“%@” is not a valid category name.";
+"cards.newCategory.error.exists" = "A category named “%@” already exists.";
 "cards.delete.confirmationTitle" = "Delete “%@”?";
 "cards.delete.confirmationMessage" = "This card will be permanently deleted.";
 "cards.delete.confirmationCancel" = "Cancel";

@@ -197,7 +197,30 @@ extension WindowCoordinator: NSToolbarDelegate {
     return item
   }
 
-  @objc private func createCategory() {}
+  @objc private func createCategory() {
+    guard let viewController = cardManagementViewController else {
+      return
+    }
+
+    let existing = Set(viewController.existingCategoryDirectories)
+    let sheet = CardCategoryNameSheetController.makeNewCategorySheet(
+      validate: { name in
+        validateNewCategoryName(name, existing: existing)
+      },
+      onCreate: { [weak self, weak viewController] name in
+        guard let self, let viewController else {
+          return
+        }
+
+        do {
+          try memoryCardRepository.createDirectory(name: name)
+          viewController.selectCategory(named: name)
+        } catch {
+          AppLogger.app.error("Failed to create category: \(error)")
+        }
+      })
+    viewController.presentAsSheet(sheet)
+  }
 
   @objc private func createCard() {
     cardManagementViewController?.createCard()
@@ -251,6 +274,28 @@ extension WindowCoordinator: NSToolbarItemValidation {
       return true
     }
   }
+}
+
+@MainActor
+func validateNewCategoryName(
+  _ name: String,
+  existing: Set<String>
+) -> CardCategoryNameSheetController.ValidationResult {
+  if name.isEmpty {
+    return .invalid(CardManagementStrings.newCategoryErrorEmpty)
+  }
+
+  if !MemoryCardFileRepository.isValidCategoryName(name) {
+    return .invalid(
+      String.localizedStringWithFormat(CardManagementStrings.newCategoryErrorInvalid, name))
+  }
+
+  if existing.contains(name) || name == AppMetadata.defaultCategoryDirectoryName {
+    return .invalid(
+      String.localizedStringWithFormat(CardManagementStrings.newCategoryErrorExists, name))
+  }
+
+  return .valid
 }
 
 extension NSToolbar.Identifier {
