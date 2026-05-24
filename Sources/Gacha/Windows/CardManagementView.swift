@@ -1,6 +1,8 @@
 import AppKit
 
 final class CardManagementSplitViewController: NSSplitViewController {
+  var onSelectedCardAvailabilityChange: (() -> Void)?
+
   private let memoryCardRepository: MemoryCardRepository
   private let categoryViewController = CardCategorySidebarViewController()
   private let mainViewController = CardMainViewController()
@@ -72,6 +74,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
         [fallback], selectedDirectory: selectedDirectory)
       _ = mainViewController.setCards([], selectedCardID: nil)
       updateWindowSummary()
+      notifySelectedCardAvailability()
     }
   }
 
@@ -86,6 +89,28 @@ final class CardManagementSplitViewController: NSSplitViewController {
       mainViewController.focusEditor()
     } catch {
       AppLogger.app.error("Failed to create memory card: \(error)")
+    }
+  }
+
+  var selectedCard: MemoryCard? {
+    guard let selectedCardID else {
+      return nil
+    }
+
+    return cards.first { $0.id == selectedCardID }
+  }
+
+  func delete(card: MemoryCard) {
+    cancelScheduledSave()
+    do {
+      try memoryCardRepository.delete(id: card.id, directory: card.directory)
+      if selectedCardID == card.id {
+        selectedCardID = nil
+      }
+      clearDraft()
+      reloadData()
+    } catch {
+      AppLogger.app.error("Failed to delete memory card: \(error)")
     }
   }
 
@@ -124,6 +149,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
     saveDraft()
     selectedCardID = card?.id
     setDraft(card: card)
+    notifySelectedCardAvailability()
   }
 
   private func makeCategoryItems(cards: [MemoryCard]) throws -> [CardCategoryItem] {
@@ -140,6 +166,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
     selectedCardID = selectedCard?.id
     setDraft(card: selectedCard)
     updateWindowSummary()
+    notifySelectedCardAvailability()
   }
 
   private func cardBodyDidChange(_ body: String) {
@@ -154,18 +181,12 @@ final class CardManagementSplitViewController: NSSplitViewController {
   }
 
   private func scheduleSave() {
-    NSObject.cancelPreviousPerformRequests(
-      withTarget: self,
-      selector: #selector(saveDraftAfterDelay),
-      object: nil)
+    cancelScheduledSave()
     perform(#selector(saveDraftAfterDelay), with: nil, afterDelay: 0.6)
   }
 
   private func saveDraft() {
-    NSObject.cancelPreviousPerformRequests(
-      withTarget: self,
-      selector: #selector(saveDraftAfterDelay),
-      object: nil)
+    cancelScheduledSave()
 
     guard let draft,
       var card = cards.first(where: { $0.id == draft.id }),
@@ -218,6 +239,17 @@ final class CardManagementSplitViewController: NSSplitViewController {
 
   private func clearDraft() {
     draft = nil
+  }
+
+  private func cancelScheduledSave() {
+    NSObject.cancelPreviousPerformRequests(
+      withTarget: self,
+      selector: #selector(saveDraftAfterDelay),
+      object: nil)
+  }
+
+  private func notifySelectedCardAvailability() {
+    onSelectedCardAvailabilityChange?()
   }
 
   private func updateWindowSummary() {

@@ -8,6 +8,10 @@
 "cards.toolbar.newCategory" = "New Category";
 "cards.toolbar.newCard" = "New Card";
 "cards.toolbar.deleteCard" = "Delete Card";
+"cards.delete.confirmationTitle" = "Delete “%@”?";
+"cards.delete.confirmationMessage" = "This card will be permanently deleted.";
+"cards.delete.confirmationCancel" = "Cancel";
+"cards.delete.confirmationDelete" = "Delete Card";
 "cards.sidebar.title" = "Knowledge Cards";
 "cards.column.categories" = "Categories";
 "cards.column.cards" = "Cards";

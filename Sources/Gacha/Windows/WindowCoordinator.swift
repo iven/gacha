@@ -59,6 +59,9 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     window.delegate = self
     let contentViewController = CardManagementSplitViewController(
       memoryCardRepository: memoryCardRepository)
+    contentViewController.onSelectedCardAvailabilityChange = { [weak window] in
+      window?.toolbar?.validateVisibleItems()
+    }
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)
@@ -200,7 +203,54 @@ extension WindowCoordinator: NSToolbarDelegate {
     cardManagementViewController?.createCard()
   }
 
-  @objc private func deleteCard() {}
+  @objc private func deleteCard() {
+    guard let viewController = cardManagementViewController,
+      let card = viewController.selectedCard,
+      let window = viewController.view.window
+    else {
+      return
+    }
+
+    confirmCardDeletion(card: card, for: window) { [weak viewController] in
+      viewController?.delete(card: card)
+    }
+  }
+
+  private func confirmCardDeletion(
+    card: MemoryCard,
+    for window: NSWindow,
+    confirmed: @escaping () -> Void
+  ) {
+    let alert = NSAlert()
+    alert.alertStyle = .warning
+    alert.messageText = String.localizedStringWithFormat(
+      CardManagementStrings.deleteCardConfirmationTitle,
+      CardListItem(card: card).displayTitle)
+    alert.informativeText = CardManagementStrings.deleteCardConfirmationMessage
+    let deleteButton = alert.addButton(
+      withTitle: CardManagementStrings.deleteCardConfirmationDelete)
+    deleteButton.hasDestructiveAction = true
+    alert.addButton(withTitle: CardManagementStrings.deleteCardConfirmationCancel)
+
+    alert.beginSheetModal(for: window) { response in
+      guard response == .alertFirstButtonReturn else {
+        return
+      }
+
+      confirmed()
+    }
+  }
+}
+
+extension WindowCoordinator: NSToolbarItemValidation {
+  func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
+    switch item.itemIdentifier {
+    case .deleteCard:
+      return cardManagementViewController?.selectedCard != nil
+    default:
+      return true
+    }
+  }
 }
 
 extension NSToolbar.Identifier {

@@ -5,6 +5,14 @@ enum CardManagementStrings {
   static let newCategory = AppStrings.localized("cards.toolbar.newCategory")
   static let newCard = AppStrings.localized("cards.toolbar.newCard")
   static let deleteCard = AppStrings.localized("cards.toolbar.deleteCard")
+  static let deleteCardConfirmationTitle = AppStrings.localized(
+    "cards.delete.confirmationTitle")
+  static let deleteCardConfirmationMessage = AppStrings.localized(
+    "cards.delete.confirmationMessage")
+  static let deleteCardConfirmationCancel = AppStrings.localized(
+    "cards.delete.confirmationCancel")
+  static let deleteCardConfirmationDelete = AppStrings.localized(
+    "cards.delete.confirmationDelete")
   static let sidebarTitle = AppStrings.localized("cards.sidebar.title")
   static let categoriesColumn = AppStrings.localized("cards.column.categories")
   static let cardsColumn = AppStrings.localized("cards.column.cards")
