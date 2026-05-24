@@ -3,6 +3,7 @@ import AppKit
 final class CardCategorySidebarViewController: NSViewController {
   var onSelectionChange: ((String) -> Void)?
   var onRenameCategory: ((CardCategoryItem) -> Void)?
+  var onDeleteCategory: ((CardCategoryItem) -> Void)?
 
   private let tableView = NSTableView()
   private var categories: [CardCategoryItem] = []
@@ -52,23 +53,42 @@ final class CardCategorySidebarViewController: NSViewController {
   private func makeContextMenu() -> NSMenu {
     let menu = NSMenu()
     menu.delegate = self
-    menu.addItem(
-      NSMenuItem(
-        title: CardManagementStrings.renameCategoryMenuItem,
-        action: #selector(renameClickedCategory),
-        keyEquivalent: ""))
+    let renameItem = NSMenuItem(
+      title: CardManagementStrings.renameCategoryMenuItem,
+      action: #selector(renameClickedCategory),
+      keyEquivalent: "")
+    renameItem.image = NSImage(
+      systemSymbolName: "pencil",
+      accessibilityDescription: CardManagementStrings.renameCategoryMenuItem)
+    menu.addItem(renameItem)
+    let deleteItem = NSMenuItem(
+      title: CardManagementStrings.deleteCategoryMenuItem,
+      action: #selector(deleteClickedCategory),
+      keyEquivalent: "")
+    deleteItem.image = NSImage(
+      systemSymbolName: "trash",
+      accessibilityDescription: CardManagementStrings.deleteCategoryMenuItem)
+    menu.addItem(deleteItem)
     return menu
   }
 
   @objc private func renameClickedCategory() {
-    guard let category = clickedRenamableCategory() else {
+    guard let category = clickedUserCategory() else {
       return
     }
 
     onRenameCategory?(category)
   }
 
-  private func clickedRenamableCategory() -> CardCategoryItem? {
+  @objc private func deleteClickedCategory() {
+    guard let category = clickedUserCategory() else {
+      return
+    }
+
+    onDeleteCategory?(category)
+  }
+
+  private func clickedUserCategory() -> CardCategoryItem? {
     let row = tableView.clickedRow
     guard categories.indices.contains(row) else {
       return nil
@@ -101,8 +121,8 @@ final class CardCategorySidebarViewController: NSViewController {
 
 extension CardCategorySidebarViewController: NSMenuDelegate {
   func menuNeedsUpdate(_ menu: NSMenu) {
-    let isRenamable = clickedRenamableCategory() != nil
-    menu.items.forEach { $0.isHidden = !isRenamable }
+    let isUserCategory = clickedUserCategory() != nil
+    menu.items.forEach { $0.isHidden = !isUserCategory }
   }
 }
 

@@ -118,6 +118,24 @@ import Testing
   #expect(try repository.list(directory: "Product").isEmpty)
 }
 
+@Test func memoryCardRepositoryDeletesCategoryAndItsCards() throws {
+  let fixture = makeMemoryCardRepositoryFixture()
+  let repository = try fixture.repository()
+
+  _ = try repository.create(body: "first\n\nbody", directory: "Product")
+  _ = try repository.create(body: "second\n\nbody", directory: "Product")
+  _ = try repository.create(body: "kept\n\nbody", directory: "Strategy")
+
+  try repository.deleteDirectory(name: "Product")
+
+  let categoryURL = fixture.directories.memoryURL
+    .appendingPathComponent("Product", isDirectory: true)
+  #expect(!fixture.fileManager.fileExists(atPath: categoryURL.path))
+  #expect(try repository.list(directory: "Product").isEmpty)
+  #expect(try repository.list(directory: "Strategy").map(\.displayTitle) == ["kept"])
+  #expect(try repository.count() == 1)
+}
+
 @Test func memoryCardRepositoryRebuildsIndexFromFiles() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()

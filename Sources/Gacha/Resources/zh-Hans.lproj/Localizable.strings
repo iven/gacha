@@ -19,7 +19,12 @@
 "cards.renameCategory.title" = "重命名分类";
 "cards.renameCategory.message" = "为这个分类输入新的名称。";
 "cards.renameCategory.confirm" = "重命名";
-"cards.category.menu.rename" = "重命名";
+"cards.category.menu.rename" = "重命名分类";
+"cards.category.menu.delete" = "删除分类";
+"cards.deleteCategory.confirmationTitle" = "删除“%@”？";
+"cards.deleteCategory.confirmationMessageFormat" = "这个分类及其中的 %d 张卡片会被永久删除。";
+"cards.deleteCategory.confirmationCancel" = "取消";
+"cards.deleteCategory.confirmationDelete" = "删除分类";
 "cards.delete.confirmationTitle" = "删除“%@”？";
 "cards.delete.confirmationMessage" = "这张卡片会被永久删除。";
 "cards.delete.confirmationCancel" = "取消";

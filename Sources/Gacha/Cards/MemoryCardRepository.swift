@@ -42,6 +42,11 @@ final class MemoryCardRepository {
     try indexStore.renameDirectory(from: oldName, to: newName)
   }
 
+  func deleteDirectory(name: String) throws {
+    try fileRepository.deleteDirectory(name: name)
+    try indexStore.deleteDirectory(name: name)
+  }
+
   func create(
     body: String,
     directory: String = AppMetadata.defaultCategoryDirectoryName

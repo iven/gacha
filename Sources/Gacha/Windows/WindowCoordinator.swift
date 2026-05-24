@@ -65,6 +65,9 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     contentViewController.onRenameCategory = { [weak self] category in
       self?.renameCategory(category)
     }
+    contentViewController.onDeleteCategory = { [weak self] category in
+      self?.deleteCategory(category)
+    }
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)
@@ -270,6 +273,47 @@ extension WindowCoordinator: NSToolbarDelegate {
     }
   }
 
+  fileprivate func deleteCategory(_ category: CardCategoryItem) {
+    guard let viewController = cardManagementViewController,
+      let window = viewController.view.window
+    else {
+      return
+    }
+
+    confirmCategoryDeletion(category: category, for: window) { [weak viewController] in
+      viewController?.deleteCategory(named: category.directory)
+    }
+  }
+
+  private func confirmCategoryDeletion(
+    category: CardCategoryItem,
+    for window: NSWindow,
+    confirmed: @escaping () -> Void
+  ) {
+    let alert = NSAlert()
+    alert.alertStyle = .warning
+    alert.messageText = String.localizedStringWithFormat(
+      CardManagementStrings.deleteCategoryConfirmationTitle,
+      category.displayName)
+    alert.informativeText = String.localizedStringWithFormat(
+      CardManagementStrings.deleteCategoryConfirmationMessageFormat,
+      category.cardCount)
+    let deleteButton = alert.addButton(
+      withTitle: CardManagementStrings.deleteCategoryConfirmationDelete)
+    deleteButton.hasDestructiveAction = true
+    let cancelButton = alert.addButton(
+      withTitle: CardManagementStrings.deleteCategoryConfirmationCancel)
+    cancelButton.keyEquivalent = "\u{1b}"
+
+    alert.beginSheetModal(for: window) { response in
+      guard response == .alertFirstButtonReturn else {
+        return
+      }
+
+      confirmed()
+    }
+  }
+
   private func confirmCardDeletion(
     card: MemoryCard,
     for window: NSWindow,
@@ -284,7 +328,9 @@ extension WindowCoordinator: NSToolbarDelegate {
     let deleteButton = alert.addButton(
       withTitle: CardManagementStrings.deleteCardConfirmationDelete)
     deleteButton.hasDestructiveAction = true
-    alert.addButton(withTitle: CardManagementStrings.deleteCardConfirmationCancel)
+    let cancelButton = alert.addButton(
+      withTitle: CardManagementStrings.deleteCardConfirmationCancel)
+    cancelButton.keyEquivalent = "\u{1b}"
 
     alert.beginSheetModal(for: window) { response in
       guard response == .alertFirstButtonReturn else {

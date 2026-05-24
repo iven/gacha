@@ -55,6 +55,14 @@ final class MemoryCardIndexStore {
     }
   }
 
+  func deleteDirectory(name: String) throws {
+    try dbQueue.write { database in
+      try database.execute(
+        sql: "DELETE FROM memory_cards WHERE directory = ?",
+        arguments: [name])
+    }
+  }
+
   func renameDirectory(from oldName: String, to newName: String) throws {
     try dbQueue.write { database in
       let rows = try Row.fetchAll(

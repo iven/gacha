@@ -3,6 +3,7 @@ import AppKit
 final class CardManagementSplitViewController: NSSplitViewController {
   var onSelectedCardAvailabilityChange: (() -> Void)?
   var onRenameCategory: ((CardCategoryItem) -> Void)?
+  var onDeleteCategory: ((CardCategoryItem) -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
   private let categoryViewController = CardCategorySidebarViewController()
@@ -28,6 +29,9 @@ final class CardManagementSplitViewController: NSSplitViewController {
     }
     categoryViewController.onRenameCategory = { [weak self] category in
       self?.onRenameCategory?(category)
+    }
+    categoryViewController.onDeleteCategory = { [weak self] category in
+      self?.onDeleteCategory?(category)
     }
     mainViewController.onCardSelectionChange = { [weak self] card in
       self?.selectCard(card)
@@ -277,6 +281,23 @@ final class CardManagementSplitViewController: NSSplitViewController {
     view.window?.subtitle = String(
       format: CardManagementStrings.cardCountSubtitleFormat,
       selectedCategory.cardCount)
+  }
+}
+
+extension CardManagementSplitViewController {
+  func deleteCategory(named directory: String) {
+    cancelScheduledSave()
+    do {
+      try memoryCardRepository.deleteDirectory(name: directory)
+      if selectedDirectory == directory {
+        selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+      }
+      selectedCardID = nil
+      clearDraft()
+      reloadData()
+    } catch {
+      AppLogger.app.error("Failed to delete category: \(error)")
+    }
   }
 }
 

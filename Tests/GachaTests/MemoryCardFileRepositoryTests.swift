@@ -183,6 +183,42 @@ import Testing
   }
 }
 
+@Test func memoryCardRepositoryDeletesCategoryDirectory() throws {
+  let fixture = makeRepositoryFixture()
+  _ = try fixture.repository.create(body: "x", directory: "Product")
+
+  try fixture.repository.deleteDirectory(name: "Product")
+
+  let categoryURL = fixture.directories.memoryURL
+    .appendingPathComponent("Product", isDirectory: true)
+  #expect(!fixture.fileManager.fileExists(atPath: categoryURL.path))
+  #expect(
+    try fixture.repository.listDirectories().sorted() == [
+      AppMetadata.defaultCategoryDirectoryName
+    ])
+}
+
+@Test func memoryCardRepositoryRejectsDeletingDefaultCategory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.prepareStorage()
+
+  #expect(
+    throws: MemoryCardFileRepositoryError.categoryNotDeletable(
+      AppMetadata.defaultCategoryDirectoryName)
+  ) {
+    try fixture.repository.deleteDirectory(name: AppMetadata.defaultCategoryDirectoryName)
+  }
+}
+
+@Test func memoryCardRepositoryRejectsDeletingMissingCategory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.prepareStorage()
+
+  #expect(throws: MemoryCardFileRepositoryError.categoryNotFound("Missing")) {
+    try fixture.repository.deleteDirectory(name: "Missing")
+  }
+}
+
 @Test func memoryCardRepositoryRejectsRenameOfMissingCategory() throws {
   let fixture = makeRepositoryFixture()
   try fixture.repository.prepareStorage()

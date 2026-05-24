@@ -17,6 +17,15 @@ enum CardManagementStrings {
   static let renameCategorySheetMessage = AppStrings.localized("cards.renameCategory.message")
   static let renameCategoryConfirm = AppStrings.localized("cards.renameCategory.confirm")
   static let renameCategoryMenuItem = AppStrings.localized("cards.category.menu.rename")
+  static let deleteCategoryMenuItem = AppStrings.localized("cards.category.menu.delete")
+  static let deleteCategoryConfirmationTitle = AppStrings.localized(
+    "cards.deleteCategory.confirmationTitle")
+  static let deleteCategoryConfirmationMessageFormat = AppStrings.localized(
+    "cards.deleteCategory.confirmationMessageFormat")
+  static let deleteCategoryConfirmationCancel = AppStrings.localized(
+    "cards.deleteCategory.confirmationCancel")
+  static let deleteCategoryConfirmationDelete = AppStrings.localized(
+    "cards.deleteCategory.confirmationDelete")
   static let deleteCardConfirmationTitle = AppStrings.localized(
     "cards.delete.confirmationTitle")
   static let deleteCardConfirmationMessage = AppStrings.localized(

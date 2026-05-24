@@ -48,6 +48,7 @@ final class CardCategoryNameSheetController: NSViewController {
 
   private let nameField = NSTextField()
   private let errorField = NSTextField(labelWithString: "")
+  private let buttonSeparator = NSBox()
   private var submitButton: NSButton?
 
   init(
@@ -89,7 +90,10 @@ final class CardCategoryNameSheetController: NSViewController {
       cancelButton: cancelButton,
       submitButton: submitButton)
 
-    [titleField, messageField, nameField, errorField, cancelButton, submitButton].forEach {
+    [
+      titleField, messageField, nameField, errorField, buttonSeparator, cancelButton,
+      submitButton,
+    ].forEach {
       $0.translatesAutoresizingMaskIntoConstraints = false
       rootView.addSubview($0)
     }
@@ -126,6 +130,7 @@ final class CardCategoryNameSheetController: NSViewController {
     submitButton.bezelStyle = .rounded
     submitButton.keyEquivalent = "\r"
     self.submitButton = submitButton
+    buttonSeparator.boxType = .separator
   }
 
   private func activateLayoutConstraints(
@@ -148,12 +153,18 @@ final class CardCategoryNameSheetController: NSViewController {
       nameField.leadingAnchor.constraint(equalTo: titleField.leadingAnchor),
       nameField.trailingAnchor.constraint(equalTo: titleField.trailingAnchor),
 
-      errorField.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: 6),
-      errorField.leadingAnchor.constraint(equalTo: titleField.leadingAnchor),
-      errorField.trailingAnchor.constraint(equalTo: titleField.trailingAnchor),
+      buttonSeparator.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: 14),
+      buttonSeparator.leadingAnchor.constraint(equalTo: titleField.leadingAnchor),
+      buttonSeparator.trailingAnchor.constraint(equalTo: titleField.trailingAnchor),
+      buttonSeparator.heightAnchor.constraint(equalToConstant: 1),
 
-      submitButton.topAnchor.constraint(
-        greaterThanOrEqualTo: errorField.bottomAnchor, constant: 14),
+      errorField.topAnchor.constraint(equalTo: buttonSeparator.bottomAnchor, constant: 12),
+      errorField.leadingAnchor.constraint(equalTo: titleField.leadingAnchor),
+      errorField.trailingAnchor.constraint(
+        lessThanOrEqualTo: submitButton.leadingAnchor, constant: -12),
+      errorField.centerYAnchor.constraint(equalTo: submitButton.centerYAnchor),
+
+      submitButton.topAnchor.constraint(equalTo: buttonSeparator.bottomAnchor, constant: 12),
       submitButton.trailingAnchor.constraint(equalTo: titleField.trailingAnchor),
       submitButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -20),
       submitButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 88),
