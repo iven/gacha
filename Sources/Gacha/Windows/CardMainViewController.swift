@@ -4,6 +4,7 @@ final class CardMainViewController: NSViewController {
   var onCardSelectionChange: ((MemoryCard?) -> Void)?
   var onCardBodyChange: ((String) -> Void)?
   var onEmptyStateClick: (() -> Void)?
+  var onDeleteCard: ((MemoryCard) -> Void)?
 
   private let splitViewController = NSSplitViewController()
   private let cardListViewController = CardListColumnViewController()
@@ -16,6 +17,9 @@ final class CardMainViewController: NSViewController {
     cardListViewController.onSelectionChange = { [weak self] card in
       self?.editorPreviewViewController.show(card: card)
       self?.onCardSelectionChange?(card)
+    }
+    cardListViewController.onDeleteCard = { [weak self] card in
+      self?.onDeleteCard?(card)
     }
     editorPreviewViewController.onBodyChange = { [weak self] body in
       self?.onCardBodyChange?(body)

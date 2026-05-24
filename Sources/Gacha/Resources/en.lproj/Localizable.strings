@@ -25,6 +25,7 @@
 "cards.deleteCategory.confirmationMessageFormat" = "This category and its %d card(s) will be permanently deleted.";
 "cards.deleteCategory.confirmationCancel" = "Cancel";
 "cards.deleteCategory.confirmationDelete" = "Delete Category";
+"cards.card.menu.delete" = "Delete Card";
 "cards.delete.confirmationTitle" = "Delete “%@”?";
 "cards.delete.confirmationMessage" = "This card will be permanently deleted.";
 "cards.delete.confirmationCancel" = "Cancel";

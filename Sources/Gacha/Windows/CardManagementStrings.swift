@@ -26,6 +26,7 @@ enum CardManagementStrings {
     "cards.deleteCategory.confirmationCancel")
   static let deleteCategoryConfirmationDelete = AppStrings.localized(
     "cards.deleteCategory.confirmationDelete")
+  static let deleteCardMenuItem = AppStrings.localized("cards.card.menu.delete")
   static let deleteCardConfirmationTitle = AppStrings.localized(
     "cards.delete.confirmationTitle")
   static let deleteCardConfirmationMessage = AppStrings.localized(

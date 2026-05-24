@@ -2,6 +2,7 @@ import AppKit
 
 final class CardListColumnViewController: NSViewController {
   var onSelectionChange: ((MemoryCard?) -> Void)?
+  var onDeleteCard: ((MemoryCard) -> Void)?
 
   private let tableView = NSTableView()
   private let emptyStateView = CardListEmptyStateView()
@@ -25,6 +26,7 @@ final class CardListColumnViewController: NSViewController {
     tableView.allowsEmptySelection = true
     tableView.dataSource = self
     tableView.delegate = self
+    tableView.menu = makeContextMenu()
 
     scrollView.documentView = tableView
     emptyStateView.title = CardManagementStrings.emptyCategory
@@ -75,12 +77,50 @@ final class CardListColumnViewController: NSViewController {
     return selectedCard
   }
 
+  private func makeContextMenu() -> NSMenu {
+    let menu = NSMenu()
+    menu.delegate = self
+    let deleteItem = NSMenuItem(
+      title: CardManagementStrings.deleteCardMenuItem,
+      action: #selector(deleteClickedCard),
+      keyEquivalent: "")
+    deleteItem.image = NSImage(
+      systemSymbolName: "trash",
+      accessibilityDescription: CardManagementStrings.deleteCardMenuItem)
+    menu.addItem(deleteItem)
+    return menu
+  }
+
+  @objc private func deleteClickedCard() {
+    guard let card = clickedCard() else {
+      return
+    }
+
+    onDeleteCard?(card)
+  }
+
+  private func clickedCard() -> MemoryCard? {
+    let row = tableView.clickedRow
+    guard cards.indices.contains(row) else {
+      return nil
+    }
+
+    return cards[row]
+  }
+
   private func selectedCard(in cards: [MemoryCard], selectedCardID: String?) -> MemoryCard? {
     guard let selectedCardID else {
       return cards.first
     }
 
     return cards.first { $0.id == selectedCardID } ?? cards.first
+  }
+}
+
+extension CardListColumnViewController: NSMenuDelegate {
+  func menuNeedsUpdate(_ menu: NSMenu) {
+    let isCard = clickedCard() != nil
+    menu.items.forEach { $0.isHidden = !isCard }
   }
 }
 

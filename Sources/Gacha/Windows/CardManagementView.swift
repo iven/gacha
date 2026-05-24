@@ -4,6 +4,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
   var onSelectedCardAvailabilityChange: (() -> Void)?
   var onRenameCategory: ((CardCategoryItem) -> Void)?
   var onDeleteCategory: ((CardCategoryItem) -> Void)?
+  var onDeleteCard: ((MemoryCard) -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
   private let categoryViewController = CardCategorySidebarViewController()
@@ -41,6 +42,9 @@ final class CardManagementSplitViewController: NSSplitViewController {
     }
     mainViewController.onEmptyStateClick = { [weak self] in
       self?.createCard()
+    }
+    mainViewController.onDeleteCard = { [weak self] card in
+      self?.onDeleteCard?(card)
     }
   }
 

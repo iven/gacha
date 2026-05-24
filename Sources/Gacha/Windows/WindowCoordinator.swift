@@ -68,6 +68,9 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     contentViewController.onDeleteCategory = { [weak self] category in
       self?.deleteCategory(category)
     }
+    contentViewController.onDeleteCard = { [weak self] card in
+      self?.requestDelete(card: card)
+    }
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)
@@ -261,8 +264,15 @@ extension WindowCoordinator: NSToolbarDelegate {
   }
 
   @objc private func deleteCard() {
+    guard let card = cardManagementViewController?.selectedCard else {
+      return
+    }
+
+    requestDelete(card: card)
+  }
+
+  fileprivate func requestDelete(card: MemoryCard) {
     guard let viewController = cardManagementViewController,
-      let card = viewController.selectedCard,
       let window = viewController.view.window
     else {
       return
