@@ -17,12 +17,12 @@ final class MemoryCardIndexStore {
       try database.execute(
         sql: """
           INSERT INTO memory_cards (
-            id, title, body, file_path, directory,
-            due, stability, difficulty, last_seen, created_at
+            id, display_title, body, file_path, directory,
+            due, stability, difficulty, last_seen, created_at, updated_at
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(id) DO UPDATE SET
-            title = excluded.title,
+            display_title = excluded.display_title,
             body = excluded.body,
             file_path = excluded.file_path,
             directory = excluded.directory,
@@ -30,11 +30,12 @@ final class MemoryCardIndexStore {
             stability = excluded.stability,
             difficulty = excluded.difficulty,
             last_seen = excluded.last_seen,
-            created_at = excluded.created_at
+            created_at = excluded.created_at,
+            updated_at = excluded.updated_at
           """,
         arguments: [
           card.id,
-          card.title,
+          card.displayTitle,
           card.body,
           filePath,
           card.directory,
@@ -43,6 +44,7 @@ final class MemoryCardIndexStore {
           card.difficulty,
           card.lastSeen.map(formatDate),
           formatDate(card.createdAt),
+          formatDate(card.updatedAt),
         ])
     }
   }
@@ -72,13 +74,13 @@ final class MemoryCardIndexStore {
           sql: """
             SELECT * FROM memory_cards
             WHERE directory = ?
-            ORDER BY created_at ASC, id ASC
+            ORDER BY updated_at DESC, id DESC
             """,
           arguments: [directory])
       } else {
         rows = try Row.fetchAll(
           database,
-          sql: "SELECT * FROM memory_cards ORDER BY created_at ASC, id ASC")
+          sql: "SELECT * FROM memory_cards ORDER BY updated_at DESC, id DESC")
       }
 
       return rows.map(memoryCard)
@@ -99,14 +101,14 @@ final class MemoryCardIndexStore {
         try database.execute(
           sql: """
             INSERT INTO memory_cards (
-              id, title, body, file_path, directory,
-              due, stability, difficulty, last_seen, created_at
+              id, display_title, body, file_path, directory,
+              due, stability, difficulty, last_seen, created_at, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
           arguments: [
             card.id,
-            card.title,
+            card.displayTitle,
             card.body,
             card.relativeFilePath,
             card.directory,
@@ -115,6 +117,7 @@ final class MemoryCardIndexStore {
             card.difficulty,
             card.lastSeen.map(formatDate),
             formatDate(card.createdAt),
+            formatDate(card.updatedAt),
           ])
       }
     }
@@ -127,20 +130,44 @@ final class MemoryCardIndexStore {
         sql: """
           CREATE TABLE memory_cards (
             id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            body TEXT,
+            display_title TEXT NOT NULL,
+            body TEXT NOT NULL,
             file_path TEXT NOT NULL,
             directory TEXT NOT NULL,
             due TIMESTAMP,
             stability REAL,
             difficulty REAL,
             last_seen TIMESTAMP,
-            created_at TIMESTAMP NOT NULL
+            created_at TIMESTAMP NOT NULL,
+            updated_at TIMESTAMP NOT NULL
           );
 
           CREATE INDEX idx_memory_due ON memory_cards(due);
           CREATE INDEX idx_memory_directory ON memory_cards(directory);
+          CREATE INDEX idx_memory_updated_at ON memory_cards(updated_at);
           """)
+    }
+
+    migrator.registerMigration("addDisplayTitleAndUpdatedAt") { database in
+      let columnNames = try String.fetchAll(
+        database,
+        sql: "SELECT name FROM pragma_table_info('memory_cards')")
+
+      if !columnNames.contains("display_title") {
+        try database.execute(
+          sql: "ALTER TABLE memory_cards ADD COLUMN display_title TEXT NOT NULL DEFAULT ''")
+        if columnNames.contains("title") {
+          try database.execute(sql: "UPDATE memory_cards SET display_title = title")
+        }
+      }
+
+      if !columnNames.contains("updated_at") {
+        try database.execute(sql: "ALTER TABLE memory_cards ADD COLUMN updated_at TIMESTAMP")
+        try database.execute(sql: "UPDATE memory_cards SET updated_at = created_at")
+      }
+
+      try database.execute(
+        sql: "CREATE INDEX IF NOT EXISTS idx_memory_updated_at ON memory_cards(updated_at)")
     }
 
     try migrator.migrate(dbQueue)
@@ -149,14 +176,14 @@ final class MemoryCardIndexStore {
   private func memoryCard(row: Row) -> MemoryCard {
     MemoryCard(
       id: row["id"],
-      title: row["title"],
       body: row["body"] ?? "",
       directory: row["directory"],
       due: parseDate(row["due"]),
       stability: row["stability"],
       difficulty: row["difficulty"],
       lastSeen: parseDate(row["last_seen"]),
-      createdAt: parseDate(row["created_at"]) ?? Date(timeIntervalSince1970: 0))
+      createdAt: parseDate(row["created_at"]) ?? Date(timeIntervalSince1970: 0),
+      updatedAt: parseDate(row["updated_at"]) ?? Date(timeIntervalSince1970: 0))
   }
 
   private func formatDate(_ date: Date) -> String {

@@ -35,7 +35,6 @@ final class MemoryCardFileRepository {
   }
 
   func create(
-    title: String,
     body: String,
     directory: String = AppMetadata.defaultCategoryDirectoryName
   ) throws -> MemoryCard {
@@ -45,14 +44,14 @@ final class MemoryCardFileRepository {
     let createdAt = now()
     let card = MemoryCard(
       id: makeCardID(createdAt: createdAt),
-      title: title,
       body: body,
       directory: directory,
       due: createdAt,
       stability: nil,
       difficulty: nil,
       lastSeen: nil,
-      createdAt: createdAt)
+      createdAt: createdAt,
+      updatedAt: createdAt)
     try write(card)
     return card
   }
@@ -134,14 +133,14 @@ final class MemoryCardFileRepository {
 
     return MemoryCard(
       id: metadata.id,
-      title: metadata.title,
       body: body,
       directory: fileURL.deletingLastPathComponent().lastPathComponent,
       due: metadata.due.flatMap(parseDate),
       stability: metadata.stability,
       difficulty: metadata.difficulty,
       lastSeen: metadata.lastSeen.flatMap(parseDate),
-      createdAt: parseDate(metadata.createdAt) ?? now())
+      createdAt: parseDate(metadata.createdAt) ?? now(),
+      updatedAt: parseDate(metadata.updatedAt) ?? parseDate(metadata.createdAt) ?? now())
   }
 }
 
@@ -273,30 +272,30 @@ extension MemoryCardFileRepository {
 
 private struct MemoryCardMetadata: Codable {
   var id: String
-  var title: String
   var due: String?
   var stability: Double?
   var difficulty: Double?
   var lastSeen: String?
   var createdAt: String
+  var updatedAt: String
 
   private enum CodingKeys: String, CodingKey {
     case id
-    case title
     case due
     case stability
     case difficulty
     case lastSeen = "last_seen"
     case createdAt = "created_at"
+    case updatedAt = "updated_at"
   }
 
   init(card: MemoryCard, formatDate: (Date) -> String) {
     id = card.id
-    title = card.title
     due = card.due.map(formatDate)
     stability = card.stability
     difficulty = card.difficulty
     lastSeen = card.lastSeen.map(formatDate)
     createdAt = formatDate(card.createdAt)
+    updatedAt = formatDate(card.updatedAt)
   }
 }

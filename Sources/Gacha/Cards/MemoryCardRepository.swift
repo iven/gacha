@@ -34,11 +34,10 @@ final class MemoryCardRepository {
   }
 
   func create(
-    title: String,
     body: String,
     directory: String = AppMetadata.defaultCategoryDirectoryName
   ) throws -> MemoryCard {
-    let card = try fileRepository.create(title: title, body: body, directory: directory)
+    let card = try fileRepository.create(body: body, directory: directory)
     try indexStore.upsert(card, filePath: card.relativeFilePath)
     return card
   }

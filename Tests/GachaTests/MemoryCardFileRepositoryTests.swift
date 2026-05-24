@@ -19,19 +19,21 @@ import Testing
   fixture.now = createdAt
 
   let card = try fixture.repository.create(
-    title: "serendipity",
-    body: "/seren-dipity/\n\nA happy accident.")
+    body: "# serendipity\n\n/seren-dipity/\n\nA happy accident.")
 
   #expect(card.id == "20260523-150944-k7x4q9")
   #expect(card.directory == AppMetadata.defaultCategoryDirectoryName)
   #expect(card.due == createdAt)
+  #expect(card.updatedAt == createdAt)
+  #expect(card.displayTitle == "serendipity")
 
   let cardURL = fixture.directories.defaultMemoryCategoryURL
     .appendingPathComponent("\(card.id).md")
   let content = try String(contentsOf: cardURL, encoding: .utf8)
 
   #expect(content.contains("id: 20260523-150944-k7x4q9"))
-  #expect(content.contains("title: serendipity"))
+  #expect(!content.contains("title:"))
+  #expect(content.contains("updated_at:"))
   #expect(content.contains("/seren-dipity/"))
 }
 
@@ -39,12 +41,11 @@ import Testing
   let fixture = makeRepositoryFixture()
 
   _ = try fixture.repository.create(
-    title: "term: \"serendipity\"",
-    body: "A happy accident.")
+    body: "term: \"serendipity\"\n\nA happy accident.")
 
   let cards = try fixture.repository.list()
 
-  #expect(cards.map(\.title) == ["term: \"serendipity\""])
+  #expect(cards.map(\.displayTitle) == ["term: \"serendipity\""])
 }
 
 @Test func memoryCardRepositoryListsMarkdownCards() throws {
@@ -53,30 +54,28 @@ import Testing
   fixture.now = createdAt
 
   _ = try fixture.repository.create(
-    title: "serendipity",
-    body: "A happy accident.",
+    body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
   _ = try fixture.repository.create(
-    title: "transience",
-    body: "The state of not lasting.",
+    body: "transience\n\nThe state of not lasting.",
     directory: "philosophy")
 
   let cards = try fixture.repository.list()
 
-  #expect(cards.map(\.title) == ["serendipity", "transience"])
+  #expect(cards.map(\.displayTitle) == ["serendipity", "transience"])
   #expect(cards.map(\.directory) == ["english-vocabulary", "philosophy"])
   #expect(cards.allSatisfy { $0.kind == .memory })
 }
 
 @Test func memoryCardRepositoryUpdatesExistingCard() throws {
   let fixture = makeRepositoryFixture()
-  let card = try fixture.repository.create(title: "Draft", body: "Before")
+  let card = try fixture.repository.create(body: "Draft\n\nBefore")
 
   var updated = card
-  updated.title = "Final"
-  updated.body = "After"
+  updated.body = "Final\n\nAfter"
   updated.stability = 4.2
   updated.difficulty = 0.31
+  updated.updatedAt = Date(timeIntervalSince1970: 1_779_549_000)
   try fixture.repository.write(updated)
 
   let cards = try fixture.repository.list()
@@ -86,7 +85,7 @@ import Testing
 
 @Test func memoryCardRepositoryDeletesCardFile() throws {
   let fixture = makeRepositoryFixture()
-  let card = try fixture.repository.create(title: "Delete me", body: "Gone")
+  let card = try fixture.repository.create(body: "Delete me\n\nGone")
 
   try fixture.repository.delete(id: card.id, directory: card.directory)
 
@@ -97,10 +96,10 @@ import Testing
   let fixture = makeRepositoryFixture()
 
   #expect(throws: MemoryCardFileRepositoryError.invalidCategoryName("_meta")) {
-    _ = try fixture.repository.create(title: "Invalid", body: "", directory: "_meta")
+    _ = try fixture.repository.create(body: "", directory: "_meta")
   }
   #expect(throws: MemoryCardFileRepositoryError.invalidCategoryName("bad/name")) {
-    _ = try fixture.repository.create(title: "Invalid", body: "", directory: "bad/name")
+    _ = try fixture.repository.create(body: "", directory: "bad/name")
   }
 }
 
@@ -108,14 +107,14 @@ import Testing
   let fixture = makeRepositoryFixture()
   let card = MemoryCard(
     id: "../outside",
-    title: "Invalid",
     body: "",
     directory: AppMetadata.defaultCategoryDirectoryName,
     due: nil,
     stability: nil,
     difficulty: nil,
     lastSeen: nil,
-    createdAt: fixture.now)
+    createdAt: fixture.now,
+    updatedAt: fixture.now)
 
   #expect(throws: MemoryCardFileRepositoryError.invalidCardID("../outside")) {
     try fixture.repository.write(card)

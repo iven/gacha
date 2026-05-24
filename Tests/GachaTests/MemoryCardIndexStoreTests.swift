@@ -20,6 +20,16 @@ import Testing
   }
 
   #expect(tables == ["memory_cards"])
+
+  let columns = try dbQueue.read { database in
+    try String.fetchAll(
+      database,
+      sql: "SELECT name FROM pragma_table_info('memory_cards') ORDER BY name")
+  }
+
+  #expect(columns.contains("display_title"))
+  #expect(columns.contains("updated_at"))
+  #expect(!columns.contains("title"))
 }
 
 @Test func memoryCardIndexStoreUpsertsAndListsCards() throws {
@@ -27,21 +37,23 @@ import Testing
   let store = try fixture.indexStore()
   let first = makeMemoryCard(
     id: "20260523-150944-k7x4q9",
-    title: "serendipity",
+    body: "serendipity\n\nBody",
     directory: "english-vocabulary",
-    createdAt: Date(timeIntervalSince1970: 1_779_548_984))
+    createdAt: Date(timeIntervalSince1970: 1_779_548_984),
+    updatedAt: Date(timeIntervalSince1970: 1_779_548_984))
   let second = makeMemoryCard(
     id: "20260523-151000-a1b2c3",
-    title: "transience",
+    body: "transience\n\nBody",
     directory: "philosophy",
-    createdAt: Date(timeIntervalSince1970: 1_779_549_000))
+    createdAt: Date(timeIntervalSince1970: 1_779_549_000),
+    updatedAt: Date(timeIntervalSince1970: 1_779_549_000))
 
   try store.upsert(first, filePath: "english-vocabulary/\(first.id).md")
   try store.upsert(second, filePath: "philosophy/\(second.id).md")
 
   #expect(try store.count() == 2)
-  #expect(try store.list().map(\.title) == ["serendipity", "transience"])
-  #expect(try store.list(directory: "philosophy").map(\.title) == ["transience"])
+  #expect(try store.list().map(\.displayTitle) == ["transience", "serendipity"])
+  #expect(try store.list(directory: "philosophy").map(\.displayTitle) == ["transience"])
 }
 
 @Test func memoryCardIndexStoreUpdatesExistingCard() throws {
@@ -49,13 +61,13 @@ import Testing
   let store = try fixture.indexStore()
   var card = makeMemoryCard(
     id: "20260523-150944-k7x4q9",
-    title: "Draft",
+    body: "Draft\n\nBody",
     directory: "Uncategorized")
   try store.upsert(card, filePath: "Uncategorized/\(card.id).md")
 
-  card.title = "Final"
-  card.body = "Updated"
+  card.body = "Final\n\nUpdated"
   card.stability = 4.2
+  card.updatedAt = Date(timeIntervalSince1970: 1_779_549_000)
   try store.upsert(card, filePath: "Uncategorized/\(card.id).md")
 
   #expect(try store.count() == 1)
@@ -65,7 +77,7 @@ import Testing
 @Test func memoryCardIndexStoreDeletesCards() throws {
   let fixture = makeIndexFixture()
   let store = try fixture.indexStore()
-  let card = makeMemoryCard(id: "20260523-150944-k7x4q9", title: "Delete me")
+  let card = makeMemoryCard(id: "20260523-150944-k7x4q9", body: "Delete me\n\nBody")
   try store.upsert(card, filePath: "Uncategorized/\(card.id).md")
 
   try store.delete(id: card.id)
@@ -80,18 +92,16 @@ import Testing
   let store = try fixture.indexStore()
 
   _ = try fileRepository.create(
-    title: "serendipity",
-    body: "A happy accident.",
+    body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
   _ = try fileRepository.create(
-    title: "transience",
-    body: "The state of not lasting.",
+    body: "transience\n\nThe state of not lasting.",
     directory: "philosophy")
 
   try store.rebuild(from: fileRepository)
 
   #expect(try store.count() == 2)
-  #expect(try store.list().map(\.directory) == ["english-vocabulary", "philosophy"])
+  #expect(try store.list().map(\.directory) == ["philosophy", "english-vocabulary"])
 }
 
 private struct MemoryCardIndexFixture {
@@ -135,18 +145,19 @@ private func makeIndexFixture() -> MemoryCardIndexFixture {
 
 private func makeMemoryCard(
   id: String,
-  title: String,
+  body: String,
   directory: String = "Uncategorized",
-  createdAt: Date = Date(timeIntervalSince1970: 1_779_548_984)
+  createdAt: Date = Date(timeIntervalSince1970: 1_779_548_984),
+  updatedAt: Date = Date(timeIntervalSince1970: 1_779_548_984)
 ) -> MemoryCard {
   MemoryCard(
     id: id,
-    title: title,
-    body: "Body",
+    body: body,
     directory: directory,
     due: createdAt,
     stability: nil,
     difficulty: nil,
     lastSeen: nil,
-    createdAt: createdAt)
+    createdAt: createdAt,
+    updatedAt: updatedAt)
 }

@@ -9,8 +9,7 @@ import Testing
   let repository = try fixture.repository()
 
   let card = try repository.create(
-    title: "serendipity",
-    body: "A happy accident.",
+    body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
 
   let cardURL = fixture.directories.memoryURL
@@ -24,18 +23,19 @@ import Testing
 @Test func memoryCardRepositoryUpdatesFileAndIndexRecord() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
-  var card = try repository.create(title: "Draft", body: "Before")
+  var card = try repository.create(body: "Draft\n\nBefore")
 
-  card.title = "Final"
-  card.body = "After"
+  card.body = "Final\n\nAfter"
   card.stability = 4.2
+  card.updatedAt = Date(timeIntervalSince1970: 1_779_549_000)
   try repository.write(card)
 
   let cardURL = fixture.directories.defaultMemoryCategoryURL
     .appendingPathComponent("\(card.id).md")
   let content = try String(contentsOf: cardURL, encoding: .utf8)
 
-  #expect(content.contains("title: Final"))
+  #expect(!content.contains("title:"))
+  #expect(content.contains("updated_at:"))
   #expect(content.contains("After"))
   #expect(try repository.list() == [card])
 }
@@ -43,7 +43,7 @@ import Testing
 @Test func memoryCardRepositoryRemovesOldFileWhenCardMovesDirectory() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
-  var card = try repository.create(title: "Move me", body: "Before")
+  var card = try repository.create(body: "Move me\n\nBefore")
   let oldCardURL = fixture.directories.defaultMemoryCategoryURL
     .appendingPathComponent("\(card.id).md")
 
@@ -67,7 +67,7 @@ import Testing
 @Test func memoryCardRepositoryDeletesFileAndIndexRecord() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
-  let card = try repository.create(title: "Delete me", body: "Gone")
+  let card = try repository.create(body: "Delete me\n\nGone")
   let cardURL = fixture.directories.defaultMemoryCategoryURL
     .appendingPathComponent("\(card.id).md")
 
@@ -83,33 +83,29 @@ import Testing
   let repository = try fixture.repository()
 
   _ = try repository.create(
-    title: "serendipity",
-    body: "A happy accident.",
+    body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
   _ = try repository.create(
-    title: "transience",
-    body: "The state of not lasting.",
+    body: "transience\n\nThe state of not lasting.",
     directory: "philosophy")
 
-  #expect(try repository.list(directory: "philosophy").map(\.title) == ["transience"])
+  #expect(try repository.list(directory: "philosophy").map(\.displayTitle) == ["transience"])
 }
 
 @Test func memoryCardRepositoryRebuildsIndexFromFiles() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
   _ = try fixture.writeCardFile(
-    title: "serendipity",
-    body: "A happy accident.",
+    body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
   _ = try fixture.writeCardFile(
-    title: "transience",
-    body: "The state of not lasting.",
+    body: "transience\n\nThe state of not lasting.",
     directory: "philosophy")
 
   try repository.rebuildIndex()
 
   #expect(try repository.count() == 2)
-  #expect(try repository.list().map(\.title) == ["serendipity", "transience"])
+  #expect(try repository.list().map(\.displayTitle) == ["transience", "serendipity"])
 }
 
 private final class MemoryCardRepositoryFacadeFixture {
@@ -148,7 +144,6 @@ private final class MemoryCardRepositoryFacadeFixture {
   }
 
   func writeCardFile(
-    title: String,
     body: String,
     directory: String
   ) throws -> MemoryCard {
@@ -157,7 +152,7 @@ private final class MemoryCardRepositoryFacadeFixture {
       fileManager: fileManager,
       randomIDSuffix: { self.fileSuffixes.next() },
       now: { self.now })
-    return try fileRepository.create(title: title, body: body, directory: directory)
+    return try fileRepository.create(body: body, directory: directory)
   }
 }
 
