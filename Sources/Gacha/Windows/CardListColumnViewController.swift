@@ -3,10 +3,12 @@ import AppKit
 final class CardListColumnViewController: NSViewController {
   var onSelectionChange: ((MemoryCard?) -> Void)?
   var onDeleteCard: ((MemoryCard) -> Void)?
+  var onMoveCard: ((MemoryCard, String) -> Void)?
 
   private let tableView = NSTableView()
   private let emptyStateView = CardListEmptyStateView()
   private var cards: [MemoryCard] = []
+  private var allCategories: [CardCategoryItem] = []
   private var isUpdatingSelection = false
 
   override func loadView() {
@@ -52,6 +54,10 @@ final class CardListColumnViewController: NSViewController {
     view = rootView
   }
 
+  func setAllCategories(_ categories: [CardCategoryItem]) {
+    allCategories = categories
+  }
+
   func setCards(_ cards: [MemoryCard], selectedCardID: String?) -> MemoryCard? {
     self.cards = cards
     guard isViewLoaded else {
@@ -80,6 +86,19 @@ final class CardListColumnViewController: NSViewController {
   private func makeContextMenu() -> NSMenu {
     let menu = NSMenu()
     menu.delegate = self
+
+    let moveItem = NSMenuItem(
+      title: CardManagementStrings.moveCardMenuItem,
+      action: #selector(moveMenuItemPlaceholder),
+      keyEquivalent: "")
+    moveItem.target = self
+    moveItem.image = NSImage(
+      systemSymbolName: "folder",
+      accessibilityDescription: CardManagementStrings.moveCardMenuItem)
+    moveItem.identifier = .moveCardMenuItem
+    moveItem.submenu = NSMenu()
+    menu.addItem(moveItem)
+
     let deleteItem = NSMenuItem(
       title: CardManagementStrings.deleteCardMenuItem,
       action: #selector(deleteClickedCard),
@@ -88,7 +107,36 @@ final class CardListColumnViewController: NSViewController {
       systemSymbolName: "trash",
       accessibilityDescription: CardManagementStrings.deleteCardMenuItem)
     menu.addItem(deleteItem)
+
     return menu
+  }
+
+  @objc private func moveMenuItemPlaceholder() {}
+
+  @objc private func moveClickedCard(_ sender: NSMenuItem) {
+    guard let card = clickedCard(),
+      let directory = sender.representedObject as? String
+    else {
+      return
+    }
+
+    onMoveCard?(card, directory)
+  }
+
+  private func rebuildMoveSubmenu(card: MemoryCard, into menuItem: NSMenuItem) {
+    let submenu = NSMenu()
+    let targets = allCategories.filter { $0.directory != card.directory }
+    for target in targets {
+      let item = NSMenuItem(
+        title: target.displayName,
+        action: #selector(moveClickedCard(_:)),
+        keyEquivalent: "")
+      item.target = self
+      item.representedObject = target.directory
+      submenu.addItem(item)
+    }
+    menuItem.submenu = submenu
+    menuItem.isEnabled = !targets.isEmpty
   }
 
   @objc private func deleteClickedCard() {
@@ -117,10 +165,27 @@ final class CardListColumnViewController: NSViewController {
   }
 }
 
+extension CardListColumnViewController: NSMenuItemValidation {
+  func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    if menuItem.identifier == .moveCardMenuItem {
+      return (menuItem.submenu?.items.isEmpty == false)
+    }
+
+    return true
+  }
+}
+
 extension CardListColumnViewController: NSMenuDelegate {
   func menuNeedsUpdate(_ menu: NSMenu) {
-    let isCard = clickedCard() != nil
-    menu.items.forEach { $0.isHidden = !isCard }
+    guard let card = clickedCard() else {
+      menu.items.forEach { $0.isHidden = true }
+      return
+    }
+
+    menu.items.forEach { $0.isHidden = false }
+    if let moveItem = menu.items.first(where: { $0.identifier == .moveCardMenuItem }) {
+      rebuildMoveSubmenu(card: card, into: moveItem)
+    }
   }
 }
 

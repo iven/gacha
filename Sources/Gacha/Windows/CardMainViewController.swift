@@ -5,6 +5,7 @@ final class CardMainViewController: NSViewController {
   var onCardBodyChange: ((String) -> Void)?
   var onEmptyStateClick: (() -> Void)?
   var onDeleteCard: ((MemoryCard) -> Void)?
+  var onMoveCard: ((MemoryCard, String) -> Void)?
 
   private let splitViewController = NSSplitViewController()
   private let cardListViewController = CardListColumnViewController()
@@ -20,6 +21,9 @@ final class CardMainViewController: NSViewController {
     }
     cardListViewController.onDeleteCard = { [weak self] card in
       self?.onDeleteCard?(card)
+    }
+    cardListViewController.onMoveCard = { [weak self] card, directory in
+      self?.onMoveCard?(card, directory)
     }
     editorPreviewViewController.onBodyChange = { [weak self] body in
       self?.onCardBodyChange?(body)
@@ -83,6 +87,10 @@ final class CardMainViewController: NSViewController {
 
   func setCardList(_ cards: [MemoryCard], selectedCardID: String?) -> MemoryCard? {
     cardListViewController.setCards(cards, selectedCardID: selectedCardID)
+  }
+
+  func setAllCategories(_ categories: [CardCategoryItem]) {
+    cardListViewController.setAllCategories(categories)
   }
 
   func focusEditor() {

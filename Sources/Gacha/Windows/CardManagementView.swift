@@ -5,6 +5,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
   var onRenameCategory: ((CardCategoryItem) -> Void)?
   var onDeleteCategory: ((CardCategoryItem) -> Void)?
   var onDeleteCard: ((MemoryCard) -> Void)?
+  var onMoveCard: ((MemoryCard, String) -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
   private let categoryViewController = CardCategorySidebarViewController()
@@ -46,6 +47,9 @@ final class CardManagementSplitViewController: NSSplitViewController {
     mainViewController.onDeleteCard = { [weak self] card in
       self?.onDeleteCard?(card)
     }
+    mainViewController.onMoveCard = { [weak self] card, directory in
+      self?.onMoveCard?(card, directory)
+    }
   }
 
   @available(*, unavailable)
@@ -73,6 +77,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
       }
 
       categoryViewController.setCategories(categories, selectedDirectory: selectedDirectory)
+      mainViewController.setAllCategories(categories)
       showSelectedCategory()
     } catch {
       AppLogger.app.error("Failed to load card management data: \(error)")
@@ -84,6 +89,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
       clearDraft()
       categoryViewController.setCategories(
         [fallback], selectedDirectory: selectedDirectory)
+      mainViewController.setAllCategories([fallback])
       _ = mainViewController.setCards([], selectedCardID: nil)
       updateWindowSummary()
       notifySelectedCardAvailability()
@@ -121,20 +127,6 @@ final class CardManagementSplitViewController: NSSplitViewController {
     }
 
     return cards.first { $0.id == selectedCardID }
-  }
-
-  func delete(card: MemoryCard) {
-    cancelScheduledSave()
-    do {
-      try memoryCardRepository.delete(id: card.id, directory: card.directory)
-      if selectedCardID == card.id {
-        selectedCardID = nil
-      }
-      clearDraft()
-      reloadData()
-    } catch {
-      AppLogger.app.error("Failed to delete memory card: \(error)")
-    }
   }
 
   func flushPendingEdits() {
@@ -208,14 +200,15 @@ final class CardManagementSplitViewController: NSSplitViewController {
     perform(#selector(saveDraftAfterDelay), with: nil, afterDelay: 0.6)
   }
 
-  private func saveDraft() {
+  @discardableResult
+  private func saveDraft() -> Bool {
     cancelScheduledSave()
 
     guard let draft,
       var card = cards.first(where: { $0.id == draft.id }),
       card.body != draft.body
     else {
-      return
+      return true
     }
 
     card.body = draft.body
@@ -224,8 +217,10 @@ final class CardManagementSplitViewController: NSSplitViewController {
       try memoryCardRepository.write(card)
       try refreshSavedCardList()
       clearDraft()
+      return true
     } catch {
       AppLogger.app.error("Failed to save memory card: \(error)")
+      return false
     }
   }
 
@@ -237,6 +232,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
     cards = try memoryCardRepository.list()
     categories = try makeCategoryItems(cards: cards)
     categoryViewController.setCategories(categories, selectedDirectory: selectedDirectory)
+    mainViewController.setAllCategories(categories)
     let categoryCards = cards.filter { $0.directory == selectedDirectory }
     _ = mainViewController.setCardList(categoryCards, selectedCardID: selectedCardID)
     updateWindowSummary()
@@ -289,6 +285,41 @@ final class CardManagementSplitViewController: NSSplitViewController {
 }
 
 extension CardManagementSplitViewController {
+  func delete(card: MemoryCard) {
+    cancelScheduledSave()
+    do {
+      try memoryCardRepository.delete(id: card.id, directory: card.directory)
+      if selectedCardID == card.id {
+        selectedCardID = nil
+      }
+      clearDraft()
+      reloadData()
+    } catch {
+      AppLogger.app.error("Failed to delete memory card: \(error)")
+    }
+  }
+
+  func moveCard(_ card: MemoryCard, toDirectory directory: String) {
+    if !saveDraft() {
+      return
+    }
+
+    guard var fresh = cards.first(where: { $0.id == card.id }) else {
+      return
+    }
+
+    fresh.directory = directory
+    fresh.updatedAt = Date()
+    do {
+      try memoryCardRepository.write(fresh)
+      selectedDirectory = directory
+      selectedCardID = fresh.id
+      reloadData()
+    } catch {
+      AppLogger.app.error("Failed to move memory card: \(error)")
+    }
+  }
+
   func deleteCategory(named directory: String) {
     cancelScheduledSave()
     do {

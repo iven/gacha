@@ -82,4 +82,6 @@ extension NSUserInterfaceItemIdentifier {
   static let categoryCell = NSUserInterfaceItemIdentifier("Gacha.CardManagement.CategoryCell")
   static let cardTitle = NSUserInterfaceItemIdentifier("Gacha.CardManagement.CardTitle")
   static let cardCell = NSUserInterfaceItemIdentifier("Gacha.CardManagement.CardCell")
+  static let moveCardMenuItem = NSUserInterfaceItemIdentifier(
+    "Gacha.CardManagement.MoveCardMenuItem")
 }

@@ -71,6 +71,9 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     contentViewController.onDeleteCard = { [weak self] card in
       self?.requestDelete(card: card)
     }
+    contentViewController.onMoveCard = { [weak contentViewController] card, directory in
+      contentViewController?.moveCard(card, toDirectory: directory)
+    }
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)
