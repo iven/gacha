@@ -4,6 +4,7 @@ import Foundation
 final class AppEnvironment {
   let directories: AppDirectories
   let settingsStore: SettingsStore
+  let memoryCardRepository: MemoryCardRepository
   let launchAtLoginController: LaunchAtLoginController
   let menuBarController: MenuBarController
   let windowCoordinator: WindowCoordinator
@@ -13,6 +14,7 @@ final class AppEnvironment {
   init(
     directories: AppDirectories,
     settingsStore: SettingsStore,
+    memoryCardRepository: MemoryCardRepository,
     launchAtLoginController: LaunchAtLoginController,
     menuBarController: MenuBarController,
     windowCoordinator: WindowCoordinator,
@@ -21,6 +23,7 @@ final class AppEnvironment {
   ) {
     self.directories = directories
     self.settingsStore = settingsStore
+    self.memoryCardRepository = memoryCardRepository
     self.launchAtLoginController = launchAtLoginController
     self.menuBarController = menuBarController
     self.windowCoordinator = windowCoordinator
@@ -28,12 +31,15 @@ final class AppEnvironment {
     self.suppressionController = suppressionController
   }
 
-  func start() {
+  func start() throws {
     do {
       try launchAtLoginController.synchronize(enabled: settingsStore.launchAtLoginEnabled)
     } catch {
       AppLogger.app.warning("Failed to synchronize launch at login: \(error.localizedDescription)")
     }
+
+    try memoryCardRepository.prepareStorage()
+    try memoryCardRepository.rebuildIndex()
 
     suppressionController.start()
     presentationController.start()

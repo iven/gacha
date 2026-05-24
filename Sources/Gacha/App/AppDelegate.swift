@@ -6,10 +6,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)
-    environment = AppBootstrapper().bootstrap()
+    do {
+      environment = try AppBootstrapper().bootstrap()
+    } catch {
+      AppLogger.app.error("Failed to start app: \(error.localizedDescription)")
+      presentStartupFailure(error)
+      NSApp.terminate(nil)
+    }
   }
 
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     false
+  }
+
+  private func presentStartupFailure(_ error: Error) {
+    NSApp.setActivationPolicy(.regular)
+    NSApp.activate(ignoringOtherApps: true)
+
+    let alert = NSAlert()
+    alert.alertStyle = .critical
+    alert.messageText = AppStartupStrings.failureTitle
+    alert.informativeText = AppStartupStrings.failureMessage(
+      errorDescription: error.localizedDescription)
+    alert.addButton(withTitle: AppStartupStrings.failureQuit)
+    alert.runModal()
   }
 }

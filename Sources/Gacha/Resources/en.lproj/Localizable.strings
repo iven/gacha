@@ -12,3 +12,6 @@
 "settings.overview.launchAtLogin" = "Open at Login";
 "settings.overview.autoCollapse" = "Auto-Collapse";
 "settings.advanced.dataDirectory" = "Data Directory";
+"startup.failure.title" = "Gacha Cannot Start";
+"startup.failure.message" = "Gacha could not initialize card storage and cannot continue starting.\n\nError: %@";
+"startup.failure.quit" = "Quit";

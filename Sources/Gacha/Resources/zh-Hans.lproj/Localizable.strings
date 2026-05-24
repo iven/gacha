@@ -12,3 +12,6 @@
 "settings.overview.launchAtLogin" = "登录时打开";
 "settings.overview.autoCollapse" = "自动收回";
 "settings.advanced.dataDirectory" = "数据目录";
+"startup.failure.title" = "Gacha 无法启动";
+"startup.failure.message" = "Gacha 无法初始化卡片存储，因此无法继续启动。\n\n错误信息：%@";
+"startup.failure.quit" = "退出";
