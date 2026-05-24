@@ -21,14 +21,6 @@ final class MenuBarController: NSObject {
   private func makeMenu() -> NSMenu {
     let menu = NSMenu()
 
-    let newCardItem = NSMenuItem(
-      title: MenuBarStrings.newCard,
-      action: #selector(openNewCard),
-      keyEquivalent: "n")
-    newCardItem.target = self
-    newCardItem.isEnabled = false
-    menu.addItem(newCardItem)
-
     let pauseItem = NSMenuItem(
       title: state.pauseDisplayTitle,
       action: #selector(togglePause),
@@ -36,6 +28,13 @@ final class MenuBarController: NSObject {
     pauseItem.target = self
     menu.addItem(pauseItem)
     self.pauseItem = pauseItem
+
+    let cardsItem = NSMenuItem(
+      title: MenuBarStrings.cards,
+      action: #selector(openCards),
+      keyEquivalent: "")
+    cardsItem.target = self
+    menu.addItem(cardsItem)
 
     let settingsItem = NSMenuItem(
       title: MenuBarStrings.settings,
@@ -56,8 +55,8 @@ final class MenuBarController: NSObject {
     return menu
   }
 
-  @objc private func openNewCard() {
-    actions.openNewCard()
+  @objc private func openCards() {
+    actions.openCards()
   }
 
   @objc private func openSettings() {

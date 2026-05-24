@@ -27,11 +27,6 @@ struct SettingsView: View {
           Text(SettingsStrings.overviewTab)
         }
 
-      cardsTab
-        .tabItem {
-          Text(SettingsStrings.cardsTab)
-        }
-
       advancedTab
         .tabItem {
           Text(SettingsStrings.advancedTab)
@@ -82,11 +77,6 @@ struct SettingsView: View {
         }
         .frame(width: 300)
       }
-    }
-  }
-
-  private var cardsTab: some View {
-    settingsPane {
     }
   }
 

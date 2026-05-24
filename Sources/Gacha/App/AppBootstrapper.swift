@@ -23,7 +23,9 @@ struct AppBootstrapper {
       launchAtLoginController: launchAtLoginController,
       menuBarController: MenuBarController(
         actions: MenuBarActions(
-          openNewCard: {},
+          openCards: {
+            windowCoordinator.openCards()
+          },
           openSettings: {
             windowCoordinator.openSettings()
           },

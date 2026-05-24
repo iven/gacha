@@ -2,13 +2,13 @@ import AppKit
 
 @MainActor
 struct MenuBarActions {
-  var openNewCard: () -> Void
+  var openCards: () -> Void
   var openSettings: () -> Void
   var setPaused: (Bool) -> Void
   var quit: () -> Void
 
   static let live = MenuBarActions(
-    openNewCard: {},
+    openCards: {},
     openSettings: {},
     setPaused: { _ in },
     quit: {
