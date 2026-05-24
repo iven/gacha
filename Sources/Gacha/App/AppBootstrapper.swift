@@ -14,6 +14,7 @@ struct AppBootstrapper {
     let windowCoordinator = WindowCoordinator(
       directories: directories,
       launchAtLoginController: launchAtLoginController,
+      memoryCardRepository: memoryCardRepository,
       settingsStore: settingsStore)
 
     let environment = AppEnvironment(

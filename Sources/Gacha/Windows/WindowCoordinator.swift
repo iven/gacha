@@ -7,6 +7,7 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
 
   private let directories: AppDirectories
   private let launchAtLoginController: LaunchAtLoginController
+  private let memoryCardRepository: MemoryCardRepository
   private let settingsStore: SettingsStore
   private weak var cardManagementSplitView: NSSplitView?
   private var cardManagementWindow: NSWindow?
@@ -15,10 +16,12 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
   init(
     directories: AppDirectories,
     launchAtLoginController: LaunchAtLoginController,
+    memoryCardRepository: MemoryCardRepository,
     settingsStore: SettingsStore
   ) {
     self.directories = directories
     self.launchAtLoginController = launchAtLoginController
+    self.memoryCardRepository = memoryCardRepository
     self.settingsStore = settingsStore
     super.init()
   }
@@ -53,7 +56,8 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
       0)
     window.collectionBehavior = [.managed]
     window.delegate = self
-    let contentViewController = CardManagementSplitViewController()
+    let contentViewController = CardManagementSplitViewController(
+      memoryCardRepository: memoryCardRepository)
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)

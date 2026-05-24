@@ -67,6 +67,31 @@ import Testing
   #expect(cards.allSatisfy { $0.kind == .memory })
 }
 
+@Test func memoryCardRepositoryListsCategoryDirectories() throws {
+  let fixture = makeRepositoryFixture()
+
+  try fixture.repository.prepareStorage()
+  try fixture.fileManager.createDirectory(
+    at: fixture.directories.memoryURL.appendingPathComponent("Product", isDirectory: true),
+    withIntermediateDirectories: true)
+  try fixture.fileManager.createDirectory(
+    at: fixture.directories.memoryURL.appendingPathComponent("Swift", isDirectory: true),
+    withIntermediateDirectories: true)
+
+  let directories = try fixture.repository.listDirectories()
+
+  #expect(directories == ["Product", "Swift", AppMetadata.defaultCategoryDirectoryName].sorted())
+}
+
+@Test func memoryCardRepositoryListDirectoriesDoesNotPrepareStorage() throws {
+  let fixture = makeRepositoryFixture()
+
+  let directories = try fixture.repository.listDirectories()
+
+  #expect(directories.isEmpty)
+  #expect(!fixture.fileManager.fileExists(atPath: fixture.directories.memoryURL.path))
+}
+
 @Test func memoryCardRepositoryUpdatesExistingCard() throws {
   let fixture = makeRepositoryFixture()
   let card = try fixture.repository.create(body: "Draft\n\nBefore")

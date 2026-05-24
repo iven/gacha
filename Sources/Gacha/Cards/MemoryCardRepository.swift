@@ -58,6 +58,10 @@ final class MemoryCardRepository {
     try indexStore.delete(id: id)
   }
 
+  func listDirectories() throws -> [String] {
+    try fileRepository.listDirectories()
+  }
+
   func list(directory: String? = nil) throws -> [MemoryCard] {
     try indexStore.list(directory: directory)
   }

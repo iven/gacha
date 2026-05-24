@@ -12,6 +12,9 @@
 "cards.column.categories" = "Categories";
 "cards.column.cards" = "Cards";
 "cards.subtitle.cardCountFormat" = "%d cards";
+"cards.list.subtitleFormat" = "%@ · %@";
+"cards.list.emptySummary" = "No additional content";
+"cards.empty.category" = "No cards in this category";
 "cards.pane.editor" = "Editor";
 "cards.pane.preview" = "Preview";
 "settings.window.title" = "Settings";

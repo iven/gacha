@@ -80,6 +80,27 @@ final class MemoryCardFileRepository {
         .appendingPathComponent("\(id).md"))
   }
 
+  func listDirectories() throws -> [String] {
+    guard fileManager.fileExists(atPath: directories.memoryURL.path) else {
+      return []
+    }
+
+    let categoryURLs = try fileManager.contentsOfDirectory(
+      at: directories.memoryURL,
+      includingPropertiesForKeys: [.isDirectoryKey],
+      options: [.skipsHiddenFiles])
+
+    let directories = try categoryURLs.compactMap { url -> String? in
+      guard try isVisibleDirectory(url) else {
+        return nil
+      }
+
+      return url.lastPathComponent
+    }
+
+    return directories.sorted()
+  }
+
   func list() throws -> [MemoryCard] {
     guard fileManager.fileExists(atPath: directories.memoryURL.path) else {
       return []

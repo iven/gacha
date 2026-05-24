@@ -1,0 +1,93 @@
+import AppKit
+
+final class CardMainViewController: NSViewController {
+  var onCardSelectionChange: ((MemoryCard?) -> Void)?
+
+  private let splitViewController = NSSplitViewController()
+  private let cardListViewController = CardListColumnViewController()
+  private let editorPreviewViewController = CardEditorPreviewSplitViewController()
+  private var contentTopConstraint: NSLayoutConstraint?
+
+  override func loadView() {
+    let rootView = NSView()
+
+    cardListViewController.onSelectionChange = { [weak self] card in
+      self?.editorPreviewViewController.show(card: card)
+      self?.onCardSelectionChange?(card)
+    }
+
+    splitViewController.splitView.isVertical = true
+    splitViewController.splitView.dividerStyle = .thin
+    splitViewController.addSplitViewItem(
+      Self.cardListSplitViewItem(viewController: cardListViewController))
+    splitViewController.addSplitViewItem(
+      Self.editorPreviewSplitViewItem(viewController: editorPreviewViewController))
+
+    addChild(splitViewController)
+
+    let separator = NSBox()
+    separator.boxType = .separator
+
+    splitViewController.view.translatesAutoresizingMaskIntoConstraints = false
+    separator.translatesAutoresizingMaskIntoConstraints = false
+    rootView.addSubview(splitViewController.view)
+    rootView.addSubview(separator)
+
+    let topConstraint = splitViewController.view.topAnchor.constraint(
+      equalTo: rootView.safeAreaLayoutGuide.topAnchor)
+    contentTopConstraint = topConstraint
+    NSLayoutConstraint.activate([
+      topConstraint,
+      splitViewController.view.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
+      splitViewController.view.trailingAnchor.constraint(equalTo: rootView.trailingAnchor),
+      splitViewController.view.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
+
+      separator.topAnchor.constraint(equalTo: rootView.safeAreaLayoutGuide.topAnchor),
+      separator.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
+      separator.trailingAnchor.constraint(equalTo: rootView.trailingAnchor),
+      separator.heightAnchor.constraint(equalToConstant: 1),
+    ])
+
+    view = rootView
+  }
+
+  override func viewDidAppear() {
+    super.viewDidAppear()
+    guard let contentLayoutGuide = view.window?.contentLayoutGuide as? NSLayoutGuide else {
+      return
+    }
+
+    contentTopConstraint?.isActive = false
+    contentTopConstraint = splitViewController.view.topAnchor.constraint(
+      equalTo: contentLayoutGuide.topAnchor)
+    contentTopConstraint?.isActive = true
+  }
+
+  func setCards(_ cards: [MemoryCard], selectedCardID: String?) -> MemoryCard? {
+    let selectedCard = cardListViewController.setCards(cards, selectedCardID: selectedCardID)
+    editorPreviewViewController.show(card: selectedCard)
+    return selectedCard
+  }
+
+  private static func cardListSplitViewItem(
+    viewController: CardListColumnViewController
+  ) -> NSSplitViewItem {
+    let item = NSSplitViewItem(viewController: viewController)
+    item.minimumThickness = 210
+    item.maximumThickness = 280
+    item.preferredThicknessFraction = 0.19
+    item.holdingPriority = .defaultHigh
+    item.canCollapse = false
+    return item
+  }
+
+  private static func editorPreviewSplitViewItem(
+    viewController: CardEditorPreviewSplitViewController
+  ) -> NSSplitViewItem {
+    let item = NSSplitViewItem(viewController: viewController)
+    item.minimumThickness = 640
+    item.holdingPriority = .defaultLow
+    item.canCollapse = false
+    return item
+  }
+}
