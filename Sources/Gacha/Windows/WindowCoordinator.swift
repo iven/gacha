@@ -303,28 +303,16 @@ extension WindowCoordinator: NSToolbarDelegate {
     for window: NSWindow,
     confirmed: @escaping () -> Void
   ) {
-    let alert = NSAlert()
-    alert.alertStyle = .warning
-    alert.messageText = String.localizedStringWithFormat(
-      CardManagementStrings.deleteCategoryConfirmationTitle,
-      category.displayName)
-    alert.informativeText = String.localizedStringWithFormat(
-      CardManagementStrings.deleteCategoryConfirmationMessageFormat,
-      category.cardCount)
-    let deleteButton = alert.addButton(
-      withTitle: CardManagementStrings.deleteCategoryConfirmationDelete)
-    deleteButton.hasDestructiveAction = true
-    let cancelButton = alert.addButton(
-      withTitle: CardManagementStrings.deleteCategoryConfirmationCancel)
-    cancelButton.keyEquivalent = "\u{1b}"
-
-    alert.beginSheetModal(for: window) { response in
-      guard response == .alertFirstButtonReturn else {
-        return
-      }
-
-      confirmed()
-    }
+    DeletionConfirmationAlert(
+      messageText: String.localizedStringWithFormat(
+        CardManagementStrings.deleteCategoryConfirmationTitle,
+        category.displayName),
+      informativeText: String.localizedStringWithFormat(
+        CardManagementStrings.deleteCategoryConfirmationMessageFormat,
+        category.cardCount),
+      deleteTitle: CardManagementStrings.deleteCategoryConfirmationDelete,
+      cancelTitle: CardManagementStrings.deleteCategoryConfirmationCancel
+    ).present(for: window, confirmed: confirmed)
   }
 
   private func confirmCardDeletion(
@@ -332,26 +320,14 @@ extension WindowCoordinator: NSToolbarDelegate {
     for window: NSWindow,
     confirmed: @escaping () -> Void
   ) {
-    let alert = NSAlert()
-    alert.alertStyle = .warning
-    alert.messageText = String.localizedStringWithFormat(
-      CardManagementStrings.deleteCardConfirmationTitle,
-      CardListItem(card: card).displayTitle)
-    alert.informativeText = CardManagementStrings.deleteCardConfirmationMessage
-    let deleteButton = alert.addButton(
-      withTitle: CardManagementStrings.deleteCardConfirmationDelete)
-    deleteButton.hasDestructiveAction = true
-    let cancelButton = alert.addButton(
-      withTitle: CardManagementStrings.deleteCardConfirmationCancel)
-    cancelButton.keyEquivalent = "\u{1b}"
-
-    alert.beginSheetModal(for: window) { response in
-      guard response == .alertFirstButtonReturn else {
-        return
-      }
-
-      confirmed()
-    }
+    DeletionConfirmationAlert(
+      messageText: String.localizedStringWithFormat(
+        CardManagementStrings.deleteCardConfirmationTitle,
+        CardListItem(card: card).displayTitle),
+      informativeText: CardManagementStrings.deleteCardConfirmationMessage,
+      deleteTitle: CardManagementStrings.deleteCardConfirmationDelete,
+      cancelTitle: CardManagementStrings.deleteCardConfirmationCancel
+    ).present(for: window, confirmed: confirmed)
   }
 }
 
