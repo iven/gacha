@@ -16,6 +16,10 @@
 "cards.newCategory.error.empty" = "The category name cannot be empty.";
 "cards.newCategory.error.invalid" = "“%@” is not a valid category name.";
 "cards.newCategory.error.exists" = "A category named “%@” already exists.";
+"cards.renameCategory.title" = "Rename Category";
+"cards.renameCategory.message" = "Choose a new name for this category.";
+"cards.renameCategory.confirm" = "Rename";
+"cards.category.menu.rename" = "Rename";
 "cards.delete.confirmationTitle" = "Delete “%@”?";
 "cards.delete.confirmationMessage" = "This card will be permanently deleted.";
 "cards.delete.confirmationCancel" = "Cancel";

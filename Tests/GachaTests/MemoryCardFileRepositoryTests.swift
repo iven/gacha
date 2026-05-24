@@ -145,6 +145,53 @@ import Testing
   }
 }
 
+@Test func memoryCardRepositoryRenamesCategoryDirectory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.createDirectory(name: "Product")
+
+  try fixture.repository.renameDirectory(from: "Product", to: "Strategy")
+
+  let oldURL = fixture.directories.memoryURL
+    .appendingPathComponent("Product", isDirectory: true)
+  let newURL = fixture.directories.memoryURL
+    .appendingPathComponent("Strategy", isDirectory: true)
+  #expect(!fixture.fileManager.fileExists(atPath: oldURL.path))
+  #expect(fixture.fileManager.fileExists(atPath: newURL.path))
+}
+
+@Test func memoryCardRepositoryRejectsRenamingDefaultCategory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.prepareStorage()
+
+  #expect(
+    throws: MemoryCardFileRepositoryError.categoryNotRenamable(
+      AppMetadata.defaultCategoryDirectoryName)
+  ) {
+    try fixture.repository.renameDirectory(
+      from: AppMetadata.defaultCategoryDirectoryName,
+      to: "Anything")
+  }
+}
+
+@Test func memoryCardRepositoryRejectsRenameToExistingCategory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.createDirectory(name: "Product")
+  try fixture.repository.createDirectory(name: "Strategy")
+
+  #expect(throws: MemoryCardFileRepositoryError.categoryAlreadyExists("Strategy")) {
+    try fixture.repository.renameDirectory(from: "Product", to: "Strategy")
+  }
+}
+
+@Test func memoryCardRepositoryRejectsRenameOfMissingCategory() throws {
+  let fixture = makeRepositoryFixture()
+  try fixture.repository.prepareStorage()
+
+  #expect(throws: MemoryCardFileRepositoryError.categoryNotFound("Missing")) {
+    try fixture.repository.renameDirectory(from: "Missing", to: "Anything")
+  }
+}
+
 @Test func memoryCardRepositoryRejectsInvalidCategoryNames() throws {
   let fixture = makeRepositoryFixture()
 

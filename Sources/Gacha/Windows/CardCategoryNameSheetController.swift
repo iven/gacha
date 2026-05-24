@@ -23,6 +23,21 @@ final class CardCategoryNameSheetController: NSViewController {
       onSubmit: onCreate)
   }
 
+  static func makeRenameCategorySheet(
+    currentName: String,
+    validate: @escaping Validator,
+    onRename: @escaping (String) -> Void
+  ) -> CardCategoryNameSheetController {
+    CardCategoryNameSheetController(
+      title: CardManagementStrings.renameCategorySheetTitle,
+      message: CardManagementStrings.renameCategorySheetMessage,
+      initialName: currentName,
+      submitTitle: CardManagementStrings.renameCategoryConfirm,
+      cancelTitle: CardManagementStrings.newCategoryCancel,
+      validate: validate,
+      onSubmit: onRename)
+  }
+
   private let titleText: String
   private let messageText: String
   private let initialName: String

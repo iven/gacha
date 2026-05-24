@@ -62,6 +62,9 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     contentViewController.onSelectedCardAvailabilityChange = { [weak window] in
       window?.toolbar?.validateVisibleItems()
     }
+    contentViewController.onRenameCategory = { [weak self] category in
+      self?.renameCategory(category)
+    }
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)
@@ -217,6 +220,34 @@ extension WindowCoordinator: NSToolbarDelegate {
           viewController.selectCategory(named: name)
         } catch {
           AppLogger.app.error("Failed to create category: \(error)")
+        }
+      })
+    viewController.presentAsSheet(sheet)
+  }
+
+  fileprivate func renameCategory(_ category: CardCategoryItem) {
+    guard let viewController = cardManagementViewController else {
+      return
+    }
+
+    let oldName = category.directory
+    let existing = Set(viewController.existingCategoryDirectories)
+      .subtracting([oldName])
+    let sheet = CardCategoryNameSheetController.makeRenameCategorySheet(
+      currentName: oldName,
+      validate: { name in
+        validateNewCategoryName(name, existing: existing)
+      },
+      onRename: { [weak self, weak viewController] newName in
+        guard let self, let viewController, newName != oldName else {
+          return
+        }
+
+        do {
+          try memoryCardRepository.renameDirectory(from: oldName, to: newName)
+          viewController.selectCategory(named: newName)
+        } catch {
+          AppLogger.app.error("Failed to rename category: \(error)")
         }
       })
     viewController.presentAsSheet(sheet)

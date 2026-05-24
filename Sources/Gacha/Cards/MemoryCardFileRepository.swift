@@ -4,6 +4,8 @@ import Yams
 enum MemoryCardFileRepositoryError: Error, Equatable {
   case invalidCategoryName(String)
   case categoryAlreadyExists(String)
+  case categoryNotFound(String)
+  case categoryNotRenamable(String)
   case invalidCardID(String)
   case missingFrontMatter(URL)
 }
@@ -81,6 +83,31 @@ final class MemoryCardFileRepository {
     }
 
     try fileManager.createDirectory(at: categoryURL, withIntermediateDirectories: true)
+  }
+
+  func renameDirectory(from oldName: String, to newName: String) throws {
+    try validateCategoryName(oldName)
+    try validateCategoryName(newName)
+
+    if oldName == AppMetadata.defaultCategoryDirectoryName {
+      throw MemoryCardFileRepositoryError.categoryNotRenamable(oldName)
+    }
+
+    if oldName == newName {
+      return
+    }
+
+    let oldURL = directories.memoryURL.appendingPathComponent(oldName, isDirectory: true)
+    let newURL = directories.memoryURL.appendingPathComponent(newName, isDirectory: true)
+
+    guard fileManager.fileExists(atPath: oldURL.path) else {
+      throw MemoryCardFileRepositoryError.categoryNotFound(oldName)
+    }
+    if fileManager.fileExists(atPath: newURL.path) {
+      throw MemoryCardFileRepositoryError.categoryAlreadyExists(newName)
+    }
+
+    try fileManager.moveItem(at: oldURL, to: newURL)
   }
 
   func delete(id: String, directory: String) throws {

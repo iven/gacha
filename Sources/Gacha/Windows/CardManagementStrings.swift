@@ -13,6 +13,10 @@ enum CardManagementStrings {
   static let newCategoryErrorEmpty = AppStrings.localized("cards.newCategory.error.empty")
   static let newCategoryErrorInvalid = AppStrings.localized("cards.newCategory.error.invalid")
   static let newCategoryErrorExists = AppStrings.localized("cards.newCategory.error.exists")
+  static let renameCategorySheetTitle = AppStrings.localized("cards.renameCategory.title")
+  static let renameCategorySheetMessage = AppStrings.localized("cards.renameCategory.message")
+  static let renameCategoryConfirm = AppStrings.localized("cards.renameCategory.confirm")
+  static let renameCategoryMenuItem = AppStrings.localized("cards.category.menu.rename")
   static let deleteCardConfirmationTitle = AppStrings.localized(
     "cards.delete.confirmationTitle")
   static let deleteCardConfirmationMessage = AppStrings.localized(

@@ -92,6 +92,32 @@ import Testing
   #expect(try repository.list(directory: "philosophy").map(\.displayTitle) == ["transience"])
 }
 
+@Test func memoryCardRepositoryRenamesDirectoryAcrossFilesAndIndex() throws {
+  let fixture = makeMemoryCardRepositoryFixture()
+  let repository = try fixture.repository()
+
+  let card = try repository.create(
+    body: "serendipity\n\nA happy accident.",
+    directory: "Product")
+
+  try repository.renameDirectory(from: "Product", to: "Strategy")
+
+  let oldURL = fixture.directories.memoryURL
+    .appendingPathComponent("Product", isDirectory: true)
+    .appendingPathComponent("\(card.id).md")
+  let newURL = fixture.directories.memoryURL
+    .appendingPathComponent("Strategy", isDirectory: true)
+    .appendingPathComponent("\(card.id).md")
+
+  #expect(!fixture.fileManager.fileExists(atPath: oldURL.path))
+  #expect(fixture.fileManager.fileExists(atPath: newURL.path))
+
+  let cards = try repository.list(directory: "Strategy")
+  #expect(cards.map(\.id) == [card.id])
+  #expect(cards.allSatisfy { $0.directory == "Strategy" })
+  #expect(try repository.list(directory: "Product").isEmpty)
+}
+
 @Test func memoryCardRepositoryRebuildsIndexFromFiles() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()

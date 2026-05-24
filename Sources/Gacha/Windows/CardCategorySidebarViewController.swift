@@ -2,6 +2,7 @@ import AppKit
 
 final class CardCategorySidebarViewController: NSViewController {
   var onSelectionChange: ((String) -> Void)?
+  var onRenameCategory: ((CardCategoryItem) -> Void)?
 
   private let tableView = NSTableView()
   private var categories: [CardCategoryItem] = []
@@ -25,6 +26,7 @@ final class CardCategorySidebarViewController: NSViewController {
     tableView.allowsEmptySelection = false
     tableView.dataSource = self
     tableView.delegate = self
+    tableView.menu = makeContextMenu()
 
     scrollView.documentView = tableView
 
@@ -47,6 +49,39 @@ final class CardCategorySidebarViewController: NSViewController {
     view = rootView
   }
 
+  private func makeContextMenu() -> NSMenu {
+    let menu = NSMenu()
+    menu.delegate = self
+    menu.addItem(
+      NSMenuItem(
+        title: CardManagementStrings.renameCategoryMenuItem,
+        action: #selector(renameClickedCategory),
+        keyEquivalent: ""))
+    return menu
+  }
+
+  @objc private func renameClickedCategory() {
+    guard let category = clickedRenamableCategory() else {
+      return
+    }
+
+    onRenameCategory?(category)
+  }
+
+  private func clickedRenamableCategory() -> CardCategoryItem? {
+    let row = tableView.clickedRow
+    guard categories.indices.contains(row) else {
+      return nil
+    }
+
+    let category = categories[row]
+    guard category.directory != AppMetadata.defaultCategoryDirectoryName else {
+      return nil
+    }
+
+    return category
+  }
+
   func setCategories(_ categories: [CardCategoryItem], selectedDirectory: String) {
     self.categories = categories
     guard isViewLoaded else {
@@ -61,6 +96,13 @@ final class CardCategorySidebarViewController: NSViewController {
     tableView.reloadData()
     let selectedRow = categories.firstIndex { $0.directory == selectedDirectory } ?? 0
     tableView.selectRowIndexes(IndexSet(integer: selectedRow), byExtendingSelection: false)
+  }
+}
+
+extension CardCategorySidebarViewController: NSMenuDelegate {
+  func menuNeedsUpdate(_ menu: NSMenu) {
+    let isRenamable = clickedRenamableCategory() != nil
+    menu.items.forEach { $0.isHidden = !isRenamable }
   }
 }
 

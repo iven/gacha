@@ -55,6 +55,28 @@ final class MemoryCardIndexStore {
     }
   }
 
+  func renameDirectory(from oldName: String, to newName: String) throws {
+    try dbQueue.write { database in
+      let rows = try Row.fetchAll(
+        database,
+        sql: "SELECT id, file_path FROM memory_cards WHERE directory = ?",
+        arguments: [oldName])
+      for row in rows {
+        let id: String = row["id"]
+        let oldFilePath: String = row["file_path"]
+        let fileName = (oldFilePath as NSString).lastPathComponent
+        let newFilePath = "\(newName)/\(fileName)"
+        try database.execute(
+          sql: """
+            UPDATE memory_cards
+            SET directory = ?, file_path = ?
+            WHERE id = ?
+            """,
+          arguments: [newName, newFilePath, id])
+      }
+    }
+  }
+
   func find(id: String) throws -> MemoryCard? {
     try dbQueue.read { database in
       try Row.fetchOne(

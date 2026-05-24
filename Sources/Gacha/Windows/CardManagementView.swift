@@ -2,6 +2,7 @@ import AppKit
 
 final class CardManagementSplitViewController: NSSplitViewController {
   var onSelectedCardAvailabilityChange: (() -> Void)?
+  var onRenameCategory: ((CardCategoryItem) -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
   private let categoryViewController = CardCategorySidebarViewController()
@@ -24,6 +25,9 @@ final class CardManagementSplitViewController: NSSplitViewController {
 
     categoryViewController.onSelectionChange = { [weak self] directory in
       self?.selectCategory(directory)
+    }
+    categoryViewController.onRenameCategory = { [weak self] category in
+      self?.onRenameCategory?(category)
     }
     mainViewController.onCardSelectionChange = { [weak self] card in
       self?.selectCard(card)
