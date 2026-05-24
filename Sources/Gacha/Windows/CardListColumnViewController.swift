@@ -4,6 +4,7 @@ final class CardListColumnViewController: NSViewController {
   var onSelectionChange: ((MemoryCard?) -> Void)?
 
   private let tableView = NSTableView()
+  private let emptyStateView = CardListEmptyStateView()
   private var cards: [MemoryCard] = []
   private var isUpdatingSelection = false
 
@@ -26,15 +27,24 @@ final class CardListColumnViewController: NSViewController {
     tableView.delegate = self
 
     scrollView.documentView = tableView
+    emptyStateView.title = CardManagementStrings.emptyCategory
+    emptyStateView.isHidden = !cards.isEmpty
 
-    scrollView.translatesAutoresizingMaskIntoConstraints = false
-    rootView.addSubview(scrollView)
+    [scrollView, emptyStateView].forEach {
+      $0.translatesAutoresizingMaskIntoConstraints = false
+      rootView.addSubview($0)
+    }
 
     NSLayoutConstraint.activate([
       scrollView.topAnchor.constraint(equalTo: rootView.topAnchor),
       scrollView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
       scrollView.trailingAnchor.constraint(equalTo: rootView.trailingAnchor),
       scrollView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
+
+      emptyStateView.topAnchor.constraint(equalTo: rootView.topAnchor),
+      emptyStateView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
+      emptyStateView.trailingAnchor.constraint(equalTo: rootView.trailingAnchor),
+      emptyStateView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
     ])
 
     view = rootView
@@ -46,19 +56,22 @@ final class CardListColumnViewController: NSViewController {
       return selectedCard(in: cards, selectedCardID: selectedCardID)
     }
 
+    emptyStateView.isHidden = !cards.isEmpty
+
+    isUpdatingSelection = true
+    defer {
+      isUpdatingSelection = false
+    }
+
     tableView.reloadData()
     guard let selectedCard = selectedCard(in: cards, selectedCardID: selectedCardID),
       let selectedRow = cards.firstIndex(where: { $0.id == selectedCard.id })
     else {
-      isUpdatingSelection = true
       tableView.deselectAll(nil)
-      isUpdatingSelection = false
       return nil
     }
 
-    isUpdatingSelection = true
     tableView.selectRowIndexes(IndexSet(integer: selectedRow), byExtendingSelection: false)
-    isUpdatingSelection = false
     return selectedCard
   }
 
@@ -100,6 +113,37 @@ extension CardListColumnViewController: NSTableViewDataSource, NSTableViewDelega
     }
 
     onSelectionChange?(cards[tableView.selectedRow])
+  }
+}
+
+private final class CardListEmptyStateView: NSView {
+  var title: String {
+    get { titleField.stringValue }
+    set { titleField.stringValue = newValue }
+  }
+
+  private let titleField = NSTextField(labelWithString: "")
+
+  override init(frame frameRect: NSRect) {
+    super.init(frame: frameRect)
+
+    titleField.font = .systemFont(ofSize: 30, weight: .semibold)
+    titleField.textColor = .tertiaryLabelColor
+
+    titleField.translatesAutoresizingMaskIntoConstraints = false
+    addSubview(titleField)
+
+    NSLayoutConstraint.activate([
+      titleField.centerXAnchor.constraint(equalTo: centerXAnchor),
+      titleField.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -24),
+      titleField.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 16),
+      titleField.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -16),
+    ])
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
 }
 

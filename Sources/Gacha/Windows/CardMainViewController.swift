@@ -2,6 +2,8 @@ import AppKit
 
 final class CardMainViewController: NSViewController {
   var onCardSelectionChange: ((MemoryCard?) -> Void)?
+  var onCardBodyChange: ((String) -> Void)?
+  var onEmptyStateClick: (() -> Void)?
 
   private let splitViewController = NSSplitViewController()
   private let cardListViewController = CardListColumnViewController()
@@ -14,6 +16,12 @@ final class CardMainViewController: NSViewController {
     cardListViewController.onSelectionChange = { [weak self] card in
       self?.editorPreviewViewController.show(card: card)
       self?.onCardSelectionChange?(card)
+    }
+    editorPreviewViewController.onBodyChange = { [weak self] body in
+      self?.onCardBodyChange?(body)
+    }
+    editorPreviewViewController.onEmptyStateClick = { [weak self] in
+      self?.onEmptyStateClick?()
     }
 
     splitViewController.splitView.isVertical = true
@@ -67,6 +75,14 @@ final class CardMainViewController: NSViewController {
     let selectedCard = cardListViewController.setCards(cards, selectedCardID: selectedCardID)
     editorPreviewViewController.show(card: selectedCard)
     return selectedCard
+  }
+
+  func setCardList(_ cards: [MemoryCard], selectedCardID: String?) -> MemoryCard? {
+    cardListViewController.setCards(cards, selectedCardID: selectedCardID)
+  }
+
+  func focusEditor() {
+    editorPreviewViewController.focusEditor()
   }
 
   private static func cardListSplitViewItem(

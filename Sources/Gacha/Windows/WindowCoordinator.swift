@@ -9,6 +9,7 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
   private let launchAtLoginController: LaunchAtLoginController
   private let memoryCardRepository: MemoryCardRepository
   private let settingsStore: SettingsStore
+  private weak var cardManagementViewController: CardManagementSplitViewController?
   private weak var cardManagementSplitView: NSSplitView?
   private var cardManagementWindow: NSWindow?
   private var settingsWindow: NSWindow?
@@ -61,6 +62,7 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     contentViewController.view.frame = NSRect(
       origin: .zero,
       size: Self.cardManagementDefaultContentSize)
+    cardManagementViewController = contentViewController
     cardManagementSplitView = contentViewController.splitView
     window.toolbarStyle = .unified
     window.toolbar = makeCardManagementToolbar()
@@ -98,6 +100,10 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
   }
 
   func windowShouldClose(_ sender: NSWindow) -> Bool {
+    if sender === cardManagementWindow {
+      cardManagementViewController?.flushPendingEdits()
+    }
+
     sender.orderOut(nil)
     if !hasVisibleManagedWindow(excluding: sender) {
       NSApp.setActivationPolicy(.accessory)
@@ -190,7 +196,9 @@ extension WindowCoordinator: NSToolbarDelegate {
 
   @objc private func createCategory() {}
 
-  @objc private func createCard() {}
+  @objc private func createCard() {
+    cardManagementViewController?.createCard()
+  }
 
   @objc private func deleteCard() {}
 }

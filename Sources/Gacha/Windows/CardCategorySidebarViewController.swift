@@ -53,11 +53,14 @@ final class CardCategorySidebarViewController: NSViewController {
       return
     }
 
+    isUpdatingSelection = true
+    defer {
+      isUpdatingSelection = false
+    }
+
     tableView.reloadData()
     let selectedRow = categories.firstIndex { $0.directory == selectedDirectory } ?? 0
-    isUpdatingSelection = true
     tableView.selectRowIndexes(IndexSet(integer: selectedRow), byExtendingSelection: false)
-    isUpdatingSelection = false
   }
 }
 

@@ -8,7 +8,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
   private var categories: [CardCategoryItem] = []
   private var selectedDirectory = AppMetadata.defaultCategoryDirectoryName
   private var selectedCardID: String?
-  private var selectedCategory: CardCategoryItem?
+  private var draft: Draft?
 
   init(memoryCardRepository: MemoryCardRepository) {
     self.memoryCardRepository = memoryCardRepository
@@ -24,7 +24,13 @@ final class CardManagementSplitViewController: NSSplitViewController {
       self?.selectCategory(directory)
     }
     mainViewController.onCardSelectionChange = { [weak self] card in
-      self?.selectedCardID = card?.id
+      self?.selectCard(card)
+    }
+    mainViewController.onCardBodyChange = { [weak self] body in
+      self?.cardBodyDidChange(body)
+    }
+    mainViewController.onEmptyStateClick = { [weak self] in
+      self?.createCard()
     }
   }
 
@@ -55,18 +61,36 @@ final class CardManagementSplitViewController: NSSplitViewController {
       categoryViewController.setCategories(categories, selectedDirectory: selectedDirectory)
       showSelectedCategory()
     } catch {
-      AppLogger.app.error("Failed to load card management data: \(error.localizedDescription)")
+      AppLogger.app.error("Failed to load card management data: \(error)")
       let fallback = CardCategoryItem(
         directory: AppMetadata.defaultCategoryDirectoryName,
         displayName: CardManagementStrings.uncategorized,
         cardCount: 0)
-      selectedCategory = fallback
       selectedCardID = nil
+      clearDraft()
       categoryViewController.setCategories(
         [fallback], selectedDirectory: selectedDirectory)
       _ = mainViewController.setCards([], selectedCardID: nil)
       updateWindowSummary()
     }
+  }
+
+  func createCard() {
+    saveDraft()
+    do {
+      let directory = selectedDirectory
+      let card = try memoryCardRepository.create(body: "", directory: directory)
+      selectedDirectory = card.directory
+      selectedCardID = card.id
+      reloadData()
+      mainViewController.focusEditor()
+    } catch {
+      AppLogger.app.error("Failed to create memory card: \(error)")
+    }
+  }
+
+  func flushPendingEdits() {
+    saveDraft()
   }
 
   private static func categorySplitViewItem(
@@ -90,9 +114,16 @@ final class CardManagementSplitViewController: NSSplitViewController {
   }
 
   private func selectCategory(_ directory: String) {
+    saveDraft()
     selectedDirectory = directory
     selectedCardID = nil
     showSelectedCategory()
+  }
+
+  private func selectCard(_ card: MemoryCard?) {
+    saveDraft()
+    selectedCardID = card?.id
+    setDraft(card: card)
   }
 
   private func makeCategoryItems(cards: [MemoryCard]) throws -> [CardCategoryItem] {
@@ -102,17 +133,96 @@ final class CardManagementSplitViewController: NSSplitViewController {
   }
 
   private func showSelectedCategory() {
-    selectedCategory = categories.first { $0.directory == selectedDirectory }
     let categoryCards = cards.filter { $0.directory == selectedDirectory }
     let selectedCard = mainViewController.setCards(
       categoryCards,
       selectedCardID: selectedCardID)
     selectedCardID = selectedCard?.id
+    setDraft(card: selectedCard)
     updateWindowSummary()
   }
 
+  private func cardBodyDidChange(_ body: String) {
+    guard let selectedCardID,
+      cards.contains(where: { $0.id == selectedCardID })
+    else {
+      return
+    }
+
+    updateDraftBody(body)
+    scheduleSave()
+  }
+
+  private func scheduleSave() {
+    NSObject.cancelPreviousPerformRequests(
+      withTarget: self,
+      selector: #selector(saveDraftAfterDelay),
+      object: nil)
+    perform(#selector(saveDraftAfterDelay), with: nil, afterDelay: 0.6)
+  }
+
+  private func saveDraft() {
+    NSObject.cancelPreviousPerformRequests(
+      withTarget: self,
+      selector: #selector(saveDraftAfterDelay),
+      object: nil)
+
+    guard let draft,
+      var card = cards.first(where: { $0.id == draft.id }),
+      card.body != draft.body
+    else {
+      return
+    }
+
+    card.body = draft.body
+    card.updatedAt = Date()
+    do {
+      try memoryCardRepository.write(card)
+      try refreshSavedCardList()
+      clearDraft()
+    } catch {
+      AppLogger.app.error("Failed to save memory card: \(error)")
+    }
+  }
+
+  @objc private func saveDraftAfterDelay() {
+    saveDraft()
+  }
+
+  private func refreshSavedCardList() throws {
+    cards = try memoryCardRepository.list()
+    categories = try makeCategoryItems(cards: cards)
+    categoryViewController.setCategories(categories, selectedDirectory: selectedDirectory)
+    let categoryCards = cards.filter { $0.directory == selectedDirectory }
+    _ = mainViewController.setCardList(categoryCards, selectedCardID: selectedCardID)
+    updateWindowSummary()
+  }
+
+  private func setDraft(card: MemoryCard?) {
+    guard let card else {
+      clearDraft()
+      return
+    }
+
+    draft = Draft(id: card.id, body: card.body)
+  }
+
+  private func updateDraftBody(_ body: String) {
+    guard let selectedCardID else {
+      clearDraft()
+      return
+    }
+
+    draft = Draft(id: selectedCardID, body: body)
+  }
+
+  private func clearDraft() {
+    draft = nil
+  }
+
   private func updateWindowSummary() {
-    guard let selectedCategory else {
+    guard let selectedCategory = categories.first(where: { $0.directory == selectedDirectory })
+    else {
       return
     }
 
@@ -121,4 +231,9 @@ final class CardManagementSplitViewController: NSSplitViewController {
       format: CardManagementStrings.cardCountSubtitleFormat,
       selectedCategory.cardCount)
   }
+}
+
+private struct Draft {
+  let id: String
+  var body: String
 }

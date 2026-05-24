@@ -1,11 +1,25 @@
 import AppKit
 
 final class CardEditorPreviewSplitViewController: NSSplitViewController {
+  var onBodyChange: ((String) -> Void)?
+  var onEmptyStateClick: (() -> Void)?
+
   private let editorViewController = CardTextPaneViewController()
   private let previewViewController = CardTextPaneViewController()
 
   init() {
     super.init(nibName: nil, bundle: nil)
+
+    editorViewController.onTextChange = { [weak self] text in
+      self?.previewViewController.setText(text)
+      self?.onBodyChange?(text)
+    }
+    editorViewController.onClick = { [weak self] in
+      self?.onEmptyStateClick?()
+    }
+    previewViewController.onClick = { [weak self] in
+      self?.onEmptyStateClick?()
+    }
 
     splitView.isVertical = false
     splitView.dividerStyle = .thin
@@ -21,9 +35,18 @@ final class CardEditorPreviewSplitViewController: NSSplitViewController {
   }
 
   func show(card: MemoryCard?) {
-    let text = card?.body ?? CardManagementStrings.emptyCategory
+    let isEmptyState = card == nil
+    let text = card?.body ?? ""
+    editorViewController.setEditable(card != nil)
     editorViewController.setText(text)
+    editorViewController.setClickHandlingEnabled(isEmptyState)
+    previewViewController.setEditable(false)
     previewViewController.setText(text)
+    previewViewController.setClickHandlingEnabled(isEmptyState)
+  }
+
+  func focusEditor() {
+    editorViewController.focusTextView()
   }
 
   private static func editorPaneSplitViewItem(
@@ -45,14 +68,28 @@ final class CardEditorPreviewSplitViewController: NSSplitViewController {
   }
 }
 
-final class CardTextPaneViewController: NSViewController {
+final class CardTextPaneViewController: NSViewController, NSTextViewDelegate {
+  var onTextChange: ((String) -> Void)?
+  var onClick: (() -> Void)?
+
   private var text = ""
+  private var isEditable = false
+  private var isApplyingText = false
+  private var handlesClicks = false
+  private weak var clickCatchingView: ClickCatchingView?
   private weak var textView: NSTextView?
 
   override func loadView() {
+    let rootView = ClickCatchingView()
+    rootView.onClick = { [weak self] in
+      self?.onClick?()
+    }
+    rootView.isClickHandlingEnabled = handlesClicks
+    clickCatchingView = rootView
+
     let scrollView = NSTextView.scrollableTextView()
     guard let textView = scrollView.documentView as? NSTextView else {
-      view = scrollView
+      view = rootView
       return
     }
 
@@ -62,16 +99,78 @@ final class CardTextPaneViewController: NSViewController {
     textView.string = text
     textView.font = .preferredFont(forTextStyle: .body)
     textView.backgroundColor = .textBackgroundColor
-    textView.isEditable = false
+    textView.isEditable = isEditable
     textView.isSelectable = true
     textView.textContainerInset = NSSize(width: 20, height: 20)
+    textView.delegate = self
     self.textView = textView
 
-    view = scrollView
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+    rootView.addSubview(scrollView)
+    NSLayoutConstraint.activate([
+      scrollView.topAnchor.constraint(equalTo: rootView.topAnchor),
+      scrollView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
+      scrollView.trailingAnchor.constraint(equalTo: rootView.trailingAnchor),
+      scrollView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
+    ])
+
+    view = rootView
   }
 
   func setText(_ text: String) {
     self.text = text
+
+    isApplyingText = true
     textView?.string = text
+    isApplyingText = false
+  }
+
+  func setEditable(_ isEditable: Bool) {
+    self.isEditable = isEditable
+    textView?.isEditable = isEditable
+  }
+
+  func setClickHandlingEnabled(_ isEnabled: Bool) {
+    handlesClicks = isEnabled
+    clickCatchingView?.isClickHandlingEnabled = isEnabled
+  }
+
+  func focusTextView() {
+    guard let textView else {
+      return
+    }
+
+    view.window?.makeFirstResponder(textView)
+  }
+
+  func textDidChange(_ notification: Notification) {
+    guard !isApplyingText, let textView else {
+      return
+    }
+
+    text = textView.string
+    onTextChange?(textView.string)
+  }
+}
+
+private final class ClickCatchingView: NSView {
+  var isClickHandlingEnabled = false
+  var onClick: (() -> Void)?
+
+  override func hitTest(_ point: NSPoint) -> NSView? {
+    guard isClickHandlingEnabled, isMousePoint(point, in: bounds) else {
+      return super.hitTest(point)
+    }
+
+    return self
+  }
+
+  override func mouseDown(with event: NSEvent) {
+    guard isClickHandlingEnabled else {
+      super.mouseDown(with: event)
+      return
+    }
+
+    onClick?()
   }
 }

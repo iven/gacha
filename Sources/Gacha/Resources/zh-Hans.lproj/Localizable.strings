@@ -14,7 +14,7 @@
 "cards.subtitle.cardCountFormat" = "%d 张卡片";
 "cards.list.subtitleFormat" = "%@ · %@";
 "cards.list.emptySummary" = "无更多内容";
-"cards.empty.category" = "这个分类中没有卡片";
+"cards.empty.category" = "无卡片";
 "cards.pane.editor" = "编辑器";
 "cards.pane.preview" = "预览";
 "settings.window.title" = "设置";
