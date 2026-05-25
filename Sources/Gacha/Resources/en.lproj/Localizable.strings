@@ -50,6 +50,11 @@
 "presentation.emptyState.title" = "No memory cards yet";
 "presentation.emptyState.body" = "Add some content and start your efficient memorization journey!";
 "presentation.emptyState.action" = "New Card";
+"presentation.rating.again" = "Again";
+"presentation.rating.hard" = "Hard";
+"presentation.rating.good" = "Good";
+"presentation.rating.easy" = "Easy";
+"presentation.card.emptyBody" = "(No content)";
 "startup.failure.title" = "Gacha Cannot Start";
 "startup.failure.message" = "Gacha could not initialize card storage and cannot continue starting.\n\nError: %@";
 "startup.failure.quit" = "Quit";

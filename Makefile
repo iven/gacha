@@ -2,7 +2,7 @@ SWIFT_FORMAT := swift format
 SWIFTLINT := swiftlint
 SWIFT_SOURCES := Package.swift Sources Tests
 
-.PHONY: format fix lint test check app dmg
+.PHONY: format fix lint test check app dmg dev
 
 format:
 	$(SWIFT_FORMAT) format --in-place --recursive $(SWIFT_SOURCES)
@@ -23,3 +23,6 @@ app:
 
 dmg:
 	scripts/build-dmg.sh
+
+dev:
+	swift run Gacha

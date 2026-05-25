@@ -50,6 +50,11 @@
 "presentation.emptyState.title" = "还没有记忆卡片";
 "presentation.emptyState.body" = "添加一些内容，开始你的高效记忆之旅吧！";
 "presentation.emptyState.action" = "新建卡片";
+"presentation.rating.again" = "陌生";
+"presentation.rating.hard" = "模糊";
+"presentation.rating.good" = "熟悉";
+"presentation.rating.easy" = "精通";
+"presentation.card.emptyBody" = "（无内容）";
 "startup.failure.title" = "Gacha 无法启动";
 "startup.failure.message" = "Gacha 无法初始化卡片存储，因此无法继续启动。\n\n错误信息：%@";
 "startup.failure.quit" = "退出";
