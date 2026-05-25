@@ -4,7 +4,8 @@ final class CardEditorPreviewSplitViewController: NSSplitViewController {
   var onBodyChange: ((String) -> Void)?
   var onEmptyStateClick: (() -> Void)?
 
-  private let editorViewController = CardTextPaneViewController()
+  private let editorViewController = CardTextPaneViewController(
+    syntaxHighlighter: MarkdownSyntaxHighlighter())
   private let previewViewController = CardTextPaneViewController()
 
   init() {
@@ -72,12 +73,23 @@ final class CardTextPaneViewController: NSViewController, NSTextViewDelegate {
   var onTextChange: ((String) -> Void)?
   var onClick: (() -> Void)?
 
+  private let syntaxHighlighter: MarkdownSyntaxHighlighter?
   private var text = ""
   private var isEditable = false
   private var isApplyingText = false
   private var handlesClicks = false
   private weak var clickCatchingView: ClickCatchingView?
   private weak var textView: NSTextView?
+
+  init(syntaxHighlighter: MarkdownSyntaxHighlighter? = nil) {
+    self.syntaxHighlighter = syntaxHighlighter
+    super.init(nibName: nil, bundle: nil)
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
 
   override func loadView() {
     let rootView = ClickCatchingView()
@@ -122,6 +134,7 @@ final class CardTextPaneViewController: NSViewController, NSTextViewDelegate {
 
     isApplyingText = true
     textView?.string = text
+    applyHighlight()
     isApplyingText = false
   }
 
@@ -148,8 +161,16 @@ final class CardTextPaneViewController: NSViewController, NSTextViewDelegate {
       return
     }
 
-    text = textView.string
+    applyHighlight()
     onTextChange?(textView.string)
+  }
+
+  private func applyHighlight() {
+    guard let syntaxHighlighter, let textView else {
+      return
+    }
+
+    syntaxHighlighter.apply(to: textView)
   }
 }
 

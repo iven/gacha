@@ -17,12 +17,14 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "7.10.0"),
     .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.1"),
+    .package(url: "https://github.com/swiftlang/swift-markdown.git", branch: "main"),
   ],
   targets: [
     .executableTarget(
       name: "Gacha",
       dependencies: [
         .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "Markdown", package: "swift-markdown"),
         "Yams",
       ],
       path: "Sources/Gacha",
