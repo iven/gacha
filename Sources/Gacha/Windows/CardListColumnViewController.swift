@@ -18,6 +18,7 @@ final class CardListColumnViewController: NSViewController {
     scrollView.drawsBackground = false
     scrollView.focusRingType = .none
     scrollView.hasVerticalScroller = true
+    scrollView.autohidesScrollers = true
 
     tableView.addTableColumn(NSTableColumn(identifier: .cardTitle))
     tableView.focusRingType = .none

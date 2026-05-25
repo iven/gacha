@@ -18,6 +18,7 @@ final class CardCategorySidebarViewController: NSViewController {
     title.textColor = .tertiaryLabelColor
     scrollView.drawsBackground = false
     scrollView.hasVerticalScroller = true
+    scrollView.autohidesScrollers = true
 
     tableView.addTableColumn(NSTableColumn(identifier: .categoryName))
     tableView.headerView = nil
