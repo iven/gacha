@@ -39,12 +39,12 @@ final class MemoryCardIndexStore {
           card.body,
           filePath,
           card.directory,
-          card.due.map(formatDate),
+          card.due.map(ISO8601Codec.format),
           card.stability,
           card.difficulty,
-          card.lastSeen.map(formatDate),
-          formatDate(card.createdAt),
-          formatDate(card.updatedAt),
+          card.lastSeen.map(ISO8601Codec.format),
+          ISO8601Codec.format(card.createdAt),
+          ISO8601Codec.format(card.updatedAt),
         ])
     }
   }
@@ -142,12 +142,12 @@ final class MemoryCardIndexStore {
             card.body,
             card.relativeFilePath,
             card.directory,
-            card.due.map(formatDate),
+            card.due.map(ISO8601Codec.format),
             card.stability,
             card.difficulty,
-            card.lastSeen.map(formatDate),
-            formatDate(card.createdAt),
-            formatDate(card.updatedAt),
+            card.lastSeen.map(ISO8601Codec.format),
+            ISO8601Codec.format(card.createdAt),
+            ISO8601Codec.format(card.updatedAt),
           ])
       }
     }
@@ -204,37 +204,16 @@ final class MemoryCardIndexStore {
   }
 
   private func memoryCard(row: Row) -> MemoryCard {
-    MemoryCard(
+    let parse: (String?) -> Date? = { $0.flatMap(ISO8601Codec.parse) }
+    return MemoryCard(
       id: row["id"],
       body: row["body"] ?? "",
       directory: row["directory"],
-      due: parseDate(row["due"]),
+      due: parse(row["due"]),
       stability: row["stability"],
       difficulty: row["difficulty"],
-      lastSeen: parseDate(row["last_seen"]),
-      createdAt: parseDate(row["created_at"]) ?? Date(timeIntervalSince1970: 0),
-      updatedAt: parseDate(row["updated_at"]) ?? Date(timeIntervalSince1970: 0))
-  }
-
-  private func formatDate(_ date: Date) -> String {
-    dateFormatter(includingFractionalSeconds: true).string(from: date)
-  }
-
-  private func parseDate(_ value: String?) -> Date? {
-    guard let value else {
-      return nil
-    }
-
-    return dateFormatter(includingFractionalSeconds: true).date(from: value)
-      ?? dateFormatter(includingFractionalSeconds: false).date(from: value)
-  }
-
-  private func dateFormatter(includingFractionalSeconds: Bool) -> ISO8601DateFormatter {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions =
-      includingFractionalSeconds
-      ? [.withInternetDateTime, .withFractionalSeconds]
-      : [.withInternetDateTime]
-    return formatter
+      lastSeen: parse(row["last_seen"]),
+      createdAt: parse(row["created_at"]) ?? Date(timeIntervalSince1970: 0),
+      updatedAt: parse(row["updated_at"]) ?? Date(timeIntervalSince1970: 0))
   }
 }

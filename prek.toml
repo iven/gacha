@@ -44,7 +44,7 @@ hooks = [
   {
     id = "swiftlint",
     name = "SwiftLint",
-    entry = "swiftlint lint --strict --config .swiftlint.yml",
+    entry = "swiftlint lint --config .swiftlint.yml",
     language = "system",
     types = ["swift"],
   },

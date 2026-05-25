@@ -27,7 +27,33 @@ final class CardManagementSplitViewController: NSSplitViewController {
     addSplitViewItem(Self.categorySplitViewItem(viewController: categoryViewController))
     addSplitViewItem(Self.mainSplitViewItem(viewController: mainViewController))
 
-    bindChildCallbacks()
+    categoryViewController.onSelectionChange = { [weak self] directory in
+      self?.selectInternalCategory(directory)
+    }
+    categoryViewController.onRenameCategory = { [weak self] category in
+      self?.onRenameCategory?(category)
+    }
+    categoryViewController.onDeleteCategory = { [weak self] category in
+      self?.onDeleteCategory?(category)
+    }
+    mainViewController.onCardSelectionChange = { [weak self] card in
+      self?.selectCard(card)
+    }
+    mainViewController.onCardBodyChange = { [weak self] body in
+      self?.cardBodyDidChange(body)
+    }
+    mainViewController.onEmptyStateClick = { [weak self] in
+      self?.createCard()
+    }
+    mainViewController.onDeleteCard = { [weak self] card in
+      self?.onDeleteCard?(card)
+    }
+    mainViewController.onMoveCard = { [weak self] card, directory in
+      self?.onMoveCard?(card, directory)
+    }
+    draftSession.onDebouncedFlushNeeded = { [weak self] in
+      self?.flushDraft()
+    }
   }
 
   @available(*, unavailable)
@@ -179,38 +205,6 @@ final class CardManagementSplitViewController: NSSplitViewController {
     item.minimumThickness = 660
     item.canCollapse = false
     return item
-  }
-}
-
-extension CardManagementSplitViewController {
-  private func bindChildCallbacks() {
-    categoryViewController.onSelectionChange = { [weak self] directory in
-      self?.selectInternalCategory(directory)
-    }
-    categoryViewController.onRenameCategory = { [weak self] category in
-      self?.onRenameCategory?(category)
-    }
-    categoryViewController.onDeleteCategory = { [weak self] category in
-      self?.onDeleteCategory?(category)
-    }
-    mainViewController.onCardSelectionChange = { [weak self] card in
-      self?.selectCard(card)
-    }
-    mainViewController.onCardBodyChange = { [weak self] body in
-      self?.cardBodyDidChange(body)
-    }
-    mainViewController.onEmptyStateClick = { [weak self] in
-      self?.createCard()
-    }
-    mainViewController.onDeleteCard = { [weak self] card in
-      self?.onDeleteCard?(card)
-    }
-    mainViewController.onMoveCard = { [weak self] card, directory in
-      self?.onMoveCard?(card, directory)
-    }
-    draftSession.onDebouncedFlushNeeded = { [weak self] in
-      self?.flushDraft()
-    }
   }
 
   private func selectInternalCategory(_ directory: String) {

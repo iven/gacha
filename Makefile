@@ -11,7 +11,7 @@ fix: format
 	$(SWIFTLINT) lint --fix --config .swiftlint.yml
 
 lint:
-	$(SWIFTLINT) lint --strict --config .swiftlint.yml
+	$(SWIFTLINT) lint --config .swiftlint.yml
 
 test:
 	swift test

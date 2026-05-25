@@ -1,5 +1,4 @@
 import Foundation
-import Yams
 
 enum MemoryCardFileRepositoryError: Error, Equatable {
   case invalidCategoryName(String)
@@ -20,7 +19,7 @@ final class MemoryCardFileRepository {
   init(
     directories: AppDirectories,
     fileManager: FileManager = .default,
-    randomIDSuffix: @escaping () -> String = MemoryCardFileRepository.makeRandomIDSuffix,
+    randomIDSuffix: @escaping () -> String = MemoryCardIDGenerator.makeRandomSuffix,
     now: @escaping () -> Date = Date.init
   ) {
     self.directories = directories
@@ -47,7 +46,7 @@ final class MemoryCardFileRepository {
 
     let createdAt = now()
     let card = MemoryCard(
-      id: makeCardID(createdAt: createdAt),
+      id: MemoryCardIDGenerator.make(createdAt: createdAt, randomSuffix: randomIDSuffix),
       body: body,
       directory: directory,
       due: createdAt,
@@ -68,7 +67,7 @@ final class MemoryCardFileRepository {
       card.directory,
       isDirectory: true)
     try fileManager.createDirectory(at: categoryURL, withIntermediateDirectories: true)
-    try markdown(for: card).write(
+    try MemoryCardMarkdownCodec.encode(card).write(
       to: fileURL(for: card),
       atomically: true,
       encoding: .utf8)
@@ -189,55 +188,14 @@ final class MemoryCardFileRepository {
 
   func read(fileURL: URL) throws -> MemoryCard {
     let content = try String(contentsOf: fileURL, encoding: .utf8)
-    guard content.hasPrefix("---\n") else {
-      throw MemoryCardFileRepositoryError.missingFrontMatter(fileURL)
+    do {
+      return try MemoryCardMarkdownCodec.decode(
+        content: content,
+        fileURL: fileURL,
+        fallbackDate: now())
+    } catch MemoryCardMarkdownCodecError.missingFrontMatter(let url) {
+      throw MemoryCardFileRepositoryError.missingFrontMatter(url)
     }
-
-    let metadataStart = content.index(content.startIndex, offsetBy: 4)
-    guard metadataStart < content.endIndex else {
-      throw MemoryCardFileRepositoryError.missingFrontMatter(fileURL)
-    }
-
-    let metadataSearchRange = metadataStart..<content.endIndex
-    guard let endRange = content.range(of: "\n---\n", range: metadataSearchRange) else {
-      throw MemoryCardFileRepositoryError.missingFrontMatter(fileURL)
-    }
-
-    let metadataYAML = String(content[metadataStart..<endRange.lowerBound])
-    let bodyStart = markdownBodyStart(in: content, after: endRange)
-    let body = String(content[bodyStart...])
-    let metadata = try YAMLDecoder().decode(MemoryCardMetadata.self, from: metadataYAML)
-
-    return MemoryCard(
-      id: metadata.id,
-      body: body,
-      directory: fileURL.deletingLastPathComponent().lastPathComponent,
-      due: metadata.due.flatMap(parseDate),
-      stability: metadata.stability,
-      difficulty: metadata.difficulty,
-      lastSeen: metadata.lastSeen.flatMap(parseDate),
-      createdAt: parseDate(metadata.createdAt) ?? now(),
-      updatedAt: parseDate(metadata.updatedAt) ?? parseDate(metadata.createdAt) ?? now())
-  }
-}
-
-extension MemoryCardFileRepository {
-  private func fileURL(for card: MemoryCard) -> URL {
-    directories.memoryURL
-      .appendingPathComponent(card.directory, isDirectory: true)
-      .appendingPathComponent("\(card.id).md")
-  }
-
-  private func markdownBodyStart(
-    in content: String,
-    after frontMatterEndRange: Range<String.Index>
-  ) -> String.Index {
-    let bodyStart = frontMatterEndRange.upperBound
-    guard bodyStart < content.endIndex, content[bodyStart] == "\n" else {
-      return bodyStart
-    }
-
-    return content.index(after: bodyStart)
   }
 
   static func isValidCategoryName(_ name: String) -> Bool {
@@ -250,6 +208,12 @@ extension MemoryCardFileRepository {
       && !name.contains("\\")
   }
 
+  private func fileURL(for card: MemoryCard) -> URL {
+    directories.memoryURL
+      .appendingPathComponent(card.directory, isDirectory: true)
+      .appendingPathComponent("\(card.id).md")
+  }
+
   private func validateCategoryName(_ name: String) throws {
     guard Self.isValidCategoryName(name) else {
       throw MemoryCardFileRepositoryError.invalidCategoryName(name)
@@ -257,13 +221,9 @@ extension MemoryCardFileRepository {
   }
 
   private func validateCardID(_ id: String) throws {
-    guard Self.isValidCardID(id) else {
+    guard MemoryCardIDGenerator.isValid(id) else {
       throw MemoryCardFileRepositoryError.invalidCardID(id)
     }
-  }
-
-  private func makeCardID(createdAt: Date) -> String {
-    "\(formatIDTimestamp(createdAt))-\(randomIDSuffix())"
   }
 
   private func isVisibleDirectory(_ url: URL) throws -> Bool {
@@ -278,103 +238,5 @@ extension MemoryCardFileRepository {
   private func shouldScanCardFile(_ url: URL) -> Bool {
     let name = url.lastPathComponent
     return url.pathExtension == "md" && !name.hasPrefix(".") && !name.hasPrefix("_")
-  }
-
-  private func markdown(for card: MemoryCard) throws -> String {
-    let metadata = MemoryCardMetadata(card: card, formatDate: formatDate)
-    let yaml = try YAMLEncoder().encode(metadata)
-    return [
-      "---",
-      yaml.trimmingCharacters(in: .newlines),
-      "---",
-      "",
-      card.body,
-    ].joined(separator: "\n")
-  }
-
-  private func formatDate(_ date: Date) -> String {
-    dateFormatter(includingFractionalSeconds: true).string(from: date)
-  }
-
-  private func formatIDTimestamp(_ date: Date) -> String {
-    Self.idTimestampFormatter.string(from: date)
-  }
-
-  private func parseDate(_ value: String) -> Date? {
-    dateFormatter(includingFractionalSeconds: true).date(from: value)
-      ?? dateFormatter(includingFractionalSeconds: false).date(from: value)
-  }
-
-  private func dateFormatter(includingFractionalSeconds: Bool) -> ISO8601DateFormatter {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions =
-      includingFractionalSeconds
-      ? [.withInternetDateTime, .withFractionalSeconds]
-      : [.withInternetDateTime]
-    return formatter
-  }
-
-  private static func isValidCardID(_ id: String) -> Bool {
-    let characters = Array(id)
-    guard characters.count == 22, characters[8] == "-", characters[15] == "-" else {
-      return false
-    }
-
-    return characters.enumerated().allSatisfy { index, character in
-      switch index {
-      case 8, 15:
-        true
-      case 0..<8, 9..<15:
-        character.isNumber
-      case 16..<22:
-        character.isNumber || ("a"..."z").contains(character)
-      default:
-        false
-      }
-    }
-  }
-
-  private static let idTimestampFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.calendar = Calendar(identifier: .gregorian)
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
-    formatter.dateFormat = "yyyyMMdd-HHmmss"
-    return formatter
-  }()
-
-  static func makeRandomIDSuffix() -> String {
-    let alphabet = Array("0123456789abcdefghijklmnopqrstuvwxyz")
-    return String((0..<6).map { _ in alphabet[Int.random(in: alphabet.indices)] })
-  }
-}
-
-private struct MemoryCardMetadata: Codable {
-  var id: String
-  var due: String?
-  var stability: Double?
-  var difficulty: Double?
-  var lastSeen: String?
-  var createdAt: String
-  var updatedAt: String
-
-  private enum CodingKeys: String, CodingKey {
-    case id
-    case due
-    case stability
-    case difficulty
-    case lastSeen = "last_seen"
-    case createdAt = "created_at"
-    case updatedAt = "updated_at"
-  }
-
-  init(card: MemoryCard, formatDate: (Date) -> String) {
-    id = card.id
-    due = card.due.map(formatDate)
-    stability = card.stability
-    difficulty = card.difficulty
-    lastSeen = card.lastSeen.map(formatDate)
-    createdAt = formatDate(card.createdAt)
-    updatedAt = formatDate(card.updatedAt)
   }
 }

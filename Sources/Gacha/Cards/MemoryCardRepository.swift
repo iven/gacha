@@ -15,7 +15,7 @@ final class MemoryCardRepository {
   convenience init(
     directories: AppDirectories,
     fileManager: FileManager = .default,
-    randomIDSuffix: @escaping () -> String = MemoryCardFileRepository.makeRandomIDSuffix,
+    randomIDSuffix: @escaping () -> String = MemoryCardIDGenerator.makeRandomSuffix,
     now: @escaping () -> Date = Date.init
   ) throws {
     let fileRepository = MemoryCardFileRepository(

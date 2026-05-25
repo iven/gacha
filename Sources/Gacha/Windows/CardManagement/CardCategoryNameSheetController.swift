@@ -84,37 +84,6 @@ final class CardCategoryNameSheetController: NSViewController {
     let submitButton = NSButton(
       title: submitTitle, target: self, action: #selector(submit))
 
-    configure(
-      titleField: titleField,
-      messageField: messageField,
-      cancelButton: cancelButton,
-      submitButton: submitButton)
-
-    [
-      titleField, messageField, nameField, errorField, buttonSeparator, cancelButton,
-      submitButton,
-    ].forEach {
-      $0.translatesAutoresizingMaskIntoConstraints = false
-      rootView.addSubview($0)
-    }
-
-    activateLayoutConstraints(
-      rootView: rootView,
-      titleField: titleField,
-      messageField: messageField,
-      cancelButton: cancelButton,
-      submitButton: submitButton)
-
-    rootView.frame = NSRect(x: 0, y: 0, width: 360, height: 180)
-    view = rootView
-  }
-
-  private func configure(
-    titleField: NSTextField,
-    messageField: NSTextField,
-    cancelButton: NSButton,
-    submitButton: NSButton
-  ) {
     titleField.font = .systemFont(ofSize: 13, weight: .semibold)
     messageField.font = .systemFont(ofSize: 11)
     messageField.textColor = .secondaryLabelColor
@@ -131,15 +100,15 @@ final class CardCategoryNameSheetController: NSViewController {
     submitButton.keyEquivalent = "\r"
     self.submitButton = submitButton
     buttonSeparator.boxType = .separator
-  }
 
-  private func activateLayoutConstraints(
-    rootView: NSView,
-    titleField: NSTextField,
-    messageField: NSTextField,
-    cancelButton: NSButton,
-    submitButton: NSButton
-  ) {
+    [
+      titleField, messageField, nameField, errorField, buttonSeparator, cancelButton,
+      submitButton,
+    ].forEach {
+      $0.translatesAutoresizingMaskIntoConstraints = false
+      rootView.addSubview($0)
+    }
+
     NSLayoutConstraint.activate([
       titleField.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 20),
       titleField.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 20),
@@ -174,6 +143,9 @@ final class CardCategoryNameSheetController: NSViewController {
       cancelButton.centerYAnchor.constraint(equalTo: submitButton.centerYAnchor),
       cancelButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 88),
     ])
+
+    rootView.frame = NSRect(x: 0, y: 0, width: 360, height: 180)
+    view = rootView
   }
 
   override func viewDidAppear() {
