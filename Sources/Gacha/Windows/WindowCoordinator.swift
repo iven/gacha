@@ -303,14 +303,14 @@ extension WindowCoordinator: NSToolbarDelegate {
     for window: NSWindow,
     confirmed: @escaping () -> Void
   ) {
-    DeletionConfirmationAlert(
+    DestructiveConfirmationAlert(
       messageText: String.localizedStringWithFormat(
         CardManagementStrings.deleteCategoryConfirmationTitle,
         category.displayName),
       informativeText: String.localizedStringWithFormat(
         CardManagementStrings.deleteCategoryConfirmationMessageFormat,
         category.cardCount),
-      deleteTitle: CardManagementStrings.deleteCategoryConfirmationDelete,
+      confirmTitle: CardManagementStrings.deleteCategoryConfirmationDelete,
       cancelTitle: CardManagementStrings.deleteCategoryConfirmationCancel
     ).present(for: window, confirmed: confirmed)
   }
@@ -320,12 +320,12 @@ extension WindowCoordinator: NSToolbarDelegate {
     for window: NSWindow,
     confirmed: @escaping () -> Void
   ) {
-    DeletionConfirmationAlert(
+    DestructiveConfirmationAlert(
       messageText: String.localizedStringWithFormat(
         CardManagementStrings.deleteCardConfirmationTitle,
         CardListItem(card: card).displayTitle),
       informativeText: CardManagementStrings.deleteCardConfirmationMessage,
-      deleteTitle: CardManagementStrings.deleteCardConfirmationDelete,
+      confirmTitle: CardManagementStrings.deleteCardConfirmationDelete,
       cancelTitle: CardManagementStrings.deleteCardConfirmationCancel
     ).present(for: window, confirmed: confirmed)
   }

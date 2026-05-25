@@ -246,11 +246,10 @@ extension CardManagementSplitViewController {
     case .saved:
       do {
         try refreshSavedCardList()
-        return true
       } catch {
         AppLogger.app.error("Failed to refresh after save: \(error)")
-        return false
       }
+      return true
     case .failure:
       return false
     }

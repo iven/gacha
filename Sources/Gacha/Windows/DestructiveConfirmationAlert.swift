@@ -1,10 +1,10 @@
 import AppKit
 
 @MainActor
-struct DeletionConfirmationAlert {
+struct DestructiveConfirmationAlert {
   var messageText: String
   var informativeText: String
-  var deleteTitle: String
+  var confirmTitle: String
   var cancelTitle: String
 
   func present(for window: NSWindow, confirmed: @escaping () -> Void) {
@@ -12,7 +12,7 @@ struct DeletionConfirmationAlert {
     alert.alertStyle = .warning
     alert.messageText = messageText
     alert.informativeText = informativeText
-    alert.addButton(withTitle: deleteTitle)
+    alert.addButton(withTitle: confirmTitle)
     let cancelButton = alert.addButton(withTitle: cancelTitle)
     cancelButton.keyEquivalent = "\u{1b}"
 
