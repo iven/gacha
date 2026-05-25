@@ -3,38 +3,53 @@ import Foundation
 
 struct MemoryCardScheduler {
   // PRD §3.3: hardcoded, not user-configurable.
-  private static let lastSeenPenaltyDecay: Double = 1.0
-  private static let lastSeenPenaltyTimeConstant: TimeInterval = 60 * 60
-  static let secondsPerDay: Double = 86_400
-  private static let stabilityFloor: Double = 0.001
+  private static let forgettingExponent: Double = 2
+  private static let cooldownTimeConstant: TimeInterval = 60
+  private static let forgettingRiskFloor: Double = 1e-6
 
   private let fsrs: FSRS::FSRS
+  private let random: () -> Double
 
-  init(parameters: FSRS::FSRSParameters = FSRS::FSRSParameters()) {
+  init(
+    parameters: FSRS::FSRSParameters = FSRS::FSRSParameters(),
+    random: @escaping () -> Double = { Double.random(in: 0..<1) }
+  ) {
     self.fsrs = FSRS::FSRS(parameters: parameters)
+    self.random = random
   }
 
-  func urgency(for card: MemoryCard, now: Date) -> Double {
-    let due = card.due ?? card.createdAt
-    let stability = max(card.stability ?? 0, Self.stabilityFloor)
-    let elapsedDays = now.timeIntervalSince(due) / Self.secondsPerDay
-    let retrievabilityTerm = elapsedDays / stability
-
-    let penalty: Double
-    if let lastSeen = card.lastSeen {
-      let elapsedSeconds = now.timeIntervalSince(lastSeen)
-      penalty = -Self.lastSeenPenaltyDecay * exp(-elapsedSeconds / Self.lastSeenPenaltyTimeConstant)
-    } else {
-      penalty = 0
+  func retrievability(for card: MemoryCard, now: Date) -> Double {
+    guard card.stability != nil, card.lastSeen != nil else {
+      return 0
     }
+    return fsrs.getRetrievability(card: makeFSRSCard(from: card), now: now).number
+  }
 
-    return retrievabilityTerm + penalty
+  func isDue(_ card: MemoryCard, now: Date) -> Bool {
+    guard let due = card.due else {
+      return true
+    }
+    return now >= due
+  }
+
+  func weight(for card: MemoryCard, now: Date) -> Double {
+    let forgettingRisk = max(Self.forgettingRiskFloor, 1 - retrievability(for: card, now: now))
+    let elapsed = max(0, now.timeIntervalSince(card.lastSeen ?? card.createdAt))
+    let cooldown = 1 - exp(-elapsed / Self.cooldownTimeConstant)
+    return cooldown * pow(forgettingRisk, Self.forgettingExponent)
   }
 
   func pickNext(from cards: [MemoryCard], now: Date) -> MemoryCard? {
-    cards.max { lhs, rhs in
-      urgency(for: lhs, now: now) < urgency(for: rhs, now: now)
+    guard !cards.isEmpty else {
+      return nil
     }
+    let dueCards = cards.filter { isDue($0, now: now) }
+    if !dueCards.isEmpty {
+      return dueCards.min {
+        retrievability(for: $0, now: now) < retrievability(for: $1, now: now)
+      }
+    }
+    return weightedRandom(from: cards, now: now)
   }
 
   func apply(rating: MemoryCardRating, to card: MemoryCard, now: Date) throws -> MemoryCard {
@@ -51,6 +66,24 @@ struct MemoryCardScheduler {
     updated.difficulty = result.card.difficulty
     updated.due = result.card.due
     return updated
+  }
+
+  private func weightedRandom(from cards: [MemoryCard], now: Date) -> MemoryCard? {
+    let weights = cards.map { weight(for: $0, now: now) }
+    let total = weights.reduce(0, +)
+    guard total > 0 else {
+      return cards.max {
+        ($0.lastSeen ?? $0.createdAt) > ($1.lastSeen ?? $1.createdAt)
+      }
+    }
+    var roll = random() * total
+    for (index, value) in weights.enumerated() {
+      roll -= value
+      if value > 0 && roll <= 0 {
+        return cards[index]
+      }
+    }
+    return cards.last
   }
 
   private func makeFSRSCard(from card: MemoryCard) -> FSRS::Card {

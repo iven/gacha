@@ -10,12 +10,20 @@ final class PresentationController {
   var onSettingsRequested: (() -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
+  private let scheduler: MemoryCardScheduler
+  private let now: () -> Date
   private let viewModel = PresentationViewModel()
   private var notch: DynamicNotch<AnyView, AnyView, AnyView>?
   private var hoverObservation: AnyCancellable?
 
-  init(memoryCardRepository: MemoryCardRepository) {
+  init(
+    memoryCardRepository: MemoryCardRepository,
+    scheduler: MemoryCardScheduler = MemoryCardScheduler(),
+    now: @escaping () -> Date = Date.init
+  ) {
     self.memoryCardRepository = memoryCardRepository
+    self.scheduler = scheduler
+    self.now = now
   }
 
   func start() {
@@ -62,7 +70,8 @@ final class PresentationController {
   private func refreshCurrentCard() {
     let nextCard: any Card
     do {
-      if let card = try memoryCardRepository.list().first {
+      let cards = try memoryCardRepository.list()
+      if let card = scheduler.pickNext(from: cards, now: now()) {
         nextCard = card
       } else {
         nextCard = EmptyStateCard()
