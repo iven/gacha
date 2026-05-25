@@ -113,6 +113,7 @@ final class CardTextPaneViewController: NSViewController, NSTextViewDelegate {
     textView.backgroundColor = .textBackgroundColor
     textView.isEditable = isEditable
     textView.isSelectable = true
+    textView.allowsUndo = true
     textView.textContainerInset = NSSize(width: 20, height: 20)
     textView.delegate = self
     self.textView = textView
