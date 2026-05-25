@@ -2,6 +2,7 @@ import Foundation
 
 struct MemoryCard: Card, Equatable, Identifiable {
   let kind: CardKind = .memory
+  let autoCollapseTimeout: Duration? = nil
   var id: String
   var body: String
   var directory: String

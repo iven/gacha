@@ -2,10 +2,11 @@ import Foundation
 
 enum CardKind: String, Equatable {
   case memory
-  case placeholder
+  case emptyState
   case notice
 }
 
 protocol Card {
   var kind: CardKind { get }
+  var autoCollapseTimeout: Duration? { get }
 }

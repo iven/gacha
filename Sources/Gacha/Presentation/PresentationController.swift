@@ -5,6 +5,8 @@ import SwiftUI
 
 @MainActor
 final class PresentationController {
+  var onNewCardRequested: (() -> Void)?
+
   private var notch: DynamicNotch<AnyView, AnyView, AnyView>?
   private var hoverObservation: AnyCancellable?
 
@@ -12,9 +14,11 @@ final class PresentationController {
     let notch = DynamicNotch(
       hoverBehavior: .all,
       style: .notch,
-      expanded: { AnyView(PreviewExpandedView()) },
-      compactLeading: { AnyView(PreviewCompactLeadingView()) },
-      compactTrailing: { AnyView(PreviewCompactLeadingView().hidden()) })
+      expanded: {
+        AnyView(EmptyStateExpandedView(action: { [weak self] in self?.handleNewCardRequest() }))
+      },
+      compactLeading: { AnyView(LogoCompactView()) },
+      compactTrailing: { AnyView(LogoCompactView().hidden()) })
     self.notch = notch
     Task { await notch.compact() }
     hoverObservation =
@@ -25,6 +29,10 @@ final class PresentationController {
       }
   }
 
+  private func handleNewCardRequest() {
+    onNewCardRequested?()
+  }
+
   private func handleHoverChange(_ hovering: Bool) {
     guard let notch else {
       return
@@ -33,6 +41,7 @@ final class PresentationController {
     Task {
       if hovering {
         await notch.expand()
+        notch.windowController?.window?.makeKey()
       } else {
         await notch.compact()
       }
@@ -40,7 +49,7 @@ final class PresentationController {
   }
 }
 
-private struct PreviewCompactLeadingView: View {
+private struct LogoCompactView: View {
   var body: some View {
     Text("G")
       .font(.system(size: 11, weight: .bold))
@@ -51,7 +60,31 @@ private struct PreviewCompactLeadingView: View {
   }
 }
 
-private struct PreviewExpandedView: View {
+private struct EmptyStateExpandedView: View {
+  let action: () -> Void
+
+  var body: some View {
+    VStack(spacing: 12) {
+      Text(PresentationStrings.emptyStateTitle)
+        .font(.title.bold())
+        .multilineTextAlignment(.center)
+      Text(PresentationStrings.emptyStateBody)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+      Button(action: action) {
+        Text(PresentationStrings.emptyStateAction)
+          .frame(maxWidth: .infinity, minHeight: 32)
+      }
+      .buttonStyle(.borderedProminent)
+      .frame(width: 160)
+      .padding(.top, 24)
+    }
+    .padding(48)
+    .frame(width: 480)
+  }
+}
+
+private struct MemoryCardExpandedView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       Text("serendipity")

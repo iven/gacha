@@ -17,6 +17,11 @@ struct AppBootstrapper {
       memoryCardRepository: memoryCardRepository,
       settingsStore: settingsStore)
 
+    let presentationController = PresentationController()
+    presentationController.onNewCardRequested = {
+      windowCoordinator.openCards()
+    }
+
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
@@ -35,7 +40,7 @@ struct AppBootstrapper {
             NSApp.terminate(nil)
           })),
       windowCoordinator: windowCoordinator,
-      presentationController: PresentationController(),
+      presentationController: presentationController,
       suppressionController: SuppressionController())
     try environment.start()
     return environment
