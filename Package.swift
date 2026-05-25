@@ -19,12 +19,17 @@ let package = Package(
     .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.1"),
     .package(url: "https://github.com/swiftlang/swift-markdown.git", branch: "main"),
     .package(url: "https://github.com/MrKai77/DynamicNotchKit.git", from: "1.1.0"),
+    .package(
+      url: "https://github.com/open-spaced-repetition/swift-fsrs.git",
+      revision: "4fbaf20184d62f82a9f44f343337c61a2c5483e9"
+    ),
   ],
   targets: [
     .executableTarget(
       name: "Gacha",
       dependencies: [
         .product(name: "DynamicNotchKit", package: "DynamicNotchKit"),
+        .product(name: "FSRS", package: "swift-fsrs"),
         .product(name: "GRDB", package: "GRDB.swift"),
         .product(name: "Markdown", package: "swift-markdown"),
         "Yams",

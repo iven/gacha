@@ -1,5 +1,5 @@
 {
-  "originHash" : "960605034e2d9b2aee1cb6d48c28107fc61d4c549264e489639442d493d3ebdc",
+  "originHash" : "7d1831dbda299e5fb8c491fbe3d47ea6918bf244aab69b555176e625137660d8",
   "pins" : [
     {
       "identity" : "dynamicnotchkit",
@@ -26,6 +26,14 @@
       "state" : {
         "branch" : "gfm",
         "revision" : "924936d0427cb25a61169739a7660230bffa6ea6"
+      }
+    },
+    {
+      "identity" : "swift-fsrs",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/open-spaced-repetition/swift-fsrs.git",
+      "state" : {
+        "revision" : "4fbaf20184d62f82a9f44f343337c61a2c5483e9"
       }
     },
     {
