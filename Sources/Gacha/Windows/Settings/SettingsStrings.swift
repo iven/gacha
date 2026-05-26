@@ -7,5 +7,6 @@ enum SettingsStrings {
   static let storageLocation = AppStrings.localized("settings.overview.storageLocation")
   static let launchAtLogin = AppStrings.localized("settings.overview.launchAtLogin")
   static let autoCollapse = AppStrings.localized("settings.overview.autoCollapse")
+  static let autoCollapseUnit = AppStrings.localized("settings.overview.autoCollapse.unit")
   static let dataDirectory = AppStrings.localized("settings.advanced.dataDirectory")
 }

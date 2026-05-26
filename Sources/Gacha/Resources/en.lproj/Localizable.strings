@@ -46,6 +46,7 @@
 "settings.overview.storageLocation" = "Storage Location";
 "settings.overview.launchAtLogin" = "Open at Login";
 "settings.overview.autoCollapse" = "Auto-Collapse";
+"settings.overview.autoCollapse.unit" = "s";
 "settings.advanced.dataDirectory" = "Data Directory";
 "presentation.emptyState.title" = "No memory cards yet";
 "presentation.emptyState.body" = "Add some content and start your efficient memorization journey!";

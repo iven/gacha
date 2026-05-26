@@ -1,8 +1,8 @@
 import Foundation
 
 struct SettingsStore {
-  static let memoryAutoCollapseRange: ClosedRange<TimeInterval> = 5...120
-  static let memoryAutoCollapseStep: TimeInterval = 5
+  static let memoryAutoCollapseRange: ClosedRange<TimeInterval> = 1...60
+  static let memoryAutoCollapseStep: TimeInterval = 1
 
   private enum Key {
     static let userStoragePath = "userStoragePath"

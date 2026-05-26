@@ -59,8 +59,28 @@ struct SettingsView: View {
       }
 
       settingsRow(SettingsStrings.autoCollapse) {
-        HStack {
-          Slider(
+        HStack(spacing: 6) {
+          TextField(
+            "",
+            value: Binding(
+              get: {
+                Int(memoryAutoCollapseSeconds)
+              },
+              set: { newValue in
+                let clamped = TimeInterval(
+                  min(
+                    max(newValue, Int(SettingsStore.memoryAutoCollapseRange.lowerBound)),
+                    Int(SettingsStore.memoryAutoCollapseRange.upperBound)))
+                memoryAutoCollapseSeconds = clamped
+                settingsStore.memoryAutoCollapseSeconds = clamped
+              }),
+            format: .number
+          )
+          .textFieldStyle(.roundedBorder)
+          .multilineTextAlignment(.trailing)
+          .frame(width: 56)
+          Stepper(
+            "",
             value: Binding(
               get: {
                 memoryAutoCollapseSeconds
@@ -70,12 +90,12 @@ struct SettingsView: View {
                 settingsStore.memoryAutoCollapseSeconds = newValue
               }),
             in: SettingsStore.memoryAutoCollapseRange,
-            step: SettingsStore.memoryAutoCollapseStep)
-          Text("\(Int(memoryAutoCollapseSeconds)) s")
-            .monospacedDigit()
-            .frame(width: 48, alignment: .trailing)
+            step: SettingsStore.memoryAutoCollapseStep
+          )
+          .labelsHidden()
+          Text(SettingsStrings.autoCollapseUnit)
+            .foregroundStyle(.secondary)
         }
-        .frame(width: 300)
       }
     }
   }

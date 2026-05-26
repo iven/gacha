@@ -11,17 +11,23 @@ final class PresentationController {
 
   private let memoryCardRepository: MemoryCardRepository
   private let scheduler: MemoryCardScheduler
+  private let settingsStore: SettingsStore
   private let now: () -> Date
   private let viewModel = PresentationViewModel()
   private var notch: DynamicNotch<AnyView, AnyView, AnyView>?
   private var hoverObservation: AnyCancellable?
+  private var autoCollapseTask: Task<Void, Never>?
+  private var globalClickMonitor: Any?
+  private var isHovering = false
 
   init(
     memoryCardRepository: MemoryCardRepository,
+    settingsStore: SettingsStore,
     scheduler: MemoryCardScheduler = MemoryCardScheduler(),
     now: @escaping () -> Date = Date.init
   ) {
     self.memoryCardRepository = memoryCardRepository
+    self.settingsStore = settingsStore
     self.scheduler = scheduler
     self.now = now
   }
@@ -55,6 +61,26 @@ final class PresentationController {
       .sink { [weak self] hovering in
         self?.handleHoverChange(hovering)
       }
+    installGlobalClickMonitor()
+  }
+
+  private func installGlobalClickMonitor() {
+    globalClickMonitor = NSEvent.addGlobalMonitorForEvents(
+      matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+    ) { [weak self] _ in
+      Task { @MainActor [weak self] in
+        self?.handleGlobalClick()
+      }
+    }
+  }
+
+  private func handleGlobalClick() {
+    guard !isHovering, autoCollapseTask != nil else {
+      return
+    }
+
+    cancelAutoCollapse()
+    Task { await notch?.compact() }
   }
 
   private func handleHoverChange(_ hovering: Bool) {
@@ -62,14 +88,44 @@ final class PresentationController {
       return
     }
 
-    Task {
-      if hovering {
+    isHovering = hovering
+    if hovering {
+      cancelAutoCollapse()
+      Task {
         await notch.expand()
         notch.windowController?.window?.makeKeyAndOrderFront(nil)
-      } else {
-        await notch.compact()
       }
+    } else {
+      scheduleAutoCollapse()
     }
+  }
+
+  private func scheduleAutoCollapse() {
+    cancelAutoCollapse()
+    guard let timeout = currentAutoCollapseTimeout() else {
+      return
+    }
+
+    autoCollapseTask = Task { [weak self] in
+      if timeout > .zero {
+        try? await Task.sleep(for: timeout)
+      }
+      guard let self, !Task.isCancelled else {
+        return
+      }
+
+      await self.notch?.compact()
+    }
+  }
+
+  private func cancelAutoCollapse() {
+    autoCollapseTask?.cancel()
+    autoCollapseTask = nil
+  }
+
+  private func currentAutoCollapseTimeout() -> Duration? {
+    viewModel.currentCard.autoCollapseTimeout(
+      memoryAutoCollapseSeconds: settingsStore.memoryAutoCollapseSeconds)
   }
 
   private func handleRating(card: MemoryCard, rating: MemoryCardRating) {
@@ -106,6 +162,9 @@ final class PresentationController {
       nextCard = EmptyStateCard()
     }
     viewModel.currentCard = nextCard
+    if !isHovering {
+      scheduleAutoCollapse()
+    }
   }
 }
 

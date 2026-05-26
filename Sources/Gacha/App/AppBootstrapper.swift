@@ -18,7 +18,8 @@ struct AppBootstrapper {
       settingsStore: settingsStore)
 
     let presentationController = PresentationController(
-      memoryCardRepository: memoryCardRepository)
+      memoryCardRepository: memoryCardRepository,
+      settingsStore: settingsStore)
     presentationController.onNewCardRequested = {
       windowCoordinator.openCards()
     }

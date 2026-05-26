@@ -2,7 +2,6 @@ import Foundation
 
 struct MemoryCard: Card, Equatable, Identifiable {
   let kind: CardKind = .memory
-  let autoCollapseTimeout: Duration? = nil
   var id: String
   var body: String
   var directory: String
@@ -15,6 +14,10 @@ struct MemoryCard: Card, Equatable, Identifiable {
 }
 
 extension MemoryCard {
+  func autoCollapseTimeout(memoryAutoCollapseSeconds: TimeInterval) -> Duration? {
+    .seconds(memoryAutoCollapseSeconds)
+  }
+
   var displayTitle: String {
     Self.displayTitle(for: body)
   }

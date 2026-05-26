@@ -6,7 +6,7 @@ struct AppSettings: Equatable {
   var memoryAutoCollapseSeconds: TimeInterval
 
   static let defaultLaunchAtLoginEnabled = true
-  static let defaultMemoryAutoCollapseSeconds: TimeInterval = 30
+  static let defaultMemoryAutoCollapseSeconds: TimeInterval = 10
 
   static func defaults(userStorageURL: URL) -> AppSettings {
     AppSettings(

@@ -9,7 +9,7 @@ import Testing
 
   #expect(settings.userStorageURL == defaultUserStorageURL)
   #expect(settings.launchAtLoginEnabled)
-  #expect(settings.memoryAutoCollapseSeconds == 30)
+  #expect(settings.memoryAutoCollapseSeconds == 10)
 }
 
 @Test func settingsStoreReadsRegisteredDefaults() {
@@ -73,14 +73,17 @@ import Testing
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
-  store.memoryAutoCollapseSeconds = 3
-  #expect(store.memoryAutoCollapseSeconds == 5)
+  store.memoryAutoCollapseSeconds = 0
+  #expect(store.memoryAutoCollapseSeconds == 1)
 
-  store.memoryAutoCollapseSeconds = 42
-  #expect(store.memoryAutoCollapseSeconds == 40)
+  store.memoryAutoCollapseSeconds = 7.4
+  #expect(store.memoryAutoCollapseSeconds == 7)
+
+  store.memoryAutoCollapseSeconds = 7.6
+  #expect(store.memoryAutoCollapseSeconds == 8)
 
   store.memoryAutoCollapseSeconds = 300
-  #expect(store.memoryAutoCollapseSeconds == 120)
+  #expect(store.memoryAutoCollapseSeconds == 60)
 }
 
 private func makeTestDefaults() -> UserDefaults {
