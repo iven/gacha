@@ -87,9 +87,11 @@ struct MarkdownSyntaxHighlighter {
     }
   }
 
+  private static let headingAlphas: [CGFloat] = [1.0, 0.9, 0.75, 0.5, 0.5, 0.5]
+  private static let headingFontScales: [CGFloat] = [2.5, 1.75, 1.25, 1.0, 1.0, 1.0]
+
   private func headingColor(level: Int) -> NSColor {
-    let alphas: [CGFloat] = [1.0, 0.75, 0.55, 0.35, 0.35, 0.35]
-    let alpha = alphas[max(0, min(level - 1, alphas.count - 1))]
+    let alpha = Self.headingAlphas[max(0, min(level - 1, Self.headingAlphas.count - 1))]
     return NSColor(name: nil) { appearance in
       let base =
         appearance.bestMatch(from: [.darkAqua, .vibrantDark]) != nil
@@ -99,13 +101,8 @@ struct MarkdownSyntaxHighlighter {
   }
 
   private func headingFontSize(level: Int) -> CGFloat {
-    switch level {
-    case 1: return baseFontSize + 8
-    case 2: return baseFontSize + 6
-    case 3: return baseFontSize + 4
-    case 4: return baseFontSize + 2
-    default: return baseFontSize + 1
-    }
+    let scale = Self.headingFontScales[max(0, min(level - 1, Self.headingFontScales.count - 1))]
+    return baseFontSize * scale
   }
 
   private func nsRange(for markup: Markup, context: HighlightContext) -> NSRange? {

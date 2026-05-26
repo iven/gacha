@@ -71,9 +71,8 @@ struct MemoryCardExpandedView: View {
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, alignment: .leading)
     } else {
-      Text(trimmed)
-        .font(.title3)
-        .foregroundStyle(.primary)
+      MarkdownRenderer(text: trimmed)
+        .environment(\.colorScheme, .dark)
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
