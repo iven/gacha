@@ -54,6 +54,7 @@
 "presentation.rating.hard" = "模糊";
 "presentation.rating.good" = "熟悉";
 "presentation.rating.easy" = "精通";
+"presentation.rating.next" = "下一张";
 "presentation.card.emptyBody" = "（无内容）";
 "startup.failure.title" = "Gacha 无法启动";
 "startup.failure.message" = "Gacha 无法初始化卡片存储，因此无法继续启动。\n\n错误信息：%@";

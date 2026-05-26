@@ -54,6 +54,7 @@
 "presentation.rating.hard" = "Hard";
 "presentation.rating.good" = "Good";
 "presentation.rating.easy" = "Easy";
+"presentation.rating.next" = "Next";
 "presentation.card.emptyBody" = "(No content)";
 "startup.failure.title" = "Gacha Cannot Start";
 "startup.failure.message" = "Gacha could not initialize card storage and cannot continue starting.\n\nError: %@";

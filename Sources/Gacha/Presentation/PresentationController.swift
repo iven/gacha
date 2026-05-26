@@ -30,7 +30,12 @@ final class PresentationController {
     refreshCurrentCard()
 
     let viewModel = self.viewModel
+    let scheduler = self.scheduler
+    let now = self.now
     let actions = MemoryCardActions(
+      isDue: { card in scheduler.isDue(card, now: now()) },
+      onRate: { [weak self] card, rating in self?.handleRating(card: card, rating: rating) },
+      onNext: { [weak self] card in self?.handleNext(card: card) },
       onNewCard: { [weak self] in self?.onNewCardRequested?() },
       onEditCard: { [weak self] in self?.onEditCardRequested?() },
       onSettings: { [weak self] in self?.onSettingsRequested?() })
@@ -67,6 +72,25 @@ final class PresentationController {
     }
   }
 
+  private func handleRating(card: MemoryCard, rating: MemoryCardRating) {
+    do {
+      let updated = try scheduler.apply(rating: rating, to: card, now: now())
+      try memoryCardRepository.write(updated)
+    } catch {
+      AppLogger.app.warning("Failed to apply rating: \(error.localizedDescription)")
+    }
+    refreshCurrentCard()
+  }
+
+  private func handleNext(card: MemoryCard) {
+    do {
+      try memoryCardRepository.write(scheduler.markSeen(card, now: now()))
+    } catch {
+      AppLogger.app.warning("Failed to mark card as seen: \(error.localizedDescription)")
+    }
+    refreshCurrentCard()
+  }
+
   private func refreshCurrentCard() {
     let nextCard: any Card
     do {
@@ -91,6 +115,9 @@ private final class PresentationViewModel: ObservableObject {
 }
 
 struct MemoryCardActions {
+  let isDue: (MemoryCard) -> Bool
+  let onRate: (MemoryCard, MemoryCardRating) -> Void
+  let onNext: (MemoryCard) -> Void
   let onNewCard: () -> Void
   let onEditCard: () -> Void
   let onSettings: () -> Void
@@ -151,9 +178,9 @@ private struct MemoryCardExpandedView: View {
 
   // DynamicNotchKit panel = screen.width/2 × screen.height/2, with the expanded
   // content sitting inside safeAreaInsets reserving the notch height on top and
-  // 15pt on each remaining edge (NotchView.swift). The card height fills the
+  // 48pt on each remaining edge (NotchView.swift). The card height fills the
   // available area; the width is the PRD-specified design width.
-  private static let dynamicNotchKitEdgeInset: CGFloat = 15
+  private static let dynamicNotchKitEdgeInset: CGFloat = 48
   private static let cardWidth: CGFloat = 480
 
   private var cardMaxHeight: CGFloat {
@@ -179,10 +206,23 @@ private struct MemoryCardExpandedView: View {
       Divider()
         .padding(.vertical, 4)
       HStack(spacing: 8) {
-        ratingButton(PresentationStrings.ratingAgain, tint: .ratingAgain)
-        ratingButton(PresentationStrings.ratingHard, tint: .ratingHard)
-        ratingButton(PresentationStrings.ratingGood, tint: .ratingGood)
-        ratingButton(PresentationStrings.ratingEasy, tint: .ratingEasy)
+        if isDue {
+          ratingButton(PresentationStrings.ratingAgain, tint: .ratingAgain, rating: .again)
+          ratingButton(PresentationStrings.ratingHard, tint: .ratingHard, rating: .hard)
+          ratingButton(PresentationStrings.ratingGood, tint: .ratingGood, rating: .good)
+          ratingButton(PresentationStrings.ratingEasy, tint: .ratingEasy, rating: .easy)
+        } else {
+          ratingButton("", tint: .ratingAgain, rating: .again)
+            .hidden()
+            .allowsHitTesting(false)
+          ratingButton("", tint: .ratingHard, rating: .hard)
+            .hidden()
+            .allowsHitTesting(false)
+          ratingButton("", tint: .ratingGood, rating: .good)
+            .hidden()
+            .allowsHitTesting(false)
+          nextButton
+        }
       }
     }
     .padding(.horizontal, 8)
@@ -208,8 +248,27 @@ private struct MemoryCardExpandedView: View {
     }
   }
 
-  private func ratingButton(_ label: String, tint: Color) -> some View {
+  private var isDue: Bool {
+    actions.isDue(card)
+  }
+
+  private var nextButton: some View {
     Button {
+      actions.onNext(card)
+    } label: {
+      Text(PresentationStrings.ratingNext)
+        .foregroundStyle(.white.opacity(0.8))
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.ratingNext.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
+    }
+    .buttonStyle(.plain)
+    .pointingCursor(.arrow)
+  }
+
+  private func ratingButton(_ label: String, tint: Color, rating: MemoryCardRating) -> some View {
+    Button {
+      actions.onRate(card, rating)
     } label: {
       Text(label)
         .foregroundStyle(.white.opacity(0.8))
@@ -254,4 +313,5 @@ extension Color {
   fileprivate static let ratingHard = Color(red: 0.82, green: 0.60, blue: 0.36)
   fileprivate static let ratingGood = Color(red: 0.45, green: 0.72, blue: 0.62)
   fileprivate static let ratingEasy = Color(red: 0.45, green: 0.62, blue: 0.85)
+  fileprivate static let ratingNext = Color(white: 0.6)
 }

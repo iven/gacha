@@ -52,6 +52,12 @@ struct MemoryCardScheduler {
     return weightedRandom(from: cards, now: now)
   }
 
+  func markSeen(_ card: MemoryCard, now: Date) -> MemoryCard {
+    var updated = card
+    updated.lastSeen = now
+    return updated
+  }
+
   func apply(rating: MemoryCardRating, to card: MemoryCard, now: Date) throws -> MemoryCard {
     var updated = card
     updated.lastSeen = now
