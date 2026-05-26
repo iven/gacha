@@ -17,16 +17,16 @@ struct AppBootstrapper {
       memoryCardRepository: memoryCardRepository,
       settingsStore: settingsStore)
 
-    let presentationController = PresentationController(
+    let notchController = NotchController(
       memoryCardRepository: memoryCardRepository,
       settingsStore: settingsStore)
-    presentationController.onNewCardRequested = {
+    notchController.onNewCardRequested = {
       windowCoordinator.openCards()
     }
-    presentationController.onEditCardRequested = { card in
+    notchController.onEditCardRequested = { card in
       windowCoordinator.openCards(editing: card)
     }
-    presentationController.onSettingsRequested = {
+    notchController.onSettingsRequested = {
       windowCoordinator.openSettings()
     }
 
@@ -39,12 +39,12 @@ struct AppBootstrapper {
           windowCoordinator.openSettings()
         },
         setPaused: { paused in
-          presentationController.setPaused(paused)
+          notchController.setPaused(paused)
         },
         quit: {
           NSApp.terminate(nil)
         }))
-    presentationController.onPausedChange = { [weak menuBarController] paused in
+    notchController.onPausedChange = { [weak menuBarController] paused in
       menuBarController?.setPaused(paused)
     }
 
@@ -55,7 +55,7 @@ struct AppBootstrapper {
       launchAtLoginController: launchAtLoginController,
       menuBarController: menuBarController,
       windowCoordinator: windowCoordinator,
-      presentationController: presentationController,
+      notchController: notchController,
       suppressionController: SuppressionController())
     try environment.start()
     return environment
