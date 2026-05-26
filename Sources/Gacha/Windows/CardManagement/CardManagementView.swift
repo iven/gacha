@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 
 final class CardManagementSplitViewController: NSSplitViewController {
   var onSelectedCardAvailabilityChange: (() -> Void)?
@@ -15,6 +16,7 @@ final class CardManagementSplitViewController: NSSplitViewController {
   private var categories: [CardCategoryItem] = []
   private var selectedDirectory = AppMetadata.defaultCategoryDirectoryName
   private var selectedCardID: String?
+  private var repositoryEventObservation: AnyCancellable?
 
   init(memoryCardRepository: MemoryCardRepository) {
     self.memoryCardRepository = memoryCardRepository
@@ -64,6 +66,60 @@ final class CardManagementSplitViewController: NSSplitViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     reloadData()
+    repositoryEventObservation =
+      memoryCardRepository.events
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        self?.handleRepositoryEvent(event)
+      }
+  }
+
+  private func handleRepositoryEvent(_ event: MemoryCardRepositoryEvent) {
+    guard isViewLoaded else {
+      return
+    }
+    let shouldFocusNewCard: Bool
+    switch event {
+    case .didCreate(let card, focusEditor: true):
+      selectedDirectory = card.directory
+      selectedCardID = card.id
+      shouldFocusNewCard = true
+    case .didDelete(let id, _) where selectedCardID == id:
+      selectedCardID = nil
+      draftSession.discard()
+      shouldFocusNewCard = false
+    case .didDeleteDirectory(let name) where selectedDirectory == name:
+      selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+      selectedCardID = nil
+      draftSession.discard()
+      shouldFocusNewCard = false
+    default:
+      shouldFocusNewCard = false
+    }
+    do {
+      cards = try memoryCardRepository.list()
+      categories = try makeCategoryItems(cards: cards)
+    } catch {
+      AppLogger.app.error("Failed to refresh card management after repository event: \(error)")
+      return
+    }
+    if !categories.contains(where: { $0.directory == selectedDirectory }) {
+      selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+      selectedCardID = nil
+    }
+    categoryViewController.setCategories(categories, selectedDirectory: selectedDirectory)
+    mainViewController.setAllCategories(categories)
+    let categoryCards = cards.filter { $0.directory == selectedDirectory }
+    if shouldFocusNewCard {
+      let selected = mainViewController.setCards(categoryCards, selectedCardID: selectedCardID)
+      selectedCardID = selected?.id
+      draftSession.begin(card: selected)
+      mainViewController.focusEditor()
+    } else {
+      _ = mainViewController.setCardList(categoryCards, selectedCardID: selectedCardID)
+    }
+    updateWindowSummary()
+    notifySelectedCardAvailability()
   }
 
   override func viewDidAppear() {
@@ -115,12 +171,10 @@ final class CardManagementSplitViewController: NSSplitViewController {
   func createCard() {
     flushDraft()
     do {
-      let directory = selectedDirectory
-      let card = try memoryCardRepository.create(body: "", directory: directory)
-      selectedDirectory = card.directory
-      selectedCardID = card.id
-      reloadData()
-      mainViewController.focusEditor()
+      _ = try memoryCardRepository.create(
+        body: "",
+        directory: selectedDirectory,
+        focusEditor: true)
     } catch {
       AppLogger.app.error("Failed to create memory card: \(error)")
     }
@@ -144,11 +198,6 @@ final class CardManagementSplitViewController: NSSplitViewController {
     draftSession.cancelScheduledFlush()
     do {
       try memoryCardRepository.delete(id: card.id, directory: card.directory)
-      if selectedCardID == card.id {
-        selectedCardID = nil
-      }
-      draftSession.discard()
-      reloadData()
     } catch {
       AppLogger.app.error("Failed to delete memory card: \(error)")
     }
@@ -169,7 +218,6 @@ final class CardManagementSplitViewController: NSSplitViewController {
       try memoryCardRepository.write(fresh)
       selectedDirectory = directory
       selectedCardID = fresh.id
-      reloadData()
     } catch {
       AppLogger.app.error("Failed to move memory card: \(error)")
     }
@@ -179,12 +227,6 @@ final class CardManagementSplitViewController: NSSplitViewController {
     draftSession.cancelScheduledFlush()
     do {
       try memoryCardRepository.deleteDirectory(name: directory)
-      if selectedDirectory == directory {
-        selectedDirectory = AppMetadata.defaultCategoryDirectoryName
-      }
-      selectedCardID = nil
-      draftSession.discard()
-      reloadData()
     } catch {
       AppLogger.app.error("Failed to delete category: \(error)")
     }
@@ -244,11 +286,9 @@ final class CardManagementSplitViewController: NSSplitViewController {
     switch draftSession.flush(against: cards) {
     case .noChange:
       return true
-    case .saved:
-      do {
-        try refreshSavedCardList()
-      } catch {
-        AppLogger.app.error("Failed to refresh after save: \(error)")
+    case .saved(let card):
+      if let index = cards.firstIndex(where: { $0.id == card.id }) {
+        cards[index] = card
       }
       return true
     case .failure:
@@ -271,16 +311,6 @@ final class CardManagementSplitViewController: NSSplitViewController {
     draftSession.begin(card: selectedCard)
     updateWindowSummary()
     notifySelectedCardAvailability()
-  }
-
-  private func refreshSavedCardList() throws {
-    cards = try memoryCardRepository.list()
-    categories = try makeCategoryItems(cards: cards)
-    categoryViewController.setCategories(categories, selectedDirectory: selectedDirectory)
-    mainViewController.setAllCategories(categories)
-    let categoryCards = cards.filter { $0.directory == selectedDirectory }
-    _ = mainViewController.setCardList(categoryCards, selectedCardID: selectedCardID)
-    updateWindowSummary()
   }
 
   private func notifySelectedCardAvailability() {

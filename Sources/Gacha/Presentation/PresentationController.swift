@@ -16,6 +16,7 @@ final class PresentationController {
   private let viewModel = PresentationViewModel()
   private var notch: DynamicNotch<AnyView, AnyView, AnyView>?
   private var hoverObservation: AnyCancellable?
+  private var repositoryEventObservation: AnyCancellable?
   private var autoCollapseTask: Task<Void, Never>?
   private var globalClickMonitor: Any?
   private var isHovering = false
@@ -64,7 +65,40 @@ final class PresentationController {
       .sink { [weak self] hovering in
         self?.handleHoverChange(hovering)
       }
+    repositoryEventObservation =
+      memoryCardRepository.events
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] event in
+        self?.handleRepositoryEvent(event)
+      }
     installGlobalClickMonitor()
+  }
+
+  private func handleRepositoryEvent(_ event: MemoryCardRepositoryEvent) {
+    switch event {
+    case .didUpdate(let card):
+      if let current = viewModel.currentCard as? MemoryCard, current.id == card.id {
+        viewModel.currentCard = card
+      }
+    case .didDelete(let id, _):
+      if let current = viewModel.currentCard as? MemoryCard, current.id == id {
+        refreshCurrentCard()
+      }
+    case .didCreate:
+      if viewModel.currentCard is EmptyStateCard {
+        refreshCurrentCard()
+      }
+    case .didDeleteDirectory(let name):
+      if let current = viewModel.currentCard as? MemoryCard, current.directory == name {
+        refreshCurrentCard()
+      }
+    case .didMoveDirectory(let oldName, _):
+      if let current = viewModel.currentCard as? MemoryCard, current.directory == oldName {
+        refreshCurrentCard()
+      }
+    case .didRebuildIndex:
+      refreshCurrentCard()
+    }
   }
 
   private func installGlobalClickMonitor() {

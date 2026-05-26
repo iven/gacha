@@ -152,6 +152,60 @@ import Testing
   #expect(try repository.list().map(\.displayTitle) == ["transience", "serendipity"])
 }
 
+@Test func memoryCardRepositoryEmitsRebuildIndexEvent() throws {
+  let fixture = makeMemoryCardRepositoryFixture()
+  let repository = try fixture.repository()
+  _ = try fixture.writeCardFile(body: "first\n\nbody", directory: "Product")
+  var observed: [MemoryCardRepositoryEvent] = []
+  let cancellable = repository.events.sink { observed.append($0) }
+  defer { cancellable.cancel() }
+
+  try repository.rebuildIndex()
+
+  #expect(observed == [.didRebuildIndex])
+}
+
+@Test func memoryCardRepositoryEmitsEventsForLifecycle() throws {
+  let fixture = makeMemoryCardRepositoryFixture()
+  let repository = try fixture.repository()
+  var observed: [MemoryCardRepositoryEvent] = []
+  let cancellable = repository.events.sink { observed.append($0) }
+  defer { cancellable.cancel() }
+
+  let created = try repository.create(body: "first\n\nbody", directory: "Product")
+  var updated = created
+  updated.body = "first\n\nupdated"
+  try repository.write(updated)
+  try repository.renameDirectory(from: "Product", to: "Renamed")
+  try repository.delete(id: updated.id, directory: "Renamed")
+  try repository.deleteDirectory(name: "Renamed")
+
+  #expect(
+    observed
+      == [
+        .didCreate(created, focusEditor: false),
+        .didUpdate(updated),
+        .didMoveDirectory(from: "Product", to: "Renamed"),
+        .didDelete(id: updated.id, directory: "Renamed"),
+        .didDeleteDirectory(name: "Renamed"),
+      ])
+}
+
+@Test func memoryCardRepositoryForwardsFocusEditorFlagOnCreate() throws {
+  let fixture = makeMemoryCardRepositoryFixture()
+  let repository = try fixture.repository()
+  var observed: [MemoryCardRepositoryEvent] = []
+  let cancellable = repository.events.sink { observed.append($0) }
+  defer { cancellable.cancel() }
+
+  let card = try repository.create(
+    body: "focus me\n\nbody",
+    directory: AppMetadata.defaultCategoryDirectoryName,
+    focusEditor: true)
+
+  #expect(observed == [.didCreate(card, focusEditor: true)])
+}
+
 private final class MemoryCardRepositoryFacadeFixture {
   let fileManager = FileManager.default
   let directories: AppDirectories
