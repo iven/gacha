@@ -133,6 +133,13 @@ final class CardManagementSplitViewController: NSSplitViewController {
     reloadData()
   }
 
+  func selectCard(id: String, in directory: String) {
+    flushDraft()
+    selectedDirectory = directory
+    selectedCardID = id
+    reloadData()
+  }
+
   func delete(card: MemoryCard) {
     draftSession.cancelScheduledFlush()
     do {

@@ -22,8 +22,8 @@ struct AppBootstrapper {
     presentationController.onNewCardRequested = {
       windowCoordinator.openCards()
     }
-    presentationController.onEditCardRequested = {
-      windowCoordinator.openCards()
+    presentationController.onEditCardRequested = { card in
+      windowCoordinator.openCards(editing: card)
     }
     presentationController.onSettingsRequested = {
       windowCoordinator.openSettings()

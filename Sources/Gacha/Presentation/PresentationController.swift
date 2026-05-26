@@ -6,7 +6,7 @@ import SwiftUI
 @MainActor
 final class PresentationController {
   var onNewCardRequested: (() -> Void)?
-  var onEditCardRequested: (() -> Void)?
+  var onEditCardRequested: ((MemoryCard) -> Void)?
   var onSettingsRequested: (() -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
@@ -37,7 +37,7 @@ final class PresentationController {
       onRate: { [weak self] card, rating in self?.handleRating(card: card, rating: rating) },
       onNext: { [weak self] card in self?.handleNext(card: card) },
       onNewCard: { [weak self] in self?.onNewCardRequested?() },
-      onEditCard: { [weak self] in self?.onEditCardRequested?() },
+      onEditCard: { [weak self] card in self?.onEditCardRequested?(card) },
       onSettings: { [weak self] in self?.onSettingsRequested?() })
     let notch = DynamicNotch(
       hoverBehavior: .all,
@@ -119,7 +119,7 @@ struct MemoryCardActions {
   let onRate: (MemoryCard, MemoryCardRating) -> Void
   let onNext: (MemoryCard) -> Void
   let onNewCard: () -> Void
-  let onEditCard: () -> Void
+  let onEditCard: (MemoryCard) -> Void
   let onSettings: () -> Void
 }
 
@@ -195,7 +195,9 @@ private struct MemoryCardExpandedView: View {
       HStack(spacing: 8) {
         LogoCompactView()
         Spacer()
-        toolButton(symbol: "square.and.pencil", action: actions.onEditCard)
+        toolButton(symbol: "square.and.pencil") {
+          actions.onEditCard(card)
+        }
         toolButton(symbol: "gearshape", action: actions.onSettings)
       }
       .padding(.bottom, 4)

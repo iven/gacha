@@ -27,10 +27,13 @@ final class WindowCoordinator: NSObject, NSWindowDelegate {
     super.init()
   }
 
-  func openCards() {
+  func openCards(editing card: MemoryCard? = nil) {
     NSApp.setActivationPolicy(.regular)
     let window = cardManagementWindow ?? makeCardManagementWindow()
     cardManagementWindow = window
+    if let card {
+      cardManagementViewController?.selectCard(id: card.id, in: card.directory)
+    }
     window.makeKeyAndOrderFront(nil)
     NSApp.activate(ignoringOtherApps: true)
   }
