@@ -64,9 +64,17 @@ final class MenuBarController: NSObject {
   }
 
   @objc private func togglePause() {
-    state.isPaused.toggle()
-    pauseItem?.title = state.pauseDisplayTitle
+    setPaused(!state.isPaused)
     actions.setPaused(state.isPaused)
+  }
+
+  func setPaused(_ paused: Bool) {
+    guard state.isPaused != paused else {
+      return
+    }
+
+    state.isPaused = paused
+    pauseItem?.title = state.pauseDisplayTitle
   }
 
   @objc private func quit() {

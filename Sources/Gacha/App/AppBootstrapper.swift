@@ -30,23 +30,30 @@ struct AppBootstrapper {
       windowCoordinator.openSettings()
     }
 
+    let menuBarController = MenuBarController(
+      actions: MenuBarActions(
+        openCards: {
+          windowCoordinator.openCards()
+        },
+        openSettings: {
+          windowCoordinator.openSettings()
+        },
+        setPaused: { paused in
+          presentationController.setPaused(paused)
+        },
+        quit: {
+          NSApp.terminate(nil)
+        }))
+    presentationController.onPausedChange = { [weak menuBarController] paused in
+      menuBarController?.setPaused(paused)
+    }
+
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
       memoryCardRepository: memoryCardRepository,
       launchAtLoginController: launchAtLoginController,
-      menuBarController: MenuBarController(
-        actions: MenuBarActions(
-          openCards: {
-            windowCoordinator.openCards()
-          },
-          openSettings: {
-            windowCoordinator.openSettings()
-          },
-          setPaused: { _ in },
-          quit: {
-            NSApp.terminate(nil)
-          })),
+      menuBarController: menuBarController,
       windowCoordinator: windowCoordinator,
       presentationController: presentationController,
       suppressionController: SuppressionController())

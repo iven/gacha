@@ -34,6 +34,9 @@ final class PresentationController {
 
   func start() {
     refreshCurrentCard()
+    viewModel.onResumeRequested = { [weak self] in
+      self?.setPaused(false)
+    }
 
     let viewModel = self.viewModel
     let scheduler = self.scheduler
@@ -52,7 +55,7 @@ final class PresentationController {
         AnyView(PresentationExpandedView(viewModel: viewModel, actions: actions))
       },
       compactLeading: { AnyView(LogoCompactView()) },
-      compactTrailing: { AnyView(LogoCompactView().hidden()) })
+      compactTrailing: { AnyView(CompactTrailingView(viewModel: viewModel)) })
     self.notch = notch
     Task { await notch.compact() }
     hoverObservation =
@@ -83,12 +86,38 @@ final class PresentationController {
     Task { await notch?.compact() }
   }
 
+  var onPausedChange: ((Bool) -> Void)?
+
+  func setPaused(_ paused: Bool) {
+    guard viewModel.isPaused != paused else {
+      return
+    }
+
+    viewModel.isPaused = paused
+    if paused {
+      cancelAutoCollapse()
+      Task { await notch?.compact() }
+    } else if isHovering, let notch {
+      cancelAutoCollapse()
+      Task {
+        await notch.expand()
+        notch.windowController?.window?.makeKeyAndOrderFront(nil)
+      }
+    }
+    onPausedChange?(paused)
+  }
+
   private func handleHoverChange(_ hovering: Bool) {
     guard let notch else {
       return
     }
 
     isHovering = hovering
+    if viewModel.isPaused {
+      cancelAutoCollapse()
+      return
+    }
+
     if hovering {
       cancelAutoCollapse()
       Task {
@@ -171,6 +200,8 @@ final class PresentationController {
 @MainActor
 private final class PresentationViewModel: ObservableObject {
   @Published var currentCard: any Card = EmptyStateCard()
+  @Published var isPaused = false
+  var onResumeRequested: (() -> Void)?
 }
 
 struct MemoryCardActions {
@@ -204,6 +235,42 @@ private struct LogoCompactView: View {
       .padding(.horizontal, 8)
       .padding(.vertical, 4)
       .background(.red, in: Capsule())
+  }
+}
+
+private struct CompactTrailingView: View {
+  @ObservedObject var viewModel: PresentationViewModel
+  @State private var isHovering = false
+
+  var body: some View {
+    if viewModel.isPaused {
+      pauseButton
+    } else {
+      pauseButton.hidden()
+    }
+  }
+
+  private var pauseButton: some View {
+    Button {
+      viewModel.onResumeRequested?()
+    } label: {
+      Image(systemName: isHovering ? "play.fill" : "pause.fill")
+        .font(.system(size: 11, weight: .bold))
+        .foregroundStyle(.white.opacity(0.85))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(isHovering ? Color.blue : Color.clear, in: Capsule())
+        .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    .onHover { hovering in
+      isHovering = hovering
+      if hovering {
+        NSCursor.pointingHand.push()
+      } else {
+        NSCursor.pop()
+      }
+    }
   }
 }
 
