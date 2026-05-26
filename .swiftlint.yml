@@ -9,6 +9,7 @@ excluded:
 
 disabled_rules:
   - trailing_comma
+  - opening_brace
 
 line_length:
   warning: 100

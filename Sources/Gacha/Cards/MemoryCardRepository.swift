@@ -67,8 +67,9 @@ final class MemoryCardRepository {
   }
 
   func write(_ card: MemoryCard) throws {
-    let existingCard = try indexStore.find(id: card.id)
-    if let existingCard, existingCard.directory != card.directory {
+    if let existingCard = try indexStore.find(id: card.id),
+      existingCard.directory != card.directory
+    {
       try fileRepository.delete(id: existingCard.id, directory: existingCard.directory)
     }
 
