@@ -94,7 +94,6 @@ struct MemoryCardExpandedView: View {
         .background(Color.ratingNext.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
     }
     .buttonStyle(.plain)
-    .pointingCursor(.arrow)
   }
 
   private func ratingButton(_ label: String, tint: Color, rating: MemoryCardRating) -> some View {
@@ -108,7 +107,6 @@ struct MemoryCardExpandedView: View {
         .background(tint.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
     }
     .buttonStyle(.plain)
-    .pointingCursor(.arrow)
   }
 
   private func toolButton(symbol: String, action: @escaping () -> Void) -> some View {
@@ -123,6 +121,5 @@ struct MemoryCardExpandedView: View {
         .background(.white.opacity(0.2), in: Capsule())
     }
     .buttonStyle(.plain)
-    .pointingCursor(.arrow)
   }
 }

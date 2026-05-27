@@ -1,17 +1,4 @@
-import AppKit
 import SwiftUI
-
-extension View {
-  func pointingCursor(_ cursor: NSCursor) -> some View {
-    onHover { hovering in
-      if hovering {
-        cursor.push()
-      } else {
-        NSCursor.pop()
-      }
-    }
-  }
-}
 
 extension Color {
   static let ratingAgain = Color(red: 0.78, green: 0.36, blue: 0.36)
