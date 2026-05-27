@@ -5,6 +5,7 @@ struct MemoryCardExpandedView: View {
   let card: MemoryCard
   let actions: MemoryCardActions
   var isInteractive: Bool = true
+  @ObservedObject var autoCollapseSchedule: NotchAutoCollapseSchedule
 
   // DynamicNotchKit panel = screen.width/2 × screen.height/2, with the expanded
   // content sitting inside safeAreaInsets reserving the notch height on top and
@@ -34,7 +35,7 @@ struct MemoryCardExpandedView: View {
         bodyView
       }
       .padding(.vertical, 12)
-      Divider()
+      AutoCollapseProgressBar(schedule: autoCollapseSchedule)
       HStack(spacing: 8) {
         if isDue {
           ratingButton(NotchStrings.ratingAgain, tint: .ratingAgain, rating: .again)

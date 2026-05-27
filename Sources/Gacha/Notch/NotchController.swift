@@ -11,6 +11,7 @@ final class NotchController {
 
   private(set) var isPaused = false
   private(set) var isHovering = false
+  let autoCollapseSchedule = NotchAutoCollapseSchedule()
 
   private let viewModel = NotchControllerViewModel()
   private var notch: DynamicNotch<AnyView, AnyView, AnyView>?
@@ -131,6 +132,13 @@ final class NotchController {
       return
     }
 
+    let seconds = timeout.seconds
+    if seconds > 0 {
+      autoCollapseSchedule.start(duration: seconds)
+    } else {
+      autoCollapseSchedule.clear()
+    }
+
     autoCollapseTask = Task { [weak self] in
       if timeout > .zero {
         try? await Task.sleep(for: timeout)
@@ -139,6 +147,7 @@ final class NotchController {
         return
       }
 
+      self.autoCollapseSchedule.clear()
       await self.notch?.compact()
     }
   }
@@ -146,6 +155,7 @@ final class NotchController {
   private func cancelAutoCollapse() {
     autoCollapseTask?.cancel()
     autoCollapseTask = nil
+    autoCollapseSchedule.clear()
   }
 }
 
@@ -153,6 +163,13 @@ final class NotchController {
 final class NotchControllerViewModel: ObservableObject {
   @Published var isPaused = false
   var onResumeRequested: (() -> Void)?
+}
+
+extension Duration {
+  fileprivate var seconds: TimeInterval {
+    let (whole, attoseconds) = components
+    return TimeInterval(whole) + TimeInterval(attoseconds) / 1.0e18
+  }
 }
 
 private struct NotchCompactTrailingView: View {

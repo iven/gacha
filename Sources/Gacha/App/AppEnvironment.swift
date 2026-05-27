@@ -46,8 +46,11 @@ final class AppEnvironment {
 
     suppressionController.start()
     let presenter = memoryNotchPresenter
+    let schedule = notchController.autoCollapseSchedule
     notchController.start(
-      expanded: { MemoryNotchExpandedView(presenter: presenter) },
+      expanded: {
+        MemoryNotchExpandedView(presenter: presenter, autoCollapseSchedule: schedule)
+      },
       compactLeading: { LogoCompactView() })
     memoryNotchPresenter.start()
     menuBarController.start()
