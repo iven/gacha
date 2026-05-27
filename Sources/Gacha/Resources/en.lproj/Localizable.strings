@@ -38,8 +38,6 @@
 "cards.list.subtitleFormat" = "%@ · %@";
 "cards.list.emptySummary" = "No additional content";
 "cards.empty.category" = "No Cards";
-"cards.pane.editor" = "Editor";
-"cards.pane.preview" = "Preview";
 "settings.window.title" = "Settings";
 "settings.tab.overview" = "Overview";
 "settings.tab.advanced" = "Advanced";

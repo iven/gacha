@@ -43,7 +43,5 @@ enum CardManagementStrings {
   static let cardListSubtitleFormat = AppStrings.localized("cards.list.subtitleFormat")
   static let emptyCardSummary = AppStrings.localized("cards.list.emptySummary")
   static let emptyCategory = AppStrings.localized("cards.empty.category")
-  static let editorPane = AppStrings.localized("cards.pane.editor")
-  static let previewPane = AppStrings.localized("cards.pane.preview")
   static let uncategorized = AppStrings.localized("default.category.uncategorized")
 }

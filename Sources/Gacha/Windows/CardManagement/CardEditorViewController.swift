@@ -1,6 +1,6 @@
 import AppKit
 
-final class CardTextPaneViewController: NSViewController, NSTextViewDelegate {
+final class CardEditorViewController: NSViewController, NSTextViewDelegate {
   var onTextChange: ((String) -> Void)?
   var onClick: (() -> Void)?
 

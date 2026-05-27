@@ -38,8 +38,6 @@
 "cards.list.subtitleFormat" = "%@ · %@";
 "cards.list.emptySummary" = "无更多内容";
 "cards.empty.category" = "无卡片";
-"cards.pane.editor" = "编辑器";
-"cards.pane.preview" = "预览";
 "settings.window.title" = "设置";
 "settings.tab.overview" = "概览";
 "settings.tab.advanced" = "高级";

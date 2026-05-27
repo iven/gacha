@@ -9,14 +9,15 @@ final class CardMainViewController: NSViewController {
 
   private let splitViewController = NSSplitViewController()
   private let cardListViewController = CardListColumnViewController()
-  private let editorPreviewViewController = CardEditorPreviewSplitViewController()
+  private let editorViewController = CardEditorViewController(
+    syntaxHighlighter: MarkdownSyntaxHighlighter())
   private var contentTopConstraint: NSLayoutConstraint?
 
   override func loadView() {
     let rootView = NSView()
 
     cardListViewController.onSelectionChange = { [weak self] card in
-      self?.editorPreviewViewController.show(card: card)
+      self?.show(card: card)
       self?.onCardSelectionChange?(card)
     }
     cardListViewController.onDeleteCard = { [weak self] card in
@@ -25,10 +26,10 @@ final class CardMainViewController: NSViewController {
     cardListViewController.onMoveCard = { [weak self] card, directory in
       self?.onMoveCard?(card, directory)
     }
-    editorPreviewViewController.onBodyChange = { [weak self] body in
+    editorViewController.onTextChange = { [weak self] body in
       self?.onCardBodyChange?(body)
     }
-    editorPreviewViewController.onEmptyStateClick = { [weak self] in
+    editorViewController.onClick = { [weak self] in
       self?.onEmptyStateClick?()
     }
 
@@ -37,7 +38,7 @@ final class CardMainViewController: NSViewController {
     splitViewController.addSplitViewItem(
       Self.cardListSplitViewItem(viewController: cardListViewController))
     splitViewController.addSplitViewItem(
-      Self.editorPreviewSplitViewItem(viewController: editorPreviewViewController))
+      Self.editorSplitViewItem(viewController: editorViewController))
 
     addChild(splitViewController)
 
@@ -81,7 +82,7 @@ final class CardMainViewController: NSViewController {
 
   func setCards(_ cards: [MemoryCard], selectedCardID: String?) -> MemoryCard? {
     let selectedCard = cardListViewController.setCards(cards, selectedCardID: selectedCardID)
-    editorPreviewViewController.show(card: selectedCard)
+    show(card: selectedCard)
     return selectedCard
   }
 
@@ -94,7 +95,14 @@ final class CardMainViewController: NSViewController {
   }
 
   func focusEditor() {
-    editorPreviewViewController.focusEditor()
+    editorViewController.focusTextView()
+  }
+
+  private func show(card: MemoryCard?) {
+    let isEmptyState = card == nil
+    editorViewController.setText(card?.body ?? "")
+    editorViewController.setEditable(card != nil)
+    editorViewController.setClickHandlingEnabled(isEmptyState)
   }
 
   private static func cardListSplitViewItem(
@@ -109,8 +117,8 @@ final class CardMainViewController: NSViewController {
     return item
   }
 
-  private static func editorPreviewSplitViewItem(
-    viewController: CardEditorPreviewSplitViewController
+  private static func editorSplitViewItem(
+    viewController: CardEditorViewController
   ) -> NSSplitViewItem {
     let item = NSSplitViewItem(viewController: viewController)
     item.minimumThickness = 640
