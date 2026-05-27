@@ -18,10 +18,8 @@ test:
 
 check: fix lint test
 
-app:
-	scripts/build-app.sh
-
 dmg:
+	scripts/build-app.sh
 	scripts/build-dmg.sh
 
 dev:
