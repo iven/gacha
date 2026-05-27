@@ -29,13 +29,11 @@ struct MemoryCardExpandedView: View {
         }
         toolButton(symbol: "gearshape", action: actions.onSettings)
       }
-      .padding(.bottom, 4)
       ScrollView(.vertical) {
         bodyView
       }
       .padding(.vertical, 12)
       Divider()
-        .padding(.vertical, 4)
       HStack(spacing: 8) {
         if isDue {
           ratingButton(NotchStrings.ratingAgain, tint: .ratingAgain, rating: .again)
@@ -56,8 +54,8 @@ struct MemoryCardExpandedView: View {
         }
       }
     }
-    .padding(.horizontal, 8)
-    .padding(.bottom, 8)
+    .padding(.horizontal, 12)
+    .padding(.bottom, 12)
     .frame(width: Self.cardWidth, alignment: .leading)
     .frame(maxHeight: cardMaxHeight, alignment: .top)
   }
@@ -87,10 +85,10 @@ struct MemoryCardExpandedView: View {
       actions.onNext(card)
     } label: {
       Text(NotchStrings.ratingNext)
-        .foregroundStyle(.white.opacity(0.8))
+        .foregroundStyle(.white.opacity(0.75))
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Color.ratingNext.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
+        .background(Color.ratingNext.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
     }
     .buttonStyle(.plain)
     .pointingCursor(.arrow)
@@ -101,10 +99,10 @@ struct MemoryCardExpandedView: View {
       actions.onRate(card, rating)
     } label: {
       Text(label)
-        .foregroundStyle(.white.opacity(0.8))
+        .foregroundStyle(.white.opacity(0.75))
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
+        .background(tint.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
     }
     .buttonStyle(.plain)
     .pointingCursor(.arrow)
@@ -119,7 +117,7 @@ struct MemoryCardExpandedView: View {
         .foregroundStyle(.white.opacity(0.85))
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(.white.opacity(0.12), in: Capsule())
+        .background(.white.opacity(0.2), in: Capsule())
     }
     .buttonStyle(.plain)
     .pointingCursor(.arrow)
