@@ -40,3 +40,7 @@ Rules:
   must not own that capability — promote it to a sibling top-level.
 - Each user-facing feature owns one `*Strings.swift` loaded via
   `AppStrings.localized`.
+
+## Development
+
+- Kill the running `Gacha` process before each `make dev`.
