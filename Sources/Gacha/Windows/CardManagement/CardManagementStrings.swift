@@ -5,6 +5,7 @@ enum CardManagementStrings {
   static let newCategory = AppStrings.localized("cards.toolbar.newCategory")
   static let newCard = AppStrings.localized("cards.toolbar.newCard")
   static let deleteCard = AppStrings.localized("cards.toolbar.deleteCard")
+  static let previewCard = AppStrings.localized("cards.toolbar.previewCard")
   static let newCategorySheetTitle = AppStrings.localized("cards.newCategory.title")
   static let newCategorySheetMessage = AppStrings.localized("cards.newCategory.message")
   static let newCategoryDefaultName = AppStrings.localized("cards.newCategory.defaultName")

@@ -4,6 +4,7 @@ import SwiftUI
 struct MemoryCardExpandedView: View {
   let card: MemoryCard
   let actions: MemoryCardActions
+  var isInteractive: Bool = true
 
   // DynamicNotchKit panel = screen.width/2 × screen.height/2, with the expanded
   // content sitting inside safeAreaInsets reserving the notch height on top and
@@ -53,6 +54,7 @@ struct MemoryCardExpandedView: View {
           nextButton
         }
       }
+      .disabled(!isInteractive)
     }
     .padding(.horizontal, 12)
     .padding(.bottom, 12)

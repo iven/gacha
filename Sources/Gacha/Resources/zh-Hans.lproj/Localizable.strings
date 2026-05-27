@@ -8,6 +8,7 @@
 "cards.toolbar.newCategory" = "新建分类";
 "cards.toolbar.newCard" = "新建卡片";
 "cards.toolbar.deleteCard" = "删除卡片";
+"cards.toolbar.previewCard" = "预览";
 "cards.newCategory.title" = "新建分类";
 "cards.newCategory.message" = "为新分类输入一个名称。";
 "cards.newCategory.defaultName" = "新建分类";

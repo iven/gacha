@@ -9,6 +9,7 @@ final class AppEnvironment {
   let menuBarController: MenuBarController
   let windowCoordinator: WindowCoordinator
   let notchController: NotchController
+  let memoryNotchPresenter: MemoryNotchPresenter
   let suppressionController: SuppressionController
 
   init(
@@ -19,6 +20,7 @@ final class AppEnvironment {
     menuBarController: MenuBarController,
     windowCoordinator: WindowCoordinator,
     notchController: NotchController,
+    memoryNotchPresenter: MemoryNotchPresenter,
     suppressionController: SuppressionController
   ) {
     self.directories = directories
@@ -28,6 +30,7 @@ final class AppEnvironment {
     self.menuBarController = menuBarController
     self.windowCoordinator = windowCoordinator
     self.notchController = notchController
+    self.memoryNotchPresenter = memoryNotchPresenter
     self.suppressionController = suppressionController
   }
 
@@ -42,7 +45,11 @@ final class AppEnvironment {
     try memoryCardRepository.rebuildIndex()
 
     suppressionController.start()
-    notchController.start()
+    let presenter = memoryNotchPresenter
+    notchController.start(
+      expanded: { MemoryNotchExpandedView(presenter: presenter) },
+      compactLeading: { LogoCompactView() })
+    memoryNotchPresenter.start()
     menuBarController.start()
   }
 }

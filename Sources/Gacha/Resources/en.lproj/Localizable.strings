@@ -8,6 +8,7 @@
 "cards.toolbar.newCategory" = "New Category";
 "cards.toolbar.newCard" = "New Card";
 "cards.toolbar.deleteCard" = "Delete Card";
+"cards.toolbar.previewCard" = "Preview";
 "cards.newCategory.title" = "New Category";
 "cards.newCategory.message" = "Choose a name for the new category.";
 "cards.newCategory.defaultName" = "New Category";

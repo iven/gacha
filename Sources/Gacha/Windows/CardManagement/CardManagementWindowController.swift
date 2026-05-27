@@ -5,11 +5,18 @@ final class CardManagementWindowController: NSObject, NSWindowDelegate {
   private static let defaultContentSize = NSSize(width: 960, height: 720)
 
   var onWindowDidClose: (() -> Void)?
+  var onPreviewCardChange: ((MemoryCard?) -> Void)?
 
   private let memoryCardRepository: MemoryCardRepository
   private(set) weak var splitViewController: CardManagementSplitViewController?
   private weak var splitView: NSSplitView?
   private(set) var window: NSWindow?
+  private var isPreviewing = false {
+    didSet {
+      refreshPreviewToolbarItem()
+    }
+  }
+  private weak var previewToolbarItem: NSToolbarItem?
 
   init(memoryCardRepository: MemoryCardRepository) {
     self.memoryCardRepository = memoryCardRepository
@@ -46,7 +53,7 @@ final class CardManagementWindowController: NSObject, NSWindowDelegate {
     let contentViewController = CardManagementSplitViewController(
       memoryCardRepository: memoryCardRepository)
     contentViewController.onSelectedCardAvailabilityChange = { [weak self] in
-      self?.validateToolbar()
+      self?.handleSelectedCardChange()
     }
     contentViewController.onRenameCategory = { [weak self] category in
       self?.renameCategory(category)
@@ -83,9 +90,59 @@ final class CardManagementWindowController: NSObject, NSWindowDelegate {
 
   func windowShouldClose(_ sender: NSWindow) -> Bool {
     splitViewController?.flushPendingEdits()
+    exitPreview()
     sender.orderOut(nil)
     onWindowDidClose?()
     return false
+  }
+
+  private func handleSelectedCardChange() {
+    validateToolbar()
+    if isPreviewing {
+      if let card = splitViewController?.selectedCard {
+        onPreviewCardChange?(card)
+      } else {
+        exitPreview()
+      }
+    }
+  }
+
+  private func exitPreview() {
+    guard isPreviewing else {
+      return
+    }
+    isPreviewing = false
+    onPreviewCardChange?(nil)
+    validateToolbar()
+  }
+
+  @objc private func togglePreview() {
+    if isPreviewing {
+      exitPreview()
+      return
+    }
+    guard let card = splitViewController?.selectedCard else {
+      return
+    }
+    isPreviewing = true
+    onPreviewCardChange?(card)
+    validateToolbar()
+  }
+
+  private func refreshPreviewToolbarItem() {
+    guard let item = previewToolbarItem else {
+      return
+    }
+    let symbol = isPreviewing ? "eye.fill" : "eye"
+    let image = NSImage(
+      systemSymbolName: symbol,
+      accessibilityDescription: CardManagementStrings.previewCard)
+    if isPreviewing {
+      item.image = image?.withSymbolConfiguration(
+        NSImage.SymbolConfiguration(paletteColors: [.controlAccentColor]))
+    } else {
+      item.image = image
+    }
   }
 
   fileprivate func renameCategory(_ category: CardCategoryItem) {
@@ -183,6 +240,8 @@ extension CardManagementWindowController: NSToolbarDelegate {
       .flexibleSpace,
       .newCard,
       .space,
+      .previewCard,
+      .space,
       .deleteCard,
     ]
   }
@@ -224,6 +283,15 @@ extension CardManagementWindowController: NSToolbarDelegate {
         label: CardManagementStrings.deleteCard,
         symbolName: "trash",
         action: #selector(deleteCard))
+    case .previewCard:
+      let item = toolbarItem(
+        identifier: itemIdentifier,
+        label: CardManagementStrings.previewCard,
+        symbolName: "eye",
+        action: #selector(togglePreview))
+      previewToolbarItem = item
+      refreshPreviewToolbarItem()
+      return item
     default:
       return nil
     }
@@ -288,6 +356,8 @@ extension CardManagementWindowController: NSToolbarItemValidation {
     switch item.itemIdentifier {
     case .deleteCard:
       return splitViewController?.selectedCard != nil
+    case .previewCard:
+      return isPreviewing || splitViewController?.selectedCard != nil
     default:
       return true
     }

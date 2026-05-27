@@ -2,6 +2,12 @@ import AppKit
 
 @MainActor
 final class WindowCoordinator {
+  var onPreviewCardChange: ((MemoryCard?) -> Void)? {
+    didSet {
+      cardManagement.onPreviewCardChange = onPreviewCardChange
+    }
+  }
+
   private let cardManagement: CardManagementWindowController
   private let settings: SettingsWindowController
 

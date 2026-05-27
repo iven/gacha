@@ -17,4 +17,5 @@ extension NSToolbarItem.Identifier {
   static let newCategory = NSToolbarItem.Identifier("Gacha.CardManagement.NewCategory")
   static let newCard = NSToolbarItem.Identifier("Gacha.CardManagement.NewCard")
   static let deleteCard = NSToolbarItem.Identifier("Gacha.CardManagement.DeleteCard")
+  static let previewCard = NSToolbarItem.Identifier("Gacha.CardManagement.PreviewCard")
 }
