@@ -37,6 +37,7 @@ final class MemoryNotchPresenter: ObservableObject {
   private let settingsStore: SettingsStore
   private let now: () -> Date
   private var repositoryEventObservation: AnyCancellable?
+  private var hasVisibleManagedWindow = false
 
   init(
     controller: NotchController,
@@ -70,6 +71,14 @@ final class MemoryNotchPresenter: ObservableObject {
       mode = .scheduler
       refreshScheduledCard()
     }
+  }
+
+  func setHasVisibleManagedWindow(_ visible: Bool) {
+    guard hasVisibleManagedWindow != visible else {
+      return
+    }
+    hasVisibleManagedWindow = visible
+    show(card: currentCard)
   }
 
   private func handleRepositoryEvent(_ event: MemoryCardRepositoryEvent) {
@@ -151,6 +160,8 @@ final class MemoryNotchPresenter: ObservableObject {
     let timeout: Duration?
     if case .preview = mode {
       timeout = nil
+    } else if hasVisibleManagedWindow {
+      timeout = .zero
     } else {
       timeout = card.autoCollapseTimeout(
         memoryAutoCollapseSeconds: settingsStore.memoryAutoCollapseSeconds)

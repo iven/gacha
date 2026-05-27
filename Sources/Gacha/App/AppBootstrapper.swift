@@ -57,6 +57,9 @@ struct AppBootstrapper {
     windowCoordinator.onPreviewCardChange = { [weak presenter] card in
       presenter?.setPreviewCard(card)
     }
+    windowCoordinator.onManagedWindowVisibilityChange = { [weak presenter] visible in
+      presenter?.setHasVisibleManagedWindow(visible)
+    }
 
     let environment = AppEnvironment(
       directories: directories,

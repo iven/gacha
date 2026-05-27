@@ -7,6 +7,7 @@ final class WindowCoordinator {
       cardManagement.onPreviewCardChange = onPreviewCardChange
     }
   }
+  var onManagedWindowVisibilityChange: ((Bool) -> Void)?
 
   private let cardManagement: CardManagementWindowController
   private let settings: SettingsWindowController
@@ -25,10 +26,10 @@ final class WindowCoordinator {
       settingsStore: settingsStore)
 
     cardManagement.onWindowDidClose = { [weak self] in
-      self?.refreshActivationPolicy()
+      self?.handleManagedWindowVisibilityChange()
     }
     settings.onWindowDidClose = { [weak self] in
-      self?.refreshActivationPolicy()
+      self?.handleManagedWindowVisibilityChange()
     }
   }
 
@@ -36,12 +37,19 @@ final class WindowCoordinator {
     NSApp.setActivationPolicy(.regular)
     cardManagement.show(editing: card)
     NSApp.activate(ignoringOtherApps: true)
+    handleManagedWindowVisibilityChange()
   }
 
   func openSettings() {
     NSApp.setActivationPolicy(.regular)
     settings.show()
     NSApp.activate(ignoringOtherApps: true)
+    handleManagedWindowVisibilityChange()
+  }
+
+  private func handleManagedWindowVisibilityChange() {
+    refreshActivationPolicy()
+    onManagedWindowVisibilityChange?(hasVisibleManagedWindow)
   }
 
   private func refreshActivationPolicy() {
