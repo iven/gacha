@@ -10,6 +10,8 @@ import Testing
   #expect(settings.userStorageURL == defaultUserStorageURL)
   #expect(settings.launchAtLoginEnabled)
   #expect(settings.memoryAutoCollapseSeconds == 10)
+  #expect(settings.skipCountdownOnAnotherWindow)
+  #expect(settings.showKeyboardHints)
 }
 
 @Test func settingsStoreReadsRegisteredDefaults() {
@@ -62,11 +64,37 @@ import Testing
   store.settings = AppSettings(
     userStorageURL: userStorageURL,
     launchAtLoginEnabled: false,
-    memoryAutoCollapseSeconds: 60)
+    memoryAutoCollapseSeconds: 60,
+    skipCountdownOnAnotherWindow: false,
+    showKeyboardHints: false)
 
   #expect(store.settings.userStorageURL == userStorageURL)
   #expect(!store.settings.launchAtLoginEnabled)
   #expect(store.settings.memoryAutoCollapseSeconds == 60)
+  #expect(!store.settings.skipCountdownOnAnotherWindow)
+  #expect(!store.settings.showKeyboardHints)
+}
+
+@Test func settingsStorePersistsSkipCountdownOnAnotherWindow() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.skipCountdownOnAnotherWindow = false
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(!reloadedStore.skipCountdownOnAnotherWindow)
+}
+
+@Test func settingsStorePersistsShowKeyboardHints() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.showKeyboardHints = false
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(!reloadedStore.showKeyboardHints)
 }
 
 @Test func settingsStoreNormalizesMemoryAutoCollapseSeconds() {

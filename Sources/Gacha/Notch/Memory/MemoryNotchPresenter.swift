@@ -30,6 +30,10 @@ final class MemoryNotchPresenter: ObservableObject {
     return true
   }
 
+  var showKeyboardHints: Bool {
+    settingsStore.showKeyboardHints
+  }
+
   private let controller: NotchController
   private let memoryCardRepository: MemoryCardRepository
   private let scheduler: MemoryCardScheduler
@@ -161,7 +165,7 @@ final class MemoryNotchPresenter: ObservableObject {
     let timeout: Duration?
     if case .preview = mode {
       timeout = nil
-    } else if hasVisibleManagedWindow {
+    } else if hasVisibleManagedWindow, settingsStore.skipCountdownOnAnotherWindow {
       timeout = .zero
     } else {
       timeout = card.autoCollapseTimeout(

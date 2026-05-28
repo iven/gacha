@@ -42,10 +42,14 @@
 "settings.window.title" = "Settings";
 "settings.section.storage" = "Storage";
 "settings.section.general" = "General";
+"settings.section.notch" = "Notch";
+"settings.section.memoryCards" = "Memory Cards";
 "settings.storageLocation" = "Location";
 "settings.launchAtLogin" = "Open at Login";
-"settings.autoCollapse" = "Auto-Collapse";
-"settings.autoCollapse.unit" = "s";
+"settings.showKeyboardHints" = "Show keyboard hints on buttons";
+"settings.skipCountdownOnAnotherWindow" = "Skip countdown when opening another Gacha window";
+"settings.collapseCountdown" = "Collapse countdown";
+"settings.collapseCountdown.unit" = "s";
 "presentation.emptyState.title" = "No memory cards yet";
 "presentation.emptyState.body" = "Add some content and start your efficient memorization journey!";
 "presentation.emptyState.action" = "New Card";

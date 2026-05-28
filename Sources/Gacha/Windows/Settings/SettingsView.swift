@@ -6,6 +6,8 @@ struct SettingsView: View {
   let settingsStore: SettingsStore
   @State private var launchAtLoginEnabled: Bool
   @State private var memoryAutoCollapseSeconds: TimeInterval
+  @State private var skipCountdownOnAnotherWindow: Bool
+  @State private var showKeyboardHints: Bool
 
   init(
     directories: AppDirectories,
@@ -18,6 +20,9 @@ struct SettingsView: View {
     _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginEnabled)
     _memoryAutoCollapseSeconds = State(
       initialValue: settingsStore.memoryAutoCollapseSeconds)
+    _skipCountdownOnAnotherWindow = State(
+      initialValue: settingsStore.skipCountdownOnAnotherWindow)
+    _showKeyboardHints = State(initialValue: settingsStore.showKeyboardHints)
   }
 
   var body: some View {
@@ -38,8 +43,30 @@ struct SettingsView: View {
           isOn: Binding(
             get: { launchAtLoginEnabled },
             set: { setLaunchAtLoginEnabled($0) }))
+      }
 
-        LabeledContent(SettingsStrings.autoCollapse) {
+      Section(SettingsStrings.sectionNotch) {
+        Toggle(
+          SettingsStrings.showKeyboardHints,
+          isOn: Binding(
+            get: { showKeyboardHints },
+            set: { newValue in
+              showKeyboardHints = newValue
+              settingsStore.showKeyboardHints = newValue
+            }))
+
+        Toggle(
+          SettingsStrings.skipCountdownOnAnotherWindow,
+          isOn: Binding(
+            get: { skipCountdownOnAnotherWindow },
+            set: { newValue in
+              skipCountdownOnAnotherWindow = newValue
+              settingsStore.skipCountdownOnAnotherWindow = newValue
+            }))
+      }
+
+      Section(SettingsStrings.sectionMemoryCards) {
+        LabeledContent(SettingsStrings.collapseCountdown) {
           HStack(spacing: 6) {
             TextField(
               "",
@@ -70,7 +97,7 @@ struct SettingsView: View {
               step: SettingsStore.memoryAutoCollapseStep
             )
             .labelsHidden()
-            Text(SettingsStrings.autoCollapseUnit)
+            Text(SettingsStrings.collapseCountdownUnit)
               .foregroundStyle(.secondary)
           }
         }
@@ -78,7 +105,7 @@ struct SettingsView: View {
     }
     .formStyle(.grouped)
     .scrollDisabled(true)
-    .frame(width: 480)
+    .frame(width: 520)
     .fixedSize(horizontal: false, vertical: true)
   }
 

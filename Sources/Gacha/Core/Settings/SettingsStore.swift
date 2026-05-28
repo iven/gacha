@@ -8,6 +8,8 @@ struct SettingsStore {
     static let userStoragePath = "userStoragePath"
     static let launchAtLoginEnabled = "launchAtLoginEnabled"
     static let memoryAutoCollapseSeconds = "memoryAutoCollapseSeconds"
+    static let skipCountdownOnAnotherWindow = "skipCountdownOnAnotherWindow"
+    static let showKeyboardHints = "showKeyboardHints"
   }
 
   private let defaults: UserDefaults
@@ -22,6 +24,8 @@ struct SettingsStore {
     defaults.register(defaults: [
       Key.launchAtLoginEnabled: AppSettings.defaultLaunchAtLoginEnabled,
       Key.memoryAutoCollapseSeconds: AppSettings.defaultMemoryAutoCollapseSeconds,
+      Key.skipCountdownOnAnotherWindow: AppSettings.defaultSkipCountdownOnAnotherWindow,
+      Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
     ])
   }
 
@@ -37,12 +41,16 @@ struct SettingsStore {
       AppSettings(
         userStorageURL: userStorageURL,
         launchAtLoginEnabled: launchAtLoginEnabled,
-        memoryAutoCollapseSeconds: memoryAutoCollapseSeconds)
+        memoryAutoCollapseSeconds: memoryAutoCollapseSeconds,
+        skipCountdownOnAnotherWindow: skipCountdownOnAnotherWindow,
+        showKeyboardHints: showKeyboardHints)
     }
     nonmutating set {
       userStorageURL = newValue.userStorageURL
       launchAtLoginEnabled = newValue.launchAtLoginEnabled
       memoryAutoCollapseSeconds = newValue.memoryAutoCollapseSeconds
+      skipCountdownOnAnotherWindow = newValue.skipCountdownOnAnotherWindow
+      showKeyboardHints = newValue.showKeyboardHints
     }
   }
 
@@ -78,6 +86,16 @@ struct SettingsStore {
         normalizedMemoryAutoCollapseSeconds(newValue),
         forKey: Key.memoryAutoCollapseSeconds)
     }
+  }
+
+  var skipCountdownOnAnotherWindow: Bool {
+    get { defaults.bool(forKey: Key.skipCountdownOnAnotherWindow) }
+    nonmutating set { defaults.set(newValue, forKey: Key.skipCountdownOnAnotherWindow) }
+  }
+
+  var showKeyboardHints: Bool {
+    get { defaults.bool(forKey: Key.showKeyboardHints) }
+    nonmutating set { defaults.set(newValue, forKey: Key.showKeyboardHints) }
   }
 
   private func normalizedMemoryAutoCollapseSeconds(

@@ -42,10 +42,14 @@
 "settings.window.title" = "设置";
 "settings.section.storage" = "存储";
 "settings.section.general" = "通用";
+"settings.section.notch" = "刘海";
+"settings.section.memoryCards" = "记忆卡片";
 "settings.storageLocation" = "位置";
 "settings.launchAtLogin" = "登录时打开";
-"settings.autoCollapse" = "自动收回";
-"settings.autoCollapse.unit" = "秒";
+"settings.showKeyboardHints" = "在按钮上显示快捷键";
+"settings.skipCountdownOnAnotherWindow" = "打开其他 Gacha 窗口时跳过倒计时";
+"settings.collapseCountdown" = "收起倒计时";
+"settings.collapseCountdown.unit" = "秒";
 "presentation.emptyState.title" = "还没有记忆卡片";
 "presentation.emptyState.body" = "添加一些内容，开始你的高效记忆之旅吧！";
 "presentation.emptyState.action" = "新建卡片";

@@ -4,8 +4,13 @@ enum SettingsStrings {
   static let windowTitle = AppStrings.localized("settings.window.title")
   static let sectionStorage = AppStrings.localized("settings.section.storage")
   static let sectionGeneral = AppStrings.localized("settings.section.general")
+  static let sectionNotch = AppStrings.localized("settings.section.notch")
+  static let sectionMemoryCards = AppStrings.localized("settings.section.memoryCards")
   static let storageLocation = AppStrings.localized("settings.storageLocation")
   static let launchAtLogin = AppStrings.localized("settings.launchAtLogin")
-  static let autoCollapse = AppStrings.localized("settings.autoCollapse")
-  static let autoCollapseUnit = AppStrings.localized("settings.autoCollapse.unit")
+  static let showKeyboardHints = AppStrings.localized("settings.showKeyboardHints")
+  static let skipCountdownOnAnotherWindow = AppStrings.localized(
+    "settings.skipCountdownOnAnotherWindow")
+  static let collapseCountdown = AppStrings.localized("settings.collapseCountdown")
+  static let collapseCountdownUnit = AppStrings.localized("settings.collapseCountdown.unit")
 }
