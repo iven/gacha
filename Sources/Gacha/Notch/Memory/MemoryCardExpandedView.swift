@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import SwiftUI
 
 struct MemoryCardExpandedView: View {
@@ -65,6 +66,10 @@ struct MemoryCardExpandedView: View {
   }
 
   private func handleKeyDown(_ event: NSEvent) -> Bool {
+    if Int(event.keyCode) == kVK_Escape {
+      actions.onDismiss()
+      return true
+    }
     let characters = event.charactersIgnoringModifiers ?? ""
     if isDue {
       switch characters {

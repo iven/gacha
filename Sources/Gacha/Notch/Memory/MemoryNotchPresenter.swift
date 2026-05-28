@@ -23,7 +23,8 @@ final class MemoryNotchPresenter: ObservableObject {
       onNext: { [weak self] card in self?.handleNext(card: card) },
       onNewCard: { [weak self] in self?.onNewCardRequested?() },
       onEditCard: { [weak self] card in self?.onEditCardRequested?(card) },
-      onSettings: { [weak self] in self?.onSettingsRequested?() })
+      onSettings: { [weak self] in self?.onSettingsRequested?() },
+      onDismiss: { [weak self] in self?.controller.compact() })
   }
 
   var isInteractive: Bool {

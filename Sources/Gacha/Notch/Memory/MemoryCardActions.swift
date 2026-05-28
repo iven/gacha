@@ -7,4 +7,5 @@ struct MemoryCardActions {
   let onNewCard: () -> Void
   let onEditCard: (MemoryCard) -> Void
   let onSettings: () -> Void
+  let onDismiss: () -> Void
 }
