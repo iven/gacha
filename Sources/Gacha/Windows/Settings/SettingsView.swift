@@ -4,6 +4,7 @@ struct SettingsView: View {
   let directories: AppDirectories
   let launchAtLoginController: LaunchAtLoginController
   let settingsStore: SettingsStore
+  let storageRelocationCoordinator: StorageRelocationCoordinator
   @State private var launchAtLoginEnabled: Bool
   @State private var memoryAutoCollapseSeconds: TimeInterval
   @State private var skipCountdownOnAnotherWindow: Bool
@@ -12,11 +13,13 @@ struct SettingsView: View {
   init(
     directories: AppDirectories,
     launchAtLoginController: LaunchAtLoginController,
-    settingsStore: SettingsStore
+    settingsStore: SettingsStore,
+    storageRelocationCoordinator: StorageRelocationCoordinator
   ) {
     self.directories = directories
     self.launchAtLoginController = launchAtLoginController
     self.settingsStore = settingsStore
+    self.storageRelocationCoordinator = storageRelocationCoordinator
     _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginEnabled)
     _memoryAutoCollapseSeconds = State(
       initialValue: settingsStore.memoryAutoCollapseSeconds)
@@ -29,11 +32,21 @@ struct SettingsView: View {
     Form {
       Section(SettingsStrings.sectionStorage) {
         LabeledContent(SettingsStrings.storageLocation) {
-          Text(directories.userStorageURL.path)
-            .lineLimit(1)
-            .truncationMode(.middle)
-            .textSelection(.enabled)
-            .foregroundStyle(.secondary)
+          VStack(alignment: .trailing, spacing: 8) {
+            Text(directories.userStorageURL.path)
+              .lineLimit(1)
+              .truncationMode(.middle)
+              .textSelection(.enabled)
+              .foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+              Button(SettingsStrings.storageLocationMove) {
+                storageRelocationCoordinator.presentMoveFlow()
+              }
+              Button(SettingsStrings.storageLocationAdopt) {
+                storageRelocationCoordinator.presentAdoptFlow()
+              }
+            }
+          }
         }
       }
 
@@ -89,6 +102,10 @@ struct SettingsView: View {
     .scrollDisabled(true)
     .frame(width: 520)
     .fixedSize(horizontal: false, vertical: true)
+    .background(
+      WindowAccessor { window in
+        storageRelocationCoordinator.anchorWindow = window
+      })
   }
 
   private func setLaunchAtLoginEnabled(_ enabled: Bool) {

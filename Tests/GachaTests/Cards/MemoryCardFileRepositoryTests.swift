@@ -8,7 +8,6 @@ import Testing
 
   try fixture.repository.prepareStorage()
 
-  #expect(fixture.fileManager.fileExists(atPath: fixture.directories.applicationSupportURL.path))
   #expect(fixture.fileManager.fileExists(atPath: fixture.directories.memoryURL.path))
   #expect(fixture.fileManager.fileExists(atPath: fixture.directories.defaultMemoryCategoryURL.path))
 }

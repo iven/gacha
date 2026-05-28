@@ -14,6 +14,7 @@ import Testing
   #expect(directories.userStorageURL.path == "/tmp/GachaTests/Documents")
   #expect(directories.memoryURL.lastPathComponent == "memory")
   #expect(directories.defaultMemoryCategoryURL.lastPathComponent == "Uncategorized")
+  #expect(directories.storageRootMarkerURL.path == "/tmp/GachaTests/Documents/.gacha")
 }
 
 @Test func appDirectoriesUseSettingsStorageLocation() {

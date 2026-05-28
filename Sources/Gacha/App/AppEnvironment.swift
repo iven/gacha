@@ -10,6 +10,7 @@ final class AppEnvironment {
   let notchController: NotchController
   let memoryNotchPresenter: MemoryNotchPresenter
   let suppressionController: SuppressionController
+  let storageRelocationCoordinator: StorageRelocationCoordinator
 
   init(
     directories: AppDirectories,
@@ -19,7 +20,8 @@ final class AppEnvironment {
     windowCoordinator: WindowCoordinator,
     notchController: NotchController,
     memoryNotchPresenter: MemoryNotchPresenter,
-    suppressionController: SuppressionController
+    suppressionController: SuppressionController,
+    storageRelocationCoordinator: StorageRelocationCoordinator
   ) {
     self.directories = directories
     self.settingsStore = settingsStore
@@ -29,6 +31,7 @@ final class AppEnvironment {
     self.notchController = notchController
     self.memoryNotchPresenter = memoryNotchPresenter
     self.suppressionController = suppressionController
+    self.storageRelocationCoordinator = storageRelocationCoordinator
   }
 
   func start() throws {
@@ -38,6 +41,7 @@ final class AppEnvironment {
       AppLogger.app.warning("Failed to synchronize launch at login: \(error.localizedDescription)")
     }
 
+    try directories.prepareRoot()
     try memoryCardRepository.prepareStorage()
     try memoryCardRepository.rebuildIndex()
 

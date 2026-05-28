@@ -30,9 +30,6 @@ final class MemoryCardFileRepository {
 
   func prepareStorage() throws {
     try fileManager.createDirectory(
-      at: directories.applicationSupportURL,
-      withIntermediateDirectories: true)
-    try fileManager.createDirectory(
       at: directories.defaultMemoryCategoryURL,
       withIntermediateDirectories: true)
   }

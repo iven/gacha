@@ -30,7 +30,8 @@ private struct SettingsRootView: View {
         SettingsView(
           directories: environment.directories,
           launchAtLoginController: environment.launchAtLoginController,
-          settingsStore: environment.settingsStore)
+          settingsStore: environment.settingsStore,
+          storageRelocationCoordinator: environment.storageRelocationCoordinator)
       } else {
         ProgressView()
       }

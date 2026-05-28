@@ -50,6 +50,13 @@ struct AppBootstrapper {
       presenter?.setHasVisibleManagedWindow(visible)
     }
 
+    let storageRelocationCoordinator = StorageRelocationCoordinator(
+      relocator: StorageRelocator(settingsStore: settingsStore, fileManager: fileManager),
+      settingsStore: settingsStore,
+      cardCount: { [weak memoryCardRepository] in
+        (try? memoryCardRepository?.count()) ?? 0
+      })
+
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
@@ -58,7 +65,8 @@ struct AppBootstrapper {
       windowCoordinator: windowCoordinator,
       notchController: notchController,
       memoryNotchPresenter: presenter,
-      suppressionController: SuppressionController())
+      suppressionController: SuppressionController(),
+      storageRelocationCoordinator: storageRelocationCoordinator)
     try environment.start()
     return environment
   }
