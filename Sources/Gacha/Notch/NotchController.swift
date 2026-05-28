@@ -120,7 +120,10 @@ final class NotchController {
 
     if hovering {
       cancelAutoCollapse()
-      Task { await notch.expand() }
+      Task {
+        await notch.expand()
+        notch.windowController?.window?.makeKey()
+      }
     } else {
       scheduleAutoCollapse()
     }

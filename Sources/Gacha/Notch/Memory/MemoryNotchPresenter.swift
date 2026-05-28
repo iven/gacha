@@ -120,6 +120,7 @@ final class MemoryNotchPresenter: ObservableObject {
   }
 
   private func handleRating(card: MemoryCard, rating: MemoryCardRating) {
+    guard isInteractive else { return }
     do {
       let updated = try scheduler.apply(rating: rating, to: card, now: now())
       try memoryCardRepository.write(updated)
@@ -130,6 +131,7 @@ final class MemoryNotchPresenter: ObservableObject {
   }
 
   private func handleNext(card: MemoryCard) {
+    guard isInteractive else { return }
     do {
       try memoryCardRepository.write(scheduler.markSeen(card, now: now()))
     } catch {

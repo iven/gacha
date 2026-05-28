@@ -38,18 +38,18 @@ struct MemoryCardExpandedView: View {
       AutoCollapseProgressBar(schedule: autoCollapseSchedule)
       HStack(spacing: 8) {
         if isDue {
-          ratingButton(NotchStrings.ratingAgain, tint: .ratingAgain, rating: .again)
-          ratingButton(NotchStrings.ratingHard, tint: .ratingHard, rating: .hard)
-          ratingButton(NotchStrings.ratingGood, tint: .ratingGood, rating: .good)
-          ratingButton(NotchStrings.ratingEasy, tint: .ratingEasy, rating: .easy)
+          ratingButton(NotchStrings.ratingAgain, tint: .ratingAgain, rating: .again, hint: "1")
+          ratingButton(NotchStrings.ratingHard, tint: .ratingHard, rating: .hard, hint: "2")
+          ratingButton(NotchStrings.ratingGood, tint: .ratingGood, rating: .good, hint: "3")
+          ratingButton(NotchStrings.ratingEasy, tint: .ratingEasy, rating: .easy, hint: "4")
         } else {
-          ratingButton("", tint: .ratingAgain, rating: .again)
+          ratingButton("", tint: .ratingAgain, rating: .again, hint: nil)
             .hidden()
             .allowsHitTesting(false)
-          ratingButton("", tint: .ratingHard, rating: .hard)
+          ratingButton("", tint: .ratingHard, rating: .hard, hint: nil)
             .hidden()
             .allowsHitTesting(false)
-          ratingButton("", tint: .ratingGood, rating: .good)
+          ratingButton("", tint: .ratingGood, rating: .good, hint: nil)
             .hidden()
             .allowsHitTesting(false)
           nextButton
@@ -61,6 +61,32 @@ struct MemoryCardExpandedView: View {
     .padding(.bottom, 12)
     .frame(width: Self.cardWidth, alignment: .leading)
     .frame(maxHeight: cardMaxHeight, alignment: .top)
+    .background(KeyEventHandlingView(onKeyDown: handleKeyDown))
+  }
+
+  private func handleKeyDown(_ event: NSEvent) -> Bool {
+    let characters = event.charactersIgnoringModifiers ?? ""
+    if isDue {
+      switch characters {
+      case "1":
+        actions.onRate(card, .again)
+        return true
+      case "2":
+        actions.onRate(card, .hard)
+        return true
+      case "3":
+        actions.onRate(card, .good)
+        return true
+      case "4":
+        actions.onRate(card, .easy)
+        return true
+      default: return false
+      }
+    } else if characters == " " {
+      actions.onNext(card)
+      return true
+    }
+    return false
   }
 
   @ViewBuilder
@@ -87,7 +113,7 @@ struct MemoryCardExpandedView: View {
     Button {
       actions.onNext(card)
     } label: {
-      Text(NotchStrings.ratingNext)
+      labelWithHint(NotchStrings.ratingNext, hint: "␣")
         .foregroundStyle(.white.opacity(0.75))
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -96,17 +122,28 @@ struct MemoryCardExpandedView: View {
     .buttonStyle(.plain)
   }
 
-  private func ratingButton(_ label: String, tint: Color, rating: MemoryCardRating) -> some View {
+  private func ratingButton(
+    _ label: String, tint: Color, rating: MemoryCardRating, hint: String?
+  ) -> some View {
     Button {
       actions.onRate(card, rating)
     } label: {
-      Text(label)
+      labelWithHint(label, hint: hint)
         .foregroundStyle(.white.opacity(0.75))
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         .background(tint.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
     }
     .buttonStyle(.plain)
+  }
+
+  private func labelWithHint(_ label: String, hint: String?) -> Text {
+    let main = Text(label)
+    guard let hint else { return main }
+    let badge = Text(" \(hint)")
+      .font(.system(size: 8, weight: .medium))
+      .foregroundStyle(.white.opacity(0.55))
+    return main + badge
   }
 
   private func toolButton(symbol: String, action: @escaping () -> Void) -> some View {
