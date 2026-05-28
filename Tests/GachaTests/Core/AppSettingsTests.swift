@@ -9,7 +9,7 @@ import Testing
 
   #expect(settings.userStorageURL == defaultUserStorageURL)
   #expect(settings.launchAtLoginEnabled)
-  #expect(settings.memoryAutoCollapseSeconds == 10)
+  #expect(settings.memoryAutoCollapseSeconds == 1)
   #expect(settings.skipCountdownOnAnotherWindow)
   #expect(settings.showKeyboardHints)
 }
@@ -101,8 +101,11 @@ import Testing
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
+  store.memoryAutoCollapseSeconds = -1
+  #expect(store.memoryAutoCollapseSeconds == 0)
+
   store.memoryAutoCollapseSeconds = 0
-  #expect(store.memoryAutoCollapseSeconds == 1)
+  #expect(store.memoryAutoCollapseSeconds == 0)
 
   store.memoryAutoCollapseSeconds = 7.4
   #expect(store.memoryAutoCollapseSeconds == 7)

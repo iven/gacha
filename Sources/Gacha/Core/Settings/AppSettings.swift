@@ -8,7 +8,7 @@ struct AppSettings: Equatable {
   var showKeyboardHints: Bool
 
   static let defaultLaunchAtLoginEnabled = true
-  static let defaultMemoryAutoCollapseSeconds: TimeInterval = 10
+  static let defaultMemoryAutoCollapseSeconds: TimeInterval = 1
   static let defaultSkipCountdownOnAnotherWindow = true
   static let defaultShowKeyboardHints = true
 
