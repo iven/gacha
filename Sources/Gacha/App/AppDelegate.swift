@@ -2,7 +2,14 @@ import AppKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-  private var environment: AppEnvironment?
+  static private(set) var shared: AppDelegate?
+  static let menuBarViewModel = MenuBarViewModel()
+  private(set) var environment: AppEnvironment?
+
+  override init() {
+    super.init()
+    AppDelegate.shared = self
+  }
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)

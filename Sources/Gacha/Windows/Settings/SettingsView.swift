@@ -21,120 +21,65 @@ struct SettingsView: View {
   }
 
   var body: some View {
-    TabView {
-      overviewTab
-        .tabItem {
-          Text(SettingsStrings.overviewTab)
-        }
-
-      advancedTab
-        .tabItem {
-          Text(SettingsStrings.advancedTab)
-        }
-    }
-    .frame(minWidth: 560, minHeight: 340)
-  }
-
-  private var overviewTab: some View {
-    settingsPane {
-      settingsRow(SettingsStrings.storageLocation) {
-        Text(directories.userStorageURL.path)
-          .lineLimit(1)
-          .truncationMode(.middle)
-          .textSelection(.enabled)
-      }
-
-      settingsRow(SettingsStrings.launchAtLogin) {
-        Toggle(
-          "",
-          isOn: Binding(
-            get: {
-              launchAtLoginEnabled
-            },
-            set: { newValue in
-              setLaunchAtLoginEnabled(newValue)
-            })
-        )
-        .labelsHidden()
-      }
-
-      settingsRow(SettingsStrings.autoCollapse) {
-        HStack(spacing: 6) {
-          TextField(
-            "",
-            value: Binding(
-              get: {
-                Int(memoryAutoCollapseSeconds)
-              },
-              set: { newValue in
-                let clamped = TimeInterval(
-                  min(
-                    max(newValue, Int(SettingsStore.memoryAutoCollapseRange.lowerBound)),
-                    Int(SettingsStore.memoryAutoCollapseRange.upperBound)))
-                memoryAutoCollapseSeconds = clamped
-                settingsStore.memoryAutoCollapseSeconds = clamped
-              }),
-            format: .number
-          )
-          .textFieldStyle(.roundedBorder)
-          .multilineTextAlignment(.trailing)
-          .frame(width: 56)
-          Stepper(
-            "",
-            value: Binding(
-              get: {
-                memoryAutoCollapseSeconds
-              },
-              set: { newValue in
-                memoryAutoCollapseSeconds = newValue
-                settingsStore.memoryAutoCollapseSeconds = newValue
-              }),
-            in: SettingsStore.memoryAutoCollapseRange,
-            step: SettingsStore.memoryAutoCollapseStep
-          )
-          .labelsHidden()
-          Text(SettingsStrings.autoCollapseUnit)
+    Form {
+      Section(SettingsStrings.sectionStorage) {
+        LabeledContent(SettingsStrings.storageLocation) {
+          Text(directories.userStorageURL.path)
+            .lineLimit(1)
+            .truncationMode(.middle)
+            .textSelection(.enabled)
             .foregroundStyle(.secondary)
         }
       }
-    }
-  }
 
-  private var advancedTab: some View {
-    settingsPane {
-      settingsRow(SettingsStrings.dataDirectory) {
-        Text(directories.applicationSupportURL.path)
-          .lineLimit(1)
-          .truncationMode(.middle)
-          .textSelection(.enabled)
+      Section(SettingsStrings.sectionGeneral) {
+        Toggle(
+          SettingsStrings.launchAtLogin,
+          isOn: Binding(
+            get: { launchAtLoginEnabled },
+            set: { setLaunchAtLoginEnabled($0) }))
+
+        LabeledContent(SettingsStrings.autoCollapse) {
+          HStack(spacing: 6) {
+            TextField(
+              "",
+              value: Binding(
+                get: { Int(memoryAutoCollapseSeconds) },
+                set: { newValue in
+                  let clamped = TimeInterval(
+                    min(
+                      max(newValue, Int(SettingsStore.memoryAutoCollapseRange.lowerBound)),
+                      Int(SettingsStore.memoryAutoCollapseRange.upperBound)))
+                  memoryAutoCollapseSeconds = clamped
+                  settingsStore.memoryAutoCollapseSeconds = clamped
+                }),
+              format: .number
+            )
+            .textFieldStyle(.roundedBorder)
+            .multilineTextAlignment(.trailing)
+            .frame(width: 56)
+            Stepper(
+              "",
+              value: Binding(
+                get: { memoryAutoCollapseSeconds },
+                set: { newValue in
+                  memoryAutoCollapseSeconds = newValue
+                  settingsStore.memoryAutoCollapseSeconds = newValue
+                }),
+              in: SettingsStore.memoryAutoCollapseRange,
+              step: SettingsStore.memoryAutoCollapseStep
+            )
+            .labelsHidden()
+            Text(SettingsStrings.autoCollapseUnit)
+              .foregroundStyle(.secondary)
+          }
+        }
       }
     }
-  }
-
-  private func settingsPane<Content: View>(
-    @ViewBuilder content: () -> Content
-  ) -> some View {
-    VStack(alignment: .leading, spacing: 14) {
-      content()
-      Spacer(minLength: 0)
-    }
-    .frame(width: 470, alignment: .topLeading)
-    .padding(.top, 28)
-    .padding(.bottom, 24)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-  }
-
-  private func settingsRow<Content: View>(
-    _ title: String,
-    @ViewBuilder content: () -> Content
-  ) -> some View {
-    HStack(alignment: .center, spacing: 12) {
-      Text(title)
-        .frame(width: 96, alignment: .trailing)
-
-      content()
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
+    .formStyle(.grouped)
+    .scrollDisabled(true)
+    .frame(width: 480)
+    .fixedSize(horizontal: false, vertical: true)
   }
 
   private func setLaunchAtLoginEnabled(_ enabled: Bool) {

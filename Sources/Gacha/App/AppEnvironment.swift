@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 
 @MainActor
 final class AppEnvironment {
@@ -6,7 +6,6 @@ final class AppEnvironment {
   let settingsStore: SettingsStore
   let memoryCardRepository: MemoryCardRepository
   let launchAtLoginController: LaunchAtLoginController
-  let menuBarController: MenuBarController
   let windowCoordinator: WindowCoordinator
   let notchController: NotchController
   let memoryNotchPresenter: MemoryNotchPresenter
@@ -17,7 +16,6 @@ final class AppEnvironment {
     settingsStore: SettingsStore,
     memoryCardRepository: MemoryCardRepository,
     launchAtLoginController: LaunchAtLoginController,
-    menuBarController: MenuBarController,
     windowCoordinator: WindowCoordinator,
     notchController: NotchController,
     memoryNotchPresenter: MemoryNotchPresenter,
@@ -27,7 +25,6 @@ final class AppEnvironment {
     self.settingsStore = settingsStore
     self.memoryCardRepository = memoryCardRepository
     self.launchAtLoginController = launchAtLoginController
-    self.menuBarController = menuBarController
     self.windowCoordinator = windowCoordinator
     self.notchController = notchController
     self.memoryNotchPresenter = memoryNotchPresenter
@@ -53,6 +50,16 @@ final class AppEnvironment {
       },
       compactLeading: { LogoCompactView() })
     memoryNotchPresenter.start()
-    menuBarController.start()
+  }
+
+  // Bridges the SwiftUI Settings scene's lifecycle into AppKit-level effects:
+  // accessory apps need to flip activation policy so the window comes forward,
+  // and the notch needs to know so it stops auto-collapsing while open.
+  func onSettingsVisibilityChange(_ visible: Bool) {
+    if visible {
+      NSApp.setActivationPolicy(.regular)
+      NSApp.activate(ignoringOtherApps: true)
+    }
+    windowCoordinator.setSettingsVisible(visible)
   }
 }

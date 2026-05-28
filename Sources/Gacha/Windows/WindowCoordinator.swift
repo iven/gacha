@@ -10,25 +10,13 @@ final class WindowCoordinator {
   var onManagedWindowVisibilityChange: ((Bool) -> Void)?
 
   private let cardManagement: CardManagementWindowController
-  private let settings: SettingsWindowController
+  private var settingsWindowVisible = false
 
-  init(
-    directories: AppDirectories,
-    launchAtLoginController: LaunchAtLoginController,
-    memoryCardRepository: MemoryCardRepository,
-    settingsStore: SettingsStore
-  ) {
+  init(memoryCardRepository: MemoryCardRepository) {
     cardManagement = CardManagementWindowController(
       memoryCardRepository: memoryCardRepository)
-    settings = SettingsWindowController(
-      directories: directories,
-      launchAtLoginController: launchAtLoginController,
-      settingsStore: settingsStore)
 
     cardManagement.onWindowDidClose = { [weak self] in
-      self?.handleManagedWindowVisibilityChange()
-    }
-    settings.onWindowDidClose = { [weak self] in
       self?.handleManagedWindowVisibilityChange()
     }
   }
@@ -40,10 +28,11 @@ final class WindowCoordinator {
     handleManagedWindowVisibilityChange()
   }
 
-  func openSettings() {
-    NSApp.setActivationPolicy(.regular)
-    settings.show()
-    NSApp.activate(ignoringOtherApps: true)
+  // Called by SettingsView's onAppear/onDisappear so the notch can suppress its
+  // auto-collapse while the settings window is open.
+  func setSettingsVisible(_ visible: Bool) {
+    guard settingsWindowVisible != visible else { return }
+    settingsWindowVisible = visible
     handleManagedWindowVisibilityChange()
   }
 
@@ -59,6 +48,6 @@ final class WindowCoordinator {
   }
 
   private var hasVisibleManagedWindow: Bool {
-    [cardManagement.window, settings.window].contains { $0?.isVisible == true }
+    cardManagement.window?.isVisible == true || settingsWindowVisible
   }
 }

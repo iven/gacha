@@ -11,11 +11,7 @@ struct AppBootstrapper {
       fileManager: fileManager)
 
     let launchAtLoginController = LaunchAtLoginController()
-    let windowCoordinator = WindowCoordinator(
-      directories: directories,
-      launchAtLoginController: launchAtLoginController,
-      memoryCardRepository: memoryCardRepository,
-      settingsStore: settingsStore)
+    let windowCoordinator = WindowCoordinator(memoryCardRepository: memoryCardRepository)
 
     let notchController = NotchController()
     let presenter = MemoryNotchPresenter(
@@ -28,30 +24,20 @@ struct AppBootstrapper {
     presenter.onEditCardRequested = { card in
       windowCoordinator.openCards(editing: card)
     }
-    presenter.onSettingsRequested = {
-      windowCoordinator.openSettings()
-    }
 
     notchController.onResumeRequested = { [weak notchController] in
       notchController?.setPaused(false)
     }
 
-    let menuBarController = MenuBarController(
-      actions: MenuBarActions(
-        openCards: {
-          windowCoordinator.openCards()
-        },
-        openSettings: {
-          windowCoordinator.openSettings()
-        },
-        setPaused: { paused in
-          notchController.setPaused(paused)
-        },
-        quit: {
-          NSApp.terminate(nil)
-        }))
-    notchController.onPausedChange = { [weak menuBarController] paused in
-      menuBarController?.setPaused(paused)
+    let menuBarViewModel = AppDelegate.menuBarViewModel
+    menuBarViewModel.onTogglePause = { [weak notchController] paused in
+      notchController?.setPaused(paused)
+    }
+    menuBarViewModel.onOpenCards = {
+      windowCoordinator.openCards()
+    }
+    notchController.onPausedChange = { [weak menuBarViewModel] paused in
+      menuBarViewModel?.isPaused = paused
     }
 
     windowCoordinator.onPreviewCardChange = { [weak presenter] card in
@@ -66,7 +52,6 @@ struct AppBootstrapper {
       settingsStore: settingsStore,
       memoryCardRepository: memoryCardRepository,
       launchAtLoginController: launchAtLoginController,
-      menuBarController: menuBarController,
       windowCoordinator: windowCoordinator,
       notchController: notchController,
       memoryNotchPresenter: presenter,

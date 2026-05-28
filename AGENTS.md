@@ -33,11 +33,13 @@ Sources/Gacha/
 
 Rules:
 
-- One primary type per file. File name matches the type.
-- A file > ~200 lines or holding multiple top-level types is a split signal.
-- A directory that consumes a capability shared with another context (e.g.
-  markdown rendering used by both `Notch/` and `Windows/CardManagement/`)
-  must not own that capability — promote it to a sibling top-level.
+- One primary type per file. File name matches it.
+- A file > ~200 lines is a split signal.
+- A capability that is semantically independent from the consumer context
+  lives at a sibling top-level, even with only one caller today (e.g. a
+  generic SwiftUI key-event bridge). A capability whose semantics are bound
+  to the consumer stays inside that context. When in doubt, judge by whether
+  the type would still make sense if the consumer were a different context.
 - Each user-facing feature owns one `*Strings.swift` loaded via
   `AppStrings.localized`.
 

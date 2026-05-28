@@ -2,14 +2,28 @@ import Testing
 
 @testable import Gacha
 
-@Test func menuBarStateUsesPauseOrResumeTitle() {
-  var state = MenuBarState()
+@MainActor
+@Test func menuBarViewModelForwardsTogglePause() {
+  let viewModel = MenuBarViewModel()
+  var received: [Bool] = []
+  viewModel.onTogglePause = { received.append($0) }
 
-  #expect(state.pauseDisplayTitle == MenuBarStrings.pauseDisplay)
+  viewModel.onTogglePause?(true)
+  viewModel.onTogglePause?(false)
 
-  state.isPaused = true
+  #expect(received == [true, false])
+}
 
-  #expect(state.pauseDisplayTitle == MenuBarStrings.resumeDisplay)
+@MainActor
+@Test func menuBarViewModelForwardsOpenCards() {
+  let viewModel = MenuBarViewModel()
+  var callCount = 0
+  viewModel.onOpenCards = { callCount += 1 }
+
+  viewModel.onOpenCards?()
+  viewModel.onOpenCards?()
+
+  #expect(callCount == 2)
 }
 
 @Test func menuBarStringsResolveFromLocalizationResources() {

@@ -30,7 +30,10 @@ struct MemoryCardExpandedView: View {
         toolButton(symbol: "square.and.pencil") {
           actions.onEditCard(card)
         }
-        toolButton(symbol: "gearshape", action: actions.onSettings)
+        SettingsLink {
+          toolButtonLabel(symbol: "gearshape")
+        }
+        .buttonStyle(.plain)
       }
       ScrollView(.vertical) {
         bodyView
@@ -153,15 +156,19 @@ struct MemoryCardExpandedView: View {
 
   private func toolButton(symbol: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
-      Image(systemName: symbol)
-        .resizable()
-        .scaledToFit()
-        .frame(width: 14, height: 14)
-        .foregroundStyle(.white.opacity(0.85))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(.white.opacity(0.2), in: Capsule())
+      toolButtonLabel(symbol: symbol)
     }
     .buttonStyle(.plain)
+  }
+
+  private func toolButtonLabel(symbol: String) -> some View {
+    Image(systemName: symbol)
+      .resizable()
+      .scaledToFit()
+      .frame(width: 14, height: 14)
+      .foregroundStyle(.white.opacity(0.85))
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
+      .background(.white.opacity(0.2), in: Capsule())
   }
 }
