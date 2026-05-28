@@ -67,26 +67,8 @@ struct SettingsView: View {
 
       Section(SettingsStrings.sectionMemoryCards) {
         LabeledContent(SettingsStrings.collapseCountdown) {
-          HStack(spacing: 6) {
-            TextField(
-              "",
-              value: Binding(
-                get: { Int(memoryAutoCollapseSeconds) },
-                set: { newValue in
-                  let clamped = TimeInterval(
-                    min(
-                      max(newValue, Int(SettingsStore.memoryAutoCollapseRange.lowerBound)),
-                      Int(SettingsStore.memoryAutoCollapseRange.upperBound)))
-                  memoryAutoCollapseSeconds = clamped
-                  settingsStore.memoryAutoCollapseSeconds = clamped
-                }),
-              format: .number
-            )
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            .frame(width: 56)
-            Stepper(
-              "",
+          HStack(spacing: 8) {
+            Slider(
               value: Binding(
                 get: { memoryAutoCollapseSeconds },
                 set: { newValue in
@@ -94,11 +76,11 @@ struct SettingsView: View {
                   settingsStore.memoryAutoCollapseSeconds = newValue
                 }),
               in: SettingsStore.memoryAutoCollapseRange,
-              step: SettingsStore.memoryAutoCollapseStep
-            )
-            .labelsHidden()
-            Text(SettingsStrings.collapseCountdownUnit)
+              step: SettingsStore.memoryAutoCollapseStep)
+            Text("\(Int(memoryAutoCollapseSeconds))\(SettingsStrings.collapseCountdownUnit)")
               .foregroundStyle(.secondary)
+              .monospacedDigit()
+              .frame(width: 36, alignment: .trailing)
           }
         }
       }
