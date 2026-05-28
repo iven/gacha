@@ -24,6 +24,9 @@ struct AppBootstrapper {
     presenter.onEditCardRequested = { card in
       windowCoordinator.openCards(editing: card)
     }
+    presenter.onPauseRequested = { [weak notchController] in
+      notchController?.setPaused(true)
+    }
 
     notchController.onResumeRequested = { [weak notchController] in
       notchController?.setPaused(false)

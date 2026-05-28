@@ -31,6 +31,9 @@ struct MemoryCardExpandedView: View {
         toolButton(symbol: "square.and.pencil") {
           actions.onEditCard(card)
         }
+        toolButton(symbol: "pause") {
+          actions.onPause()
+        }
         SettingsLink {
           toolButtonLabel(symbol: "gearshape")
         }
