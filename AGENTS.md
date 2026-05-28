@@ -45,4 +45,4 @@ Rules:
 
 ## Development
 
-- Kill the running `Gacha` process before each `make dev`.
+- After functional changes, the agent should kill the running `Gacha` process and rerun `make dev`.
