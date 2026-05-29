@@ -3,12 +3,14 @@ import AppKit
 /// Centralizes all visual constants and derived fonts/colors/paragraph styles
 /// for rendered Markdown. Values are expressed as multiples of the base font
 /// size so the whole document scales together.
-struct BlockStyle {
+struct MarkdownStyle {
   let appearance: MarkdownAppearance
-  let baseFontSize = NSFont.systemFontSize
+  // Larger than the system font size to keep body text and its ruby annotations
+  // legible.
+  let baseFontSize = NSFont.systemFontSize * 1.15
 
   // Heading: font size and opacity step down by level (H1...H6).
-  private static let headingFontScales: [CGFloat] = [2.5, 1.75, 1.25, 1.0, 1.0, 1.0]
+  private static let headingFontScales: [CGFloat] = [2.17, 1.75, 1.25, 1.0, 1.0, 1.0]
   private static let headingAlphas: [CGFloat] = [1.0, 0.9, 0.75, 0.5, 0.5, 0.5]
   private static let headingTopSpacings: [CGFloat] = [1.2, 1.1, 1.0, 1.0, 1.0, 1.0]
   private static let headingBottomSpacings: [CGFloat] = [1.0, 0.55, 0.5, 0.5, 0.5, 0.5]

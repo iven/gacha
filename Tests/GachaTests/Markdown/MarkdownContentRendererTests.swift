@@ -11,7 +11,7 @@ import Testing
     rendered.attribute(.paragraphStyle, at: separatorIndex, effectiveRange: nil)
       as? NSParagraphStyle)
 
-  #expect(paragraphStyle.paragraphSpacing == NSFont.systemFontSize)
+  #expect(paragraphStyle.paragraphSpacing == MarkdownStyle(appearance: .light).baseFontSize)
 }
 
 @Test func contentRendererMarksBlockQuoteWithDecorationAndIndent() throws {
@@ -27,13 +27,14 @@ import Testing
     rendered.attribute(.paragraphStyle, at: quoteRange.location, effectiveRange: nil)
       as? NSParagraphStyle)
 
-  #expect(paragraphStyle.firstLineHeadIndent == NSFont.systemFontSize)
-  #expect(paragraphStyle.headIndent == NSFont.systemFontSize)
+  let baseFontSize = MarkdownStyle(appearance: .light).baseFontSize
+  #expect(paragraphStyle.firstLineHeadIndent == baseFontSize)
+  #expect(paragraphStyle.headIndent == baseFontSize)
 
   let decoration = try #require(
     rendered.attribute(.markdownBlockQuote, at: quoteRange.location, effectiveRange: nil)
       as? BlockQuoteDecoration)
-  #expect(decoration.verticalPadding == NSFont.systemFontSize * 0.15)
+  #expect(decoration.verticalPadding == baseFontSize * 0.15)
   #expect(decoration.barWidth == 3)
 }
 

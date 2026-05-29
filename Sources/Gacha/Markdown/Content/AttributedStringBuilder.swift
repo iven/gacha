@@ -17,10 +17,10 @@ extension NSTextList.MarkerFormat {
 /// attribute consumed by the layout-fragment drawing code — never by inserting
 /// layout-only glyphs into the text.
 struct AttributedStringBuilder {
-  private let style: BlockStyle
+  private let style: MarkdownStyle
 
   init(appearance: MarkdownAppearance) {
-    self.style = BlockStyle(appearance: appearance)
+    self.style = MarkdownStyle(appearance: appearance)
   }
 
   func build(_ markdown: String) -> NSAttributedString {
