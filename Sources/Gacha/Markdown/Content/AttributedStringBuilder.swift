@@ -57,11 +57,12 @@ struct AttributedStringBuilder {
     case let heading as Heading:
       let body = renderInlineChildren(of: heading, style: style.headingStyle(level: heading.level))
       return RenderedBlock(
-        attributedString: body, margin: style.headingMargin(level: heading.level))
+        attributedString: rubyAdjusted(body), margin: style.headingMargin(level: heading.level))
 
     case let paragraph as Paragraph:
       let body = renderInlineChildren(of: paragraph, style: style.baseStyle())
-      return RenderedBlock(attributedString: body, margin: style.defaultBlockMargin())
+      return RenderedBlock(
+        attributedString: rubyAdjusted(body), margin: style.defaultBlockMargin())
 
     case let codeBlock as CodeBlock:
       let body = NSAttributedString(
@@ -158,11 +159,18 @@ struct AttributedStringBuilder {
     return output
   }
 
+  /// Renders a plain text run, applying ruby annotations if it contains `{…|…}`.
+  private func renderText(_ string: String, style inlineStyle: InlineStyle) -> NSAttributedString {
+    RubyAnnotation.attributedString(
+      from: string, baseAttributes: inlineStyle.attributes, baseFont: inlineStyle.font)
+      ?? NSAttributedString(string: string, attributes: inlineStyle.attributes)
+  }
+
   private func renderInline(_ markup: Markup, style inlineStyle: InlineStyle) -> NSAttributedString
   {
     switch markup {
     case let text as Text:
-      return NSAttributedString(string: text.string, attributes: inlineStyle.attributes)
+      return renderText(text.string, style: inlineStyle)
 
     case let inlineCode as InlineCode:
       return NSAttributedString(
@@ -245,6 +253,32 @@ struct AttributedStringBuilder {
     var separatorAttributes = attributes
     separatorAttributes[.paragraphStyle] = paragraphStyle
     output.append(string: "\n", attributes: separatorAttributes)
+  }
+
+  /// If the rendered block contains any ruby annotation, raises its paragraphs'
+  /// line height so the annotation has room above the text. Plain blocks are
+  /// returned unchanged so they stay compact.
+  private func rubyAdjusted(_ attributed: NSAttributedString) -> NSAttributedString {
+    let fullRange = NSRange(location: 0, length: attributed.length)
+    let rubyKey = kCTRubyAnnotationAttributeName as NSAttributedString.Key
+    var hasRuby = false
+    attributed.enumerateAttribute(rubyKey, in: fullRange) { value, _, stop in
+      if value != nil {
+        hasRuby = true
+        stop.pointee = true
+      }
+    }
+    guard hasRuby else {
+      return attributed
+    }
+
+    let mutable = NSMutableAttributedString(attributedString: attributed)
+    mutable.enumerateAttribute(.paragraphStyle, in: fullRange) { value, range, _ in
+      let base = (value as? NSParagraphStyle) ?? style.bodyParagraphStyle()
+      mutable.addAttribute(
+        .paragraphStyle, value: style.applyingRubyLineHeight(to: base), range: range)
+    }
+    return mutable
   }
 
   private func applyHeadIndent(

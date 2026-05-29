@@ -20,6 +20,11 @@ struct BlockStyle {
   private static let blockQuoteBarWidth: CGFloat = 3
   private static let lineSpacing: CGFloat = 2
 
+  // Ruby annotations are drawn above the base text and TextKit reserves no room
+  // for them, so ruby-bearing paragraphs need extra line height to avoid the
+  // annotation clipping at the top or overlapping the line above.
+  private static let rubyLineHeightMultiple: CGFloat = 1.6
+
   // MARK: Colors
 
   var textColor: NSColor {
@@ -61,6 +66,14 @@ struct BlockStyle {
   func bodyParagraphStyle() -> NSMutableParagraphStyle {
     let style = NSMutableParagraphStyle()
     style.lineSpacing = Self.lineSpacing
+    return style
+  }
+
+  /// Returns a copy of `base` with extra line height so ruby annotations have
+  /// room above the text. Applied only to paragraphs that actually contain ruby.
+  func applyingRubyLineHeight(to base: NSParagraphStyle) -> NSParagraphStyle {
+    let style = (base.mutableCopy() as? NSMutableParagraphStyle) ?? bodyParagraphStyle()
+    style.lineHeightMultiple = Self.rubyLineHeightMultiple
     return style
   }
 
