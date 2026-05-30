@@ -11,7 +11,7 @@ struct MarkdownStyle {
 
   // Heading: font size and opacity step down by level (H1...H6).
   private static let headingFontScales: [CGFloat] = [2.17, 1.75, 1.25, 1.0, 1.0, 1.0]
-  private static let headingAlphas: [CGFloat] = [1.0, 0.9, 0.75, 0.5, 0.5, 0.5]
+  private static let headingAlphas: [CGFloat] = [1.0, 0.95, 0.85, 0.65, 0.65, 0.65]
   private static let headingTopSpacings: [CGFloat] = [1.2, 1.1, 1.0, 1.0, 1.0, 1.0]
   private static let headingBottomSpacings: [CGFloat] = [1.0, 0.55, 0.5, 0.5, 0.5, 0.5]
 
@@ -29,14 +29,26 @@ struct MarkdownStyle {
 
   // MARK: Colors
 
-  var textColor: NSColor {
+  /// Body text is slightly dimmed so rendered Markdown sits softly against the
+  /// notch background; bold runs use the full strength to stand out.
+  private static let bodyTextAlpha: CGFloat = 0.82
+  private static let strongTextAlpha: CGFloat = 0.95
+
+  private var baseTextColor: NSColor {
     appearance == .dark ? .white : .black
   }
 
+  var textColor: NSColor {
+    baseTextColor.withAlphaComponent(Self.bodyTextAlpha)
+  }
+
+  var strongTextColor: NSColor {
+    baseTextColor.withAlphaComponent(Self.strongTextAlpha)
+  }
+
   var secondaryTextColor: NSColor {
-    appearance == .dark
-      ? NSColor.white.withAlphaComponent(0.62)
-      : NSColor.black.withAlphaComponent(0.56)
+    let alpha: CGFloat = appearance == .dark ? 0.62 : 0.56
+    return baseTextColor.withAlphaComponent(alpha * Self.bodyTextAlpha)
   }
 
   // MARK: Inline styles
@@ -51,16 +63,21 @@ struct MarkdownStyle {
   func headingStyle(level: Int) -> InlineStyle {
     let index = clampedHeadingIndex(level)
     let font = NSFont.boldSystemFont(ofSize: baseFontSize * Self.headingFontScales[index])
-    let color = textColor.withAlphaComponent(Self.headingAlphas[index])
+    let color = textColor.withAlphaComponent(Self.headingAlphas[index] * Self.bodyTextAlpha)
     return InlineStyle(font: font, color: color, paragraphStyle: bodyParagraphStyle())
   }
 
   func codeAttributes(paragraphStyle: NSParagraphStyle? = nil) -> [NSAttributedString.Key: Any] {
     [
       .font: NSFont.monospacedSystemFont(ofSize: baseFontSize, weight: .regular),
-      .foregroundColor: NSColor.systemBrown,
+      .foregroundColor: NSColor.systemBrown.withAlphaComponent(Self.bodyTextAlpha),
       .paragraphStyle: paragraphStyle ?? bodyParagraphStyle(),
     ]
+  }
+
+  /// Color for link text, dimmed to match the rest of the rendered Markdown.
+  var linkColor: NSColor {
+    NSColor.linkColor.withAlphaComponent(Self.bodyTextAlpha)
   }
 
   // MARK: Paragraph styles

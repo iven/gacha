@@ -9,7 +9,6 @@ struct MarkdownRenderer: View {
   var body: some View {
     MarkdownTextView(attributedText: attributedText)
       .padding(.vertical, 6)
-      .opacity(0.82)
       .onHover { hovering in
         if hovering {
           NSCursor.iBeam.push()

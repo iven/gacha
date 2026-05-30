@@ -90,7 +90,7 @@ import Testing
 
   let color = try #require(
     rendered.attribute(.foregroundColor, at: textRange.location, effectiveRange: nil) as? NSColor)
-  #expect(color == .linkColor)
+  #expect(color == MarkdownStyle(appearance: .light).linkColor)
 }
 
 @Test func contentRendererStripsUnsafeLinkSchemes() throws {

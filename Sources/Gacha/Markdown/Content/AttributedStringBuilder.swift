@@ -185,7 +185,11 @@ struct AttributedStringBuilder {
 
     case let strong as Strong:
       return renderInlineChildren(
-        of: strong, style: inlineStyle.with { $0.font = applyTrait(.bold, to: $0.font) })
+        of: strong,
+        style: inlineStyle.with {
+          $0.font = applyTrait(.bold, to: $0.font)
+          $0.color = style.strongTextColor
+        })
 
     case let emphasis as Emphasis:
       return renderInlineChildren(
@@ -212,7 +216,7 @@ struct AttributedStringBuilder {
     let safeURL = link.destination.flatMap(sanitizedLinkURL(from:))
     let linkStyle = inlineStyle.with {
       if safeURL != nil {
-        $0.color = .linkColor
+        $0.color = style.linkColor
         $0.underline = true
       }
     }
