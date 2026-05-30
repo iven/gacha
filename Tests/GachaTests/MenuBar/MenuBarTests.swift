@@ -14,18 +14,6 @@ import Testing
   #expect(received == [true, false])
 }
 
-@MainActor
-@Test func menuBarViewModelForwardsOpenCards() {
-  let viewModel = MenuBarViewModel()
-  var callCount = 0
-  viewModel.onOpenCards = { callCount += 1 }
-
-  viewModel.onOpenCards?()
-  viewModel.onOpenCards?()
-
-  #expect(callCount == 2)
-}
-
 @Test func menuBarStringsResolveFromLocalizationResources() {
   #expect(MenuBarStrings.cards != "menu.cards")
   #expect(MenuBarStrings.pauseDisplay != "menu.pauseDisplay")

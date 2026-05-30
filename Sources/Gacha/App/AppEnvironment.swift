@@ -6,18 +6,22 @@ final class AppEnvironment {
   let settingsStore: SettingsStore
   let memoryCardRepository: MemoryCardRepository
   let launchAtLoginController: LaunchAtLoginController
-  let windowCoordinator: WindowCoordinator
+  let cardWindowBridge: CardWindowBridge
   let notchController: NotchController
   let memoryNotchPresenter: MemoryNotchPresenter
   let suppressionController: SuppressionController
   let storageRelocationCoordinator: StorageRelocationCoordinator
+
+  /// Single card-management model shared by the single-instance card window.
+  private(set) lazy var cardManagementModel = CardManagementModel(
+    memoryCardRepository: memoryCardRepository)
 
   init(
     directories: AppDirectories,
     settingsStore: SettingsStore,
     memoryCardRepository: MemoryCardRepository,
     launchAtLoginController: LaunchAtLoginController,
-    windowCoordinator: WindowCoordinator,
+    cardWindowBridge: CardWindowBridge,
     notchController: NotchController,
     memoryNotchPresenter: MemoryNotchPresenter,
     suppressionController: SuppressionController,
@@ -27,7 +31,7 @@ final class AppEnvironment {
     self.settingsStore = settingsStore
     self.memoryCardRepository = memoryCardRepository
     self.launchAtLoginController = launchAtLoginController
-    self.windowCoordinator = windowCoordinator
+    self.cardWindowBridge = cardWindowBridge
     self.notchController = notchController
     self.memoryNotchPresenter = memoryNotchPresenter
     self.suppressionController = suppressionController
@@ -56,14 +60,10 @@ final class AppEnvironment {
     memoryNotchPresenter.start()
   }
 
-  // Bridges the SwiftUI Settings scene's lifecycle into AppKit-level effects:
-  // accessory apps need to flip activation policy so the window comes forward,
-  // and the notch needs to know so it stops auto-collapsing while open.
+  // Bridges the SwiftUI Settings scene's lifecycle into the shared window
+  // bridge, which flips activation policy (accessory apps need .regular to come
+  // forward) and tells the notch to stop auto-collapsing while a window is open.
   func onSettingsVisibilityChange(_ visible: Bool) {
-    if visible {
-      NSApp.setActivationPolicy(.regular)
-      NSApp.activate(ignoringOtherApps: true)
-    }
-    windowCoordinator.setSettingsVisible(visible)
+    cardWindowBridge.setSettingsVisible(visible)
   }
 }

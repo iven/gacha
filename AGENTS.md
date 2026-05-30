@@ -34,7 +34,9 @@ Sources/Gacha/
 Rules:
 
 - One primary type per file. File name matches it.
-- A file > ~200 lines is a split signal.
+- A file > ~200 lines is a split signal. Splitting means rethinking whether
+  the file became a dumping ground and redesigning it along functional lines,
+  not relocating the latest addition to dodge the limit.
 - A capability that is semantically independent from the consumer context
   lives at a sibling top-level, even with only one caller today (e.g. a
   generic SwiftUI key-event bridge). A capability whose semantics are bound
@@ -45,4 +47,5 @@ Rules:
 
 ## Development
 
-- After functional changes, the agent should kill the running `Gacha` process and rerun `make dev`.
+- After functional changes, the agent should kill the running `Gacha` process
+  (`pkill -x Gacha`) and rerun `make dev` without asking user, which compiles on launch — no separate build step beforehand.

@@ -11,19 +11,14 @@ struct AppBootstrapper {
       fileManager: fileManager)
 
     let launchAtLoginController = LaunchAtLoginController()
-    let windowCoordinator = WindowCoordinator(memoryCardRepository: memoryCardRepository)
+    let cardWindowBridge = CardWindowBridge()
 
     let notchController = NotchController()
     let presenter = MemoryNotchPresenter(
       controller: notchController,
       memoryCardRepository: memoryCardRepository,
-      settingsStore: settingsStore)
-    presenter.onNewCardRequested = {
-      windowCoordinator.openCards()
-    }
-    presenter.onEditCardRequested = { card in
-      windowCoordinator.openCards(editing: card)
-    }
+      settingsStore: settingsStore,
+      cardWindowBridge: cardWindowBridge)
     presenter.onPauseRequested = { [weak notchController] in
       notchController?.setPaused(true)
     }
@@ -36,18 +31,8 @@ struct AppBootstrapper {
     menuBarViewModel.onTogglePause = { [weak notchController] paused in
       notchController?.setPaused(paused)
     }
-    menuBarViewModel.onOpenCards = {
-      windowCoordinator.openCards()
-    }
     notchController.onPausedChange = { [weak menuBarViewModel] paused in
       menuBarViewModel?.isPaused = paused
-    }
-
-    windowCoordinator.onPreviewCardChange = { [weak presenter] card in
-      presenter?.setPreviewCard(card)
-    }
-    windowCoordinator.onManagedWindowVisibilityChange = { [weak presenter] visible in
-      presenter?.setHasVisibleManagedWindow(visible)
     }
 
     let storageRelocationCoordinator = StorageRelocationCoordinator(
@@ -62,7 +47,7 @@ struct AppBootstrapper {
       settingsStore: settingsStore,
       memoryCardRepository: memoryCardRepository,
       launchAtLoginController: launchAtLoginController,
-      windowCoordinator: windowCoordinator,
+      cardWindowBridge: cardWindowBridge,
       notchController: notchController,
       memoryNotchPresenter: presenter,
       suppressionController: SuppressionController(),

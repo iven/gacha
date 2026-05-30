@@ -9,10 +9,17 @@ struct GachaApp: App {
       MenuBarRootView()
     }
 
+    Window(CardManagementStrings.windowTitle, id: GachaApp.cardWindowID) {
+      CardManagementRootView()
+    }
+    .defaultSize(width: 960, height: 720)
+
     Settings {
       SettingsRootView()
     }
   }
+
+  static let cardWindowID = "cards"
 }
 
 private struct MenuBarRootView: View {
@@ -20,6 +27,19 @@ private struct MenuBarRootView: View {
 
   var body: some View {
     MenuBarMenu(viewModel: viewModel)
+  }
+}
+
+private struct CardManagementRootView: View {
+  var body: some View {
+    Group {
+      if let environment = AppDelegate.shared?.environment {
+        CardManagementView(model: environment.cardManagementModel)
+          .environmentObject(environment.cardWindowBridge)
+      } else {
+        ProgressView()
+      }
+    }
   }
 }
 

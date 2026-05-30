@@ -9,8 +9,6 @@ final class MemoryNotchPresenter: ObservableObject {
     case preview(MemoryCard)
   }
 
-  var onNewCardRequested: (() -> Void)?
-  var onEditCardRequested: ((MemoryCard) -> Void)?
   var onPauseRequested: (() -> Void)?
 
   @Published private(set) var currentCard: any Card = EmptyStateCard()
@@ -21,8 +19,10 @@ final class MemoryNotchPresenter: ObservableObject {
       isDue: { [scheduler, now] card in scheduler.isDue(card, now: now()) },
       onRate: { [weak self] card, rating in self?.handleRating(card: card, rating: rating) },
       onNext: { [weak self] card in self?.handleNext(card: card) },
-      onNewCard: { [weak self] in self?.onNewCardRequested?() },
-      onEditCard: { [weak self] card in self?.onEditCardRequested?(card) },
+      onNewCard: { [weak self] in self?.cardWindowBridge.requestOpen() },
+      onEditCard: { [weak self] card in
+        self?.cardWindowBridge.requestOpen(editingCardID: card.id)
+      },
       onPause: { [weak self] in self?.onPauseRequested?() },
       onDismiss: { [weak self] in self?.controller.compact() })
   }
@@ -40,20 +40,24 @@ final class MemoryNotchPresenter: ObservableObject {
   private let memoryCardRepository: MemoryCardRepository
   private let scheduler: MemoryCardScheduler
   private let settingsStore: SettingsStore
+  private let cardWindowBridge: CardWindowBridge
   private let now: () -> Date
   private var repositoryEventObservation: AnyCancellable?
+  private var bridgeObservations: Set<AnyCancellable> = []
   private var hasVisibleManagedWindow = false
 
   init(
     controller: NotchController,
     memoryCardRepository: MemoryCardRepository,
     settingsStore: SettingsStore,
+    cardWindowBridge: CardWindowBridge,
     scheduler: MemoryCardScheduler = MemoryCardScheduler(),
     now: @escaping () -> Date = Date.init
   ) {
     self.controller = controller
     self.memoryCardRepository = memoryCardRepository
     self.settingsStore = settingsStore
+    self.cardWindowBridge = cardWindowBridge
     self.scheduler = scheduler
     self.now = now
   }
@@ -66,9 +70,28 @@ final class MemoryNotchPresenter: ObservableObject {
       .sink { [weak self] event in
         self?.handleRepositoryEvent(event)
       }
+    observeCardWindowBridge()
   }
 
-  func setPreviewCard(_ card: MemoryCard?) {
+  // Observes the shared bridge: the card window writes preview card and managed
+  // window visibility, and the presenter reacts here.
+  private func observeCardWindowBridge() {
+    cardWindowBridge.$previewCard
+      .removeDuplicates()
+      .sink { [weak self] card in
+        self?.setPreviewCard(card)
+      }
+      .store(in: &bridgeObservations)
+
+    cardWindowBridge.$hasVisibleManagedWindow
+      .removeDuplicates()
+      .sink { [weak self] visible in
+        self?.setHasVisibleManagedWindow(visible)
+      }
+      .store(in: &bridgeObservations)
+  }
+
+  private func setPreviewCard(_ card: MemoryCard?) {
     if let card {
       mode = .preview(card)
       show(card: card)
@@ -78,7 +101,7 @@ final class MemoryNotchPresenter: ObservableObject {
     }
   }
 
-  func setHasVisibleManagedWindow(_ visible: Bool) {
+  private func setHasVisibleManagedWindow(_ visible: Bool) {
     guard hasVisibleManagedWindow != visible else {
       return
     }
