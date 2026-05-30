@@ -15,6 +15,7 @@ final class CardManagementModel: ObservableObject {
   @Published var activeSheet: ActiveSheet?
   @Published var pendingDeletion: PendingDeletion?
   @Published private(set) var isPreviewing = false
+  @Published private(set) var editorFocusRevision: Int = 0
 
   private let memoryCardRepository: MemoryCardRepository
   private let draftSession: CardDraftSession
@@ -320,6 +321,7 @@ extension CardManagementModel {
     if shouldFocusNewCard {
       applySelectedCardText()
       draftSession.begin(card: selectedCard)
+      editorFocusRevision += 1
     } else if let selectedCardID, !cards.contains(where: { $0.id == selectedCardID }) {
       self.selectedCardID = nil
       applySelectedCardText()

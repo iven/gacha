@@ -7,6 +7,7 @@ import SwiftUI
 /// surrounding layout moves to SwiftUI.
 struct MarkdownSourceEditor: NSViewRepresentable {
   @Binding var text: String
+  var focusRevision: Int = 0
 
   func makeCoordinator() -> Coordinator {
     Coordinator(text: $text)
@@ -46,6 +47,12 @@ struct MarkdownSourceEditor: NSViewRepresentable {
       context.coordinator.applyHighlight()
       context.coordinator.isApplyingText = false
     }
+    if context.coordinator.focusRevision != focusRevision {
+      context.coordinator.focusRevision = focusRevision
+      DispatchQueue.main.async {
+        textView.window?.makeFirstResponder(textView)
+      }
+    }
   }
 
   @MainActor
@@ -53,6 +60,7 @@ struct MarkdownSourceEditor: NSViewRepresentable {
     var text: Binding<String>
     weak var textView: NSTextView?
     var isApplyingText = false
+    var focusRevision: Int = 0
     private let highlighter = MarkdownSyntaxHighlighter()
 
     init(text: Binding<String>) {

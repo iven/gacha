@@ -115,7 +115,8 @@ struct CardManagementView: View {
       MarkdownSourceEditor(
         text: Binding(
           get: { model.editorText },
-          set: { model.updateBody($0) }))
+          set: { model.updateBody($0) }),
+        focusRevision: model.editorFocusRevision)
     } else {
       // An empty editor area that creates a card on click, mirroring the former
       // AppKit editor's click-to-create empty state. NSCursor on hover (rather
