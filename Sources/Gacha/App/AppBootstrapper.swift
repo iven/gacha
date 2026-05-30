@@ -45,8 +45,14 @@ struct AppBootstrapper {
       menuBarViewModel?.isPaused = paused
     }
 
-    let suppressionController = SuppressionController(
-      isEnabled: { settingsStore.fullScreenSuppressionEnabled })
+    let suppressionController = SuppressionController(sources: [
+      SuppressionController.Source(
+        probe: FullScreenSpaceDetector(),
+        isEnabled: { settingsStore.fullScreenSuppressionEnabled }),
+      SuppressionController.Source(
+        probe: ScreenCaptureDetector(),
+        isEnabled: { settingsStore.screenSharingSuppressionEnabled }),
+    ])
     suppressionController.onChange = { [weak notchController] suppressed in
       notchController?.setSuppressed(suppressed)
     }

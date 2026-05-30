@@ -11,6 +11,7 @@ struct SettingsView: View {
   @State private var skipCountdownOnAnotherWindow: Bool
   @State private var showKeyboardHints: Bool
   @State private var fullScreenSuppressionEnabled: Bool
+  @State private var screenSharingSuppressionEnabled: Bool
 
   init(
     directories: AppDirectories,
@@ -32,6 +33,8 @@ struct SettingsView: View {
     _showKeyboardHints = State(initialValue: settingsStore.showKeyboardHints)
     _fullScreenSuppressionEnabled = State(
       initialValue: settingsStore.fullScreenSuppressionEnabled)
+    _screenSharingSuppressionEnabled = State(
+      initialValue: settingsStore.screenSharingSuppressionEnabled)
   }
 
   var body: some View {
@@ -90,6 +93,16 @@ struct SettingsView: View {
             set: { newValue in
               fullScreenSuppressionEnabled = newValue
               settingsStore.fullScreenSuppressionEnabled = newValue
+              suppressionController.reevaluate()
+            }))
+
+        Toggle(
+          SettingsStrings.screenSharingSuppressionEnabled,
+          isOn: Binding(
+            get: { screenSharingSuppressionEnabled },
+            set: { newValue in
+              screenSharingSuppressionEnabled = newValue
+              settingsStore.screenSharingSuppressionEnabled = newValue
               suppressionController.reevaluate()
             }))
       }

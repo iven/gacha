@@ -71,8 +71,8 @@
 "settings.launchAtLogin" = "登录时打开";
 "settings.showKeyboardHints" = "在按钮上显示快捷键";
 "settings.skipCountdownOnAnotherWindow" = "打开其他 Gacha 窗口时跳过倒计时";
-"settings.suppressionEnabled" = "演示或全屏时隐藏刘海";
 "settings.fullScreenSuppressionEnabled" = "全屏时隐藏刘海";
+"settings.screenSharingSuppressionEnabled" = "录屏或共享屏幕时隐藏刘海";
 "settings.collapseCountdown" = "收起倒计时";
 "settings.collapseCountdown.unit" = "秒";
 "presentation.emptyState.title" = "还没有记忆卡片";

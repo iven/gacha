@@ -11,6 +11,7 @@ struct SettingsStore {
     static let skipCountdownOnAnotherWindow = "skipCountdownOnAnotherWindow"
     static let showKeyboardHints = "showKeyboardHints"
     static let fullScreenSuppressionEnabled = "fullScreenSuppressionEnabled"
+    static let screenSharingSuppressionEnabled = "screenSharingSuppressionEnabled"
   }
 
   private let defaults: UserDefaults
@@ -28,6 +29,7 @@ struct SettingsStore {
       Key.skipCountdownOnAnotherWindow: AppSettings.defaultSkipCountdownOnAnotherWindow,
       Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
       Key.fullScreenSuppressionEnabled: AppSettings.defaultFullScreenSuppressionEnabled,
+      Key.screenSharingSuppressionEnabled: AppSettings.defaultScreenSharingSuppressionEnabled,
     ])
   }
 
@@ -46,7 +48,8 @@ struct SettingsStore {
         memoryAutoCollapseSeconds: memoryAutoCollapseSeconds,
         skipCountdownOnAnotherWindow: skipCountdownOnAnotherWindow,
         showKeyboardHints: showKeyboardHints,
-        fullScreenSuppressionEnabled: fullScreenSuppressionEnabled)
+        fullScreenSuppressionEnabled: fullScreenSuppressionEnabled,
+        screenSharingSuppressionEnabled: screenSharingSuppressionEnabled)
     }
     nonmutating set {
       userStorageURL = newValue.userStorageURL
@@ -55,6 +58,7 @@ struct SettingsStore {
       skipCountdownOnAnotherWindow = newValue.skipCountdownOnAnotherWindow
       showKeyboardHints = newValue.showKeyboardHints
       fullScreenSuppressionEnabled = newValue.fullScreenSuppressionEnabled
+      screenSharingSuppressionEnabled = newValue.screenSharingSuppressionEnabled
     }
   }
 
@@ -105,6 +109,11 @@ struct SettingsStore {
   var fullScreenSuppressionEnabled: Bool {
     get { defaults.bool(forKey: Key.fullScreenSuppressionEnabled) }
     nonmutating set { defaults.set(newValue, forKey: Key.fullScreenSuppressionEnabled) }
+  }
+
+  var screenSharingSuppressionEnabled: Bool {
+    get { defaults.bool(forKey: Key.screenSharingSuppressionEnabled) }
+    nonmutating set { defaults.set(newValue, forKey: Key.screenSharingSuppressionEnabled) }
   }
 
   private func normalizedMemoryAutoCollapseSeconds(

@@ -71,8 +71,8 @@
 "settings.launchAtLogin" = "Open at Login";
 "settings.showKeyboardHints" = "Show keyboard hints on buttons";
 "settings.skipCountdownOnAnotherWindow" = "Skip countdown when opening another Gacha window";
-"settings.suppressionEnabled" = "Hide the notch while presenting or in full screen";
 "settings.fullScreenSuppressionEnabled" = "Hide the notch when in full screen";
+"settings.screenSharingSuppressionEnabled" = "Hide the notch while screen recording or sharing";
 "settings.collapseCountdown" = "Collapse countdown";
 "settings.collapseCountdown.unit" = "s";
 "presentation.emptyState.title" = "No memory cards yet";

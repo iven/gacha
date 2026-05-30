@@ -19,6 +19,8 @@ enum SettingsStrings {
     "settings.skipCountdownOnAnotherWindow")
   static let fullScreenSuppressionEnabled = AppStrings.localized(
     "settings.fullScreenSuppressionEnabled")
+  static let screenSharingSuppressionEnabled = AppStrings.localized(
+    "settings.screenSharingSuppressionEnabled")
   static let collapseCountdown = AppStrings.localized("settings.collapseCountdown")
   static let collapseCountdownUnit = AppStrings.localized("settings.collapseCountdown.unit")
 }

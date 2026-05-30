@@ -39,7 +39,17 @@ final class NotchController {
       compactLeading: { AnyView(compactLeading()) },
       compactTrailing: { AnyView(NotchCompactTrailingView(viewModel: viewModel)) })
     self.notch = notch
-    Task { await notch.compact() }
+    Task {
+      await notch.compact()
+      // Exclude the notch panel from screen recordings and sharing. The window
+      // is created by DynamicNotchKit during compact(), so set sharingType
+      // immediately after it resolves.
+      if let window = notch.windowController?.window {
+        window.sharingType = .none
+      } else {
+        AppLogger.app.warning("Notch window unavailable after compact(); sharingType not set")
+      }
+    }
     hoverObservation =
       notch.$isHovering
       .removeDuplicates()
