@@ -6,11 +6,13 @@ struct AppSettings: Equatable {
   var memoryAutoCollapseSeconds: TimeInterval
   var skipCountdownOnAnotherWindow: Bool
   var showKeyboardHints: Bool
+  var fullScreenSuppressionEnabled: Bool
 
   static let defaultLaunchAtLoginEnabled = true
   static let defaultMemoryAutoCollapseSeconds: TimeInterval = 1
   static let defaultSkipCountdownOnAnotherWindow = true
   static let defaultShowKeyboardHints = true
+  static let defaultFullScreenSuppressionEnabled = true
 
   static func defaults(userStorageURL: URL) -> AppSettings {
     AppSettings(
@@ -18,6 +20,7 @@ struct AppSettings: Equatable {
       launchAtLoginEnabled: defaultLaunchAtLoginEnabled,
       memoryAutoCollapseSeconds: defaultMemoryAutoCollapseSeconds,
       skipCountdownOnAnotherWindow: defaultSkipCountdownOnAnotherWindow,
-      showKeyboardHints: defaultShowKeyboardHints)
+      showKeyboardHints: defaultShowKeyboardHints,
+      fullScreenSuppressionEnabled: defaultFullScreenSuppressionEnabled)
   }
 }

@@ -12,6 +12,7 @@ import Testing
   #expect(settings.memoryAutoCollapseSeconds == 1)
   #expect(settings.skipCountdownOnAnotherWindow)
   #expect(settings.showKeyboardHints)
+  #expect(settings.fullScreenSuppressionEnabled)
 }
 
 @Test func settingsStoreReadsRegisteredDefaults() {
@@ -66,13 +67,15 @@ import Testing
     launchAtLoginEnabled: false,
     memoryAutoCollapseSeconds: 60,
     skipCountdownOnAnotherWindow: false,
-    showKeyboardHints: false)
+    showKeyboardHints: false,
+    fullScreenSuppressionEnabled: false)
 
   #expect(store.settings.userStorageURL == userStorageURL)
   #expect(!store.settings.launchAtLoginEnabled)
   #expect(store.settings.memoryAutoCollapseSeconds == 60)
   #expect(!store.settings.skipCountdownOnAnotherWindow)
   #expect(!store.settings.showKeyboardHints)
+  #expect(!store.settings.fullScreenSuppressionEnabled)
 }
 
 @Test func settingsStorePersistsSkipCountdownOnAnotherWindow() {
@@ -95,6 +98,17 @@ import Testing
   let reloadedStore = SettingsStore(defaults: defaults)
 
   #expect(!reloadedStore.showKeyboardHints)
+}
+
+@Test func settingsStorePersistsFullScreenSuppressionEnabled() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.fullScreenSuppressionEnabled = false
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(!reloadedStore.fullScreenSuppressionEnabled)
 }
 
 @Test func settingsStoreNormalizesMemoryAutoCollapseSeconds() {

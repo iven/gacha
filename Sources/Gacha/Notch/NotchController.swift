@@ -10,6 +10,7 @@ final class NotchController {
   var onPausedChange: ((Bool) -> Void)?
 
   private(set) var isPaused = false
+  private(set) var isSuppressed = false
   private(set) var isHovering = false
   let autoCollapseSchedule = NotchAutoCollapseSchedule()
 
@@ -65,6 +66,24 @@ final class NotchController {
     onPausedChange?(paused)
   }
 
+  /// Suppression keeps the notch compact and blocks hover-expand while the user
+  /// is presenting. Unlike pause it is system-driven and reverts automatically.
+  func setSuppressed(_ suppressed: Bool) {
+    guard isSuppressed != suppressed else {
+      return
+    }
+
+    isSuppressed = suppressed
+    viewModel.isSuppressed = suppressed
+    if suppressed {
+      cancelAutoCollapse()
+      Task { await notch?.compact() }
+    } else if isHovering, !isPaused, let notch {
+      cancelAutoCollapse()
+      Task { await notch.expand() }
+    }
+  }
+
   /// Sets the auto-collapse timeout. `nil` disables auto-collapse entirely.
   func setAutoCollapseTimeout(_ timeout: Duration?) {
     autoCollapseTimeout = timeout
@@ -74,7 +93,7 @@ final class NotchController {
   }
 
   func expand() {
-    guard !isPaused, let notch else {
+    guard !isPaused, !isSuppressed, let notch else {
       return
     }
     cancelAutoCollapse()
@@ -113,7 +132,7 @@ final class NotchController {
     isHovering = hovering
     onHoverChange?(hovering)
 
-    if isPaused {
+    if isPaused || isSuppressed {
       cancelAutoCollapse()
       return
     }
@@ -165,6 +184,7 @@ final class NotchController {
 @MainActor
 final class NotchControllerViewModel: ObservableObject {
   @Published var isPaused = false
+  @Published var isSuppressed = false
   var onResumeRequested: (() -> Void)?
 }
 
@@ -180,11 +200,26 @@ private struct NotchCompactTrailingView: View {
   @State private var isHovering = false
 
   var body: some View {
-    if viewModel.isPaused {
+    if viewModel.isSuppressed {
+      suppressionIndicator
+    } else if viewModel.isPaused {
       pauseButton
     } else {
       pauseButton.hidden()
     }
+  }
+
+  // Non-interactive, visually distinct from the user-pause glyph: suppression is
+  // system-driven and clears on its own, so there is nothing to tap.
+  private var suppressionIndicator: some View {
+    Image(systemName: "eye.slash.fill")
+      .font(.system(size: 11, weight: .bold))
+      .foregroundStyle(.white.opacity(0.85))
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
+      .background(Color.clear, in: Capsule())
+      .contentShape(Rectangle())
+      .help(NotchStrings.suppressionIndicatorHint)
   }
 
   private var pauseButton: some View {

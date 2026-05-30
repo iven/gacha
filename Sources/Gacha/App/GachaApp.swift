@@ -71,6 +71,7 @@ private struct SettingsRootView: View {
           directories: environment.directories,
           launchAtLoginController: environment.launchAtLoginController,
           settingsStore: environment.settingsStore,
+          suppressionController: environment.suppressionController,
           storageRelocationCoordinator: environment.storageRelocationCoordinator)
       } else {
         ProgressView()

@@ -4,21 +4,25 @@ struct SettingsView: View {
   let directories: AppDirectories
   let launchAtLoginController: LaunchAtLoginController
   let settingsStore: SettingsStore
+  let suppressionController: SuppressionController
   @ObservedObject var storageRelocationCoordinator: StorageRelocationCoordinator
   @State private var launchAtLoginEnabled: Bool
   @State private var memoryAutoCollapseSeconds: TimeInterval
   @State private var skipCountdownOnAnotherWindow: Bool
   @State private var showKeyboardHints: Bool
+  @State private var fullScreenSuppressionEnabled: Bool
 
   init(
     directories: AppDirectories,
     launchAtLoginController: LaunchAtLoginController,
     settingsStore: SettingsStore,
+    suppressionController: SuppressionController,
     storageRelocationCoordinator: StorageRelocationCoordinator
   ) {
     self.directories = directories
     self.launchAtLoginController = launchAtLoginController
     self.settingsStore = settingsStore
+    self.suppressionController = suppressionController
     self.storageRelocationCoordinator = storageRelocationCoordinator
     _launchAtLoginEnabled = State(initialValue: settingsStore.launchAtLoginEnabled)
     _memoryAutoCollapseSeconds = State(
@@ -26,6 +30,8 @@ struct SettingsView: View {
     _skipCountdownOnAnotherWindow = State(
       initialValue: settingsStore.skipCountdownOnAnotherWindow)
     _showKeyboardHints = State(initialValue: settingsStore.showKeyboardHints)
+    _fullScreenSuppressionEnabled = State(
+      initialValue: settingsStore.fullScreenSuppressionEnabled)
   }
 
   var body: some View {
@@ -75,6 +81,16 @@ struct SettingsView: View {
             set: { newValue in
               skipCountdownOnAnotherWindow = newValue
               settingsStore.skipCountdownOnAnotherWindow = newValue
+            }))
+
+        Toggle(
+          SettingsStrings.fullScreenSuppressionEnabled,
+          isOn: Binding(
+            get: { fullScreenSuppressionEnabled },
+            set: { newValue in
+              fullScreenSuppressionEnabled = newValue
+              settingsStore.fullScreenSuppressionEnabled = newValue
+              suppressionController.reevaluate()
             }))
       }
 

@@ -71,6 +71,8 @@
 "settings.launchAtLogin" = "Open at Login";
 "settings.showKeyboardHints" = "Show keyboard hints on buttons";
 "settings.skipCountdownOnAnotherWindow" = "Skip countdown when opening another Gacha window";
+"settings.suppressionEnabled" = "Hide the notch while presenting or in full screen";
+"settings.fullScreenSuppressionEnabled" = "Hide the notch when in full screen";
 "settings.collapseCountdown" = "Collapse countdown";
 "settings.collapseCountdown.unit" = "s";
 "presentation.emptyState.title" = "No memory cards yet";
@@ -82,6 +84,7 @@
 "presentation.rating.easy" = "Easy";
 "presentation.rating.next" = "Next";
 "presentation.card.emptyBody" = "(No content)";
+"presentation.suppression.indicatorHint" = "Hidden while presenting or in full screen";
 "startup.failure.title" = "Gacha Cannot Start";
 "startup.failure.message" = "Gacha could not initialize card storage and cannot continue starting.\n\nError: %@";
 "startup.failure.quit" = "Quit";

@@ -45,6 +45,12 @@ struct AppBootstrapper {
       menuBarViewModel?.isPaused = paused
     }
 
+    let suppressionController = SuppressionController(
+      isEnabled: { settingsStore.fullScreenSuppressionEnabled })
+    suppressionController.onChange = { [weak notchController] suppressed in
+      notchController?.setSuppressed(suppressed)
+    }
+
     let storageRelocationCoordinator = StorageRelocationCoordinator(
       relocator: StorageRelocator(settingsStore: settingsStore, fileManager: fileManager),
       settingsStore: settingsStore,
@@ -60,7 +66,7 @@ struct AppBootstrapper {
       cardWindowBridge: cardWindowBridge,
       notchController: notchController,
       memoryNotchPresenter: presenter,
-      suppressionController: SuppressionController(),
+      suppressionController: suppressionController,
       storageRelocationCoordinator: storageRelocationCoordinator)
     try environment.start()
     return environment

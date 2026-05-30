@@ -10,4 +10,6 @@ enum NotchStrings {
   static let ratingEasy = AppStrings.localized("presentation.rating.easy")
   static let ratingNext = AppStrings.localized("presentation.rating.next")
   static let emptyBodyPlaceholder = AppStrings.localized("presentation.card.emptyBody")
+  static let suppressionIndicatorHint = AppStrings.localized(
+    "presentation.suppression.indicatorHint")
 }

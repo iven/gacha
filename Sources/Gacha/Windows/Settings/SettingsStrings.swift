@@ -17,6 +17,8 @@ enum SettingsStrings {
   static let showKeyboardHints = AppStrings.localized("settings.showKeyboardHints")
   static let skipCountdownOnAnotherWindow = AppStrings.localized(
     "settings.skipCountdownOnAnotherWindow")
+  static let fullScreenSuppressionEnabled = AppStrings.localized(
+    "settings.fullScreenSuppressionEnabled")
   static let collapseCountdown = AppStrings.localized("settings.collapseCountdown")
   static let collapseCountdownUnit = AppStrings.localized("settings.collapseCountdown.unit")
 }

@@ -10,6 +10,7 @@ struct SettingsStore {
     static let memoryAutoCollapseSeconds = "memoryAutoCollapseSeconds"
     static let skipCountdownOnAnotherWindow = "skipCountdownOnAnotherWindow"
     static let showKeyboardHints = "showKeyboardHints"
+    static let fullScreenSuppressionEnabled = "fullScreenSuppressionEnabled"
   }
 
   private let defaults: UserDefaults
@@ -26,6 +27,7 @@ struct SettingsStore {
       Key.memoryAutoCollapseSeconds: AppSettings.defaultMemoryAutoCollapseSeconds,
       Key.skipCountdownOnAnotherWindow: AppSettings.defaultSkipCountdownOnAnotherWindow,
       Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
+      Key.fullScreenSuppressionEnabled: AppSettings.defaultFullScreenSuppressionEnabled,
     ])
   }
 
@@ -43,7 +45,8 @@ struct SettingsStore {
         launchAtLoginEnabled: launchAtLoginEnabled,
         memoryAutoCollapseSeconds: memoryAutoCollapseSeconds,
         skipCountdownOnAnotherWindow: skipCountdownOnAnotherWindow,
-        showKeyboardHints: showKeyboardHints)
+        showKeyboardHints: showKeyboardHints,
+        fullScreenSuppressionEnabled: fullScreenSuppressionEnabled)
     }
     nonmutating set {
       userStorageURL = newValue.userStorageURL
@@ -51,6 +54,7 @@ struct SettingsStore {
       memoryAutoCollapseSeconds = newValue.memoryAutoCollapseSeconds
       skipCountdownOnAnotherWindow = newValue.skipCountdownOnAnotherWindow
       showKeyboardHints = newValue.showKeyboardHints
+      fullScreenSuppressionEnabled = newValue.fullScreenSuppressionEnabled
     }
   }
 
@@ -96,6 +100,11 @@ struct SettingsStore {
   var showKeyboardHints: Bool {
     get { defaults.bool(forKey: Key.showKeyboardHints) }
     nonmutating set { defaults.set(newValue, forKey: Key.showKeyboardHints) }
+  }
+
+  var fullScreenSuppressionEnabled: Bool {
+    get { defaults.bool(forKey: Key.fullScreenSuppressionEnabled) }
+    nonmutating set { defaults.set(newValue, forKey: Key.fullScreenSuppressionEnabled) }
   }
 
   private func normalizedMemoryAutoCollapseSeconds(
