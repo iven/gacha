@@ -2,6 +2,12 @@ import AppKit
 
 @MainActor
 struct AppBootstrapper {
+  let windowOpenActionRegistry: WindowOpenActionRegistry
+
+  init(windowOpenActionRegistry: WindowOpenActionRegistry = WindowOpenActionRegistry()) {
+    self.windowOpenActionRegistry = windowOpenActionRegistry
+  }
+
   func bootstrap(fileManager: FileManager = .default) throws -> AppEnvironment {
     let settingsStore = SettingsStore(
       defaultUserStorageURL: SettingsStore.defaultUserStorageURL(fileManager: fileManager))
@@ -11,7 +17,8 @@ struct AppBootstrapper {
       fileManager: fileManager)
 
     let launchAtLoginController = LaunchAtLoginController()
-    let cardWindowBridge = CardWindowBridge()
+    let cardWindowBridge = CardWindowBridge(
+      windowOpenActionRegistry: windowOpenActionRegistry)
 
     let notchController = NotchController()
     let presenter = MemoryNotchPresenter(
@@ -21,6 +28,9 @@ struct AppBootstrapper {
       cardWindowBridge: cardWindowBridge)
     presenter.onPauseRequested = { [weak notchController] in
       notchController?.setPaused(true)
+    }
+    presenter.onSettingsRequested = {
+      windowOpenActionRegistry.open(.settings)
     }
 
     notchController.onResumeRequested = { [weak notchController] in

@@ -5,17 +5,22 @@ struct GachaApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
   var body: some Scene {
-    MenuBarExtra(AppMetadata.name) {
-      MenuBarRootView()
+    MenuBarExtra {
+      MenuBarRootView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
+    } label: {
+      Text(AppMetadata.name)
+        .background(
+          WindowOpenActionRegistrar(
+            registry: appDelegate.windowOpenActionRegistry))
     }
 
     Window(CardManagementStrings.windowTitle, id: GachaApp.cardWindowID) {
-      CardManagementRootView()
+      CardManagementRootView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
     }
     .defaultSize(width: 960, height: 720)
 
     Settings {
-      SettingsRootView()
+      SettingsRootView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
     }
   }
 
@@ -23,14 +28,20 @@ struct GachaApp: App {
 }
 
 private struct MenuBarRootView: View {
+  let windowOpenActionRegistry: WindowOpenActionRegistry
   @ObservedObject private var viewModel = AppDelegate.menuBarViewModel
 
   var body: some View {
-    MenuBarMenu(viewModel: viewModel)
+    MenuBarMenu(
+      viewModel: viewModel,
+      onOpenCards: { windowOpenActionRegistry.open(.cards) },
+      onOpenSettings: { windowOpenActionRegistry.open(.settings) })
   }
 }
 
 private struct CardManagementRootView: View {
+  let windowOpenActionRegistry: WindowOpenActionRegistry
+
   var body: some View {
     Group {
       if let environment = AppDelegate.shared?.environment {
@@ -40,10 +51,19 @@ private struct CardManagementRootView: View {
         ProgressView()
       }
     }
+    .background(
+      WindowAccessor { window in
+        if let window {
+          windowOpenActionRegistry.registerWindow(.cards, window: window)
+        }
+      }
+    )
   }
 }
 
 private struct SettingsRootView: View {
+  let windowOpenActionRegistry: WindowOpenActionRegistry
+
   var body: some View {
     Group {
       if let environment = AppDelegate.shared?.environment {
@@ -56,7 +76,16 @@ private struct SettingsRootView: View {
         ProgressView()
       }
     }
+    .background(
+      WindowAccessor { window in
+        if let window {
+          windowOpenActionRegistry.registerWindow(.settings, window: window)
+        }
+      }
+    )
     .onAppear { AppDelegate.shared?.environment?.onSettingsVisibilityChange(true) }
-    .onDisappear { AppDelegate.shared?.environment?.onSettingsVisibilityChange(false) }
+    .onDisappear {
+      AppDelegate.shared?.environment?.onSettingsVisibilityChange(false)
+    }
   }
 }

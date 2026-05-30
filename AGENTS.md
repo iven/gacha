@@ -49,3 +49,4 @@ Rules:
 
 - After functional changes, the agent should kill the running `Gacha` process
   (`pkill -x Gacha`) and rerun `make dev` without asking user, which compiles on launch — no separate build step beforehand.
+- Codex should run `make dev` in the foreground, not via `&`/`nohup`.

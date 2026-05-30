@@ -10,6 +10,7 @@ final class MemoryNotchPresenter: ObservableObject {
   }
 
   var onPauseRequested: (() -> Void)?
+  var onSettingsRequested: (() -> Void)?
 
   @Published private(set) var currentCard: any Card = EmptyStateCard()
   @Published private(set) var mode: Mode = .scheduler
@@ -23,6 +24,7 @@ final class MemoryNotchPresenter: ObservableObject {
       onEditCard: { [weak self] card in
         self?.cardWindowBridge.requestOpen(editingCardID: card.id)
       },
+      onOpenSettings: { [weak self] in self?.onSettingsRequested?() },
       onPause: { [weak self] in self?.onPauseRequested?() },
       onDismiss: { [weak self] in self?.controller.compact() })
   }

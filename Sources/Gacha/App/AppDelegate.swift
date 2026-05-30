@@ -4,6 +4,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
   static private(set) var shared: AppDelegate?
   static let menuBarViewModel = MenuBarViewModel()
+  let windowOpenActionRegistry = WindowOpenActionRegistry()
   private(set) var environment: AppEnvironment?
 
   override init() {
@@ -14,7 +15,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)
     do {
-      environment = try AppBootstrapper().bootstrap()
+      environment = try AppBootstrapper(
+        windowOpenActionRegistry: windowOpenActionRegistry
+      ).bootstrap()
     } catch {
       AppLogger.app.error("Failed to start app: \(error.localizedDescription)")
       presentStartupFailure(error)

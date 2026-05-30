@@ -1,6 +1,5 @@
 import AppKit
 import Combine
-import SwiftUI
 
 /// Shared state bridging the SwiftUI window scenes (card management, settings)
 /// and the AppKit-driven notch presenter: scenes write here, the notch presenter
@@ -24,16 +23,20 @@ final class CardWindowBridge: ObservableObject {
     didSet { refreshManagedWindowState() }
   }
 
+  private let windowOpenActionRegistry: WindowOpenActionRegistry
+
+  init(windowOpenActionRegistry: WindowOpenActionRegistry) {
+    self.windowOpenActionRegistry = windowOpenActionRegistry
+  }
+
   /// Opens the card window from any context (notch ✏️ / "new card"), optionally
-  /// pre-selecting a card. `openWindow` is read from a freshly constructed
-  /// `EnvironmentValues`, so this works from the AppKit-driven notch panel
-  /// which is not part of the SwiftUI scene tree. The window's `.onAppear`
-  /// flips activation policy via `setCardWindowVisible(true)`.
+  /// pre-selecting a card. AppKit-driven callers are not part of the SwiftUI
+  /// scene tree, so opening is delegated to a scene-backed registry.
   func requestOpen(editingCardID: String? = nil) {
     if let editingCardID {
       pendingEditCardID = editingCardID
     }
-    EnvironmentValues().openWindow(id: GachaApp.cardWindowID)
+    windowOpenActionRegistry.open(.cards)
   }
 
   func setCardWindowVisible(_ visible: Bool) {

@@ -6,6 +6,7 @@ struct MemoryCardActions {
   let onNext: (MemoryCard) -> Void
   let onNewCard: () -> Void
   let onEditCard: (MemoryCard) -> Void
+  let onOpenSettings: () -> Void
   let onPause: () -> Void
   let onDismiss: () -> Void
 }

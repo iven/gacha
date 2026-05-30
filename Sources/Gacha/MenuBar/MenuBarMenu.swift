@@ -2,17 +2,18 @@ import SwiftUI
 
 struct MenuBarMenu: View {
   @ObservedObject var viewModel: MenuBarViewModel
-  @Environment(\.openWindow) private var openWindow
+  let onOpenCards: () -> Void
+  let onOpenSettings: () -> Void
 
   var body: some View {
     Button(viewModel.isPaused ? MenuBarStrings.resumeDisplay : MenuBarStrings.pauseDisplay) {
       viewModel.onTogglePause?(!viewModel.isPaused)
     }
     Button(MenuBarStrings.cards) {
-      openWindow(id: GachaApp.cardWindowID)
+      onOpenCards()
     }
-    SettingsLink {
-      Text(MenuBarStrings.settings)
+    Button(MenuBarStrings.settings) {
+      onOpenSettings()
     }
     .keyboardShortcut(",", modifiers: .command)
     Divider()

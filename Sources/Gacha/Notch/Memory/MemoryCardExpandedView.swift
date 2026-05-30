@@ -34,10 +34,9 @@ struct MemoryCardExpandedView: View {
         toolButton(symbol: "pause") {
           actions.onPause()
         }
-        SettingsLink {
-          toolButtonLabel(symbol: "gearshape")
+        toolButton(symbol: "gearshape") {
+          actions.onOpenSettings()
         }
-        .buttonStyle(.plain)
       }
       ScrollView(.vertical) {
         bodyView
