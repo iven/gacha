@@ -29,7 +29,13 @@ struct CardManagementView: View {
     // sliver. Pin a sensible minimum content size for both axes.
     .frame(minWidth: 860, minHeight: 480)
     .sheet(item: $model.activeSheet, content: sheet)
-    .alert(item: $model.pendingDeletion, content: deletionAlert)
+    .alert(
+      Text(deletionAlertTitle),
+      isPresented: deletionAlertIsPresented,
+      presenting: model.pendingDeletion,
+      actions: deletionAlertActions,
+      message: deletionAlertMessage
+    )
     .onAppear {
       // Route the model's preview pin into the shared bridge so the notch
       // presenter (observing the bridge) reflects it.
@@ -135,6 +141,33 @@ struct CardManagementView: View {
       model.selectedCategory?.cardCount ?? 0)
   }
 
+  private var deletionAlertIsPresented: Binding<Bool> {
+    Binding(
+      get: { model.pendingDeletion != nil },
+      set: { isPresented in
+        if !isPresented {
+          model.pendingDeletion = nil
+        }
+      })
+  }
+
+  private var deletionAlertTitle: String {
+    guard let pending = model.pendingDeletion else {
+      return ""
+    }
+
+    switch pending {
+    case .card(let card):
+      return String.localizedStringWithFormat(
+        CardManagementStrings.deleteCardConfirmationTitle,
+        CardListItem(card: card).displayTitle)
+    case .category(let category):
+      return String.localizedStringWithFormat(
+        CardManagementStrings.deleteCategoryConfirmationTitle,
+        category.displayName)
+    }
+  }
+
   @ViewBuilder
   private func sheet(_ sheet: CardManagementModel.ActiveSheet) -> some View {
     switch sheet {
@@ -151,33 +184,32 @@ struct CardManagementView: View {
     }
   }
 
-  private func deletionAlert(_ pending: CardManagementModel.PendingDeletion) -> Alert {
+  @ViewBuilder
+  private func deletionAlertActions(_ pending: CardManagementModel.PendingDeletion) -> some View {
     switch pending {
     case .card(let card):
-      return Alert(
-        title: Text(
-          String.localizedStringWithFormat(
-            CardManagementStrings.deleteCardConfirmationTitle,
-            CardListItem(card: card).displayTitle)),
-        message: Text(CardManagementStrings.deleteCardConfirmationMessage),
-        primaryButton: .destructive(
-          Text(CardManagementStrings.deleteCardConfirmationDelete),
-          action: { model.delete(card: card) }),
-        secondaryButton: .cancel(Text(CardManagementStrings.deleteCardConfirmationCancel)))
+      Button(CardManagementStrings.deleteCardConfirmationDelete, role: .destructive) {
+        model.delete(card: card)
+      }
+      Button(CardManagementStrings.deleteCardConfirmationCancel, role: .cancel) {}
     case .category(let category):
-      return Alert(
-        title: Text(
-          String.localizedStringWithFormat(
-            CardManagementStrings.deleteCategoryConfirmationTitle,
-            category.displayName)),
-        message: Text(
-          String.localizedStringWithFormat(
-            CardManagementStrings.deleteCategoryConfirmationMessageFormat,
-            category.cardCount)),
-        primaryButton: .destructive(
-          Text(CardManagementStrings.deleteCategoryConfirmationDelete),
-          action: { model.deleteCategory(category) }),
-        secondaryButton: .cancel(Text(CardManagementStrings.deleteCategoryConfirmationCancel)))
+      Button(CardManagementStrings.deleteCategoryConfirmationDelete, role: .destructive) {
+        model.deleteCategory(category)
+      }
+      Button(CardManagementStrings.deleteCategoryConfirmationCancel, role: .cancel) {}
+    }
+  }
+
+  @ViewBuilder
+  private func deletionAlertMessage(_ pending: CardManagementModel.PendingDeletion) -> some View {
+    switch pending {
+    case .card:
+      Text(CardManagementStrings.deleteCardConfirmationMessage)
+    case .category(let category):
+      Text(
+        String.localizedStringWithFormat(
+          CardManagementStrings.deleteCategoryConfirmationMessageFormat,
+          category.cardCount))
     }
   }
 }

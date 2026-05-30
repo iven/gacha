@@ -23,7 +23,6 @@
 "cards.category.menu.rename" = "Rename Category";
 "cards.category.menu.delete" = "Delete Category";
 "cards.deleteCategory.confirmationTitle" = "Delete “%@”?";
-"cards.deleteCategory.confirmationMessageFormat" = "This category and its %d card(s) will be permanently deleted.";
 "cards.deleteCategory.confirmationCancel" = "Cancel";
 "cards.deleteCategory.confirmationDelete" = "Delete Category";
 "cards.card.menu.delete" = "Delete Card";

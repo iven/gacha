@@ -41,7 +41,7 @@ struct CategoryNameSheet: View {
         .font(.caption)
         .foregroundStyle(.secondary)
 
-      TextField("", text: $name)
+      TextField(title, text: $name)
         .textFieldStyle(.roundedBorder)
         .focused($nameFieldFocused)
         .onSubmit(submit)

@@ -1,16 +1,53 @@
 import AppKit
+import SwiftUI
 
+/// Drives the storage relocation flow as SwiftUI state. The folder picker stays
+/// on `NSOpenPanel` (no SwiftUI equivalent with the same control), but every
+/// confirmation/result dialog is published as state and rendered by
+/// `SettingsView` through `.alert`, matching the rest of the app's dialogs.
 @MainActor
-final class StorageRelocationCoordinator {
+final class StorageRelocationCoordinator: ObservableObject {
   let relocator: StorageRelocator
   let settingsStore: SettingsStore
   let cardCount: () -> Int
   let relaunch: () -> Void
 
-  /// The window sheets are anchored to. Set externally by the Settings scene
-  /// once it has resolved its hosting NSWindow; falls back to app-modal when
-  /// nil (e.g. before the Settings window has materialized its NSWindow).
+  /// Window the open panel is anchored to. Set by `SettingsView` once it
+  /// resolves its hosting `NSWindow`.
   var anchorWindow: NSWindow?
+
+  enum Intent {
+    case move
+    case adopt
+  }
+
+  /// A pending confirmation awaiting the user's choice.
+  struct Confirmation: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let confirmTitle: String
+    let intent: Intent
+    let target: URL
+  }
+
+  /// A terminal dialog reporting the outcome of an attempt.
+  enum Notice: Identifiable {
+    case error(String)
+    case success(newPath: String)
+    case failure(String)
+
+    var id: String {
+      switch self {
+      case .error(let message): return "error:\(message)"
+      case .success(let path): return "success:\(path)"
+      case .failure(let message): return "failure:\(message)"
+      }
+    }
+  }
+
+  @Published var confirmation: Confirmation?
+  @Published var notice: Notice?
 
   init(
     relocator: StorageRelocator,
@@ -26,81 +63,84 @@ final class StorageRelocationCoordinator {
 
   /// User explicitly chose "Move…": target must be empty/nonexistent.
   func presentMoveFlow() {
-    Task { await runMoveFlow() }
+    pickFolder { [weak self] target in
+      self?.routeMove(target: target)
+    }
   }
 
   /// User explicitly chose "Use Existing…": target must already be a Gacha root.
   func presentAdoptFlow() {
-    Task { await runAdoptFlow() }
+    pickFolder { [weak self] target in
+      self?.routeAdopt(target: target)
+    }
   }
 
-  private func runMoveFlow() async {
-    guard let target = await pickFolder() else {
-      return
+  /// Runs the confirmed intent and publishes its outcome as a `Notice`.
+  func runConfirmed(_ confirmation: Confirmation) {
+    do {
+      switch confirmation.intent {
+      case .move:
+        try relocator.move(to: confirmation.target)
+      case .adopt:
+        try relocator.adopt(target: confirmation.target)
+      }
+      notice = .success(newPath: settingsStore.userStorageURL.path)
+    } catch {
+      notice = .failure(error.localizedDescription)
     }
+  }
 
+  func routeMove(target: URL) {
     let state: StorageTargetState
     do {
       state = try relocator.inspect(target: target)
     } catch {
-      await presentError(error.localizedDescription)
+      notice = .error(error.localizedDescription)
       return
     }
 
     switch state {
     case .fresh:
-      if await confirm(
+      confirmation = Confirmation(
         title: StorageStrings.moveTitle(targetName: target.lastPathComponent),
         message: StorageStrings.moveMessage(cardCount: cardCount()),
-        confirmTitle: StorageStrings.moveConfirm)
-      {
-        do {
-          try relocator.move(to: target)
-          await presentSuccessAndRelaunch()
-        } catch {
-          await presentFailure(error.localizedDescription)
-        }
-      }
+        confirmTitle: StorageStrings.moveConfirm,
+        intent: .move,
+        target: target)
     case .adoptable:
-      await presentError(AppStrings.localized("storage.relocate.move.error.adoptable"))
+      notice = .error(AppStrings.localized("storage.relocate.move.error.adoptable"))
     case .occupied:
-      await presentError(AppStrings.localized("storage.relocate.move.error.occupied"))
+      notice = .error(AppStrings.localized("storage.relocate.move.error.occupied"))
     }
   }
 
-  private func runAdoptFlow() async {
-    guard let target = await pickFolder() else {
-      return
-    }
-
+  func routeAdopt(target: URL) {
     let state: StorageTargetState
     do {
       state = try relocator.inspect(target: target)
     } catch {
-      await presentError(error.localizedDescription)
+      notice = .error(error.localizedDescription)
       return
     }
 
     switch state {
     case .adoptable:
-      if await confirm(
+      confirmation = Confirmation(
         title: StorageStrings.adoptTitle(targetName: target.lastPathComponent),
         message: StorageStrings.adoptMessage,
-        confirmTitle: StorageStrings.adoptConfirm)
-      {
-        do {
-          try relocator.adopt(target: target)
-          await presentSuccessAndRelaunch()
-        } catch {
-          await presentFailure(error.localizedDescription)
-        }
-      }
+        confirmTitle: StorageStrings.adoptConfirm,
+        intent: .adopt,
+        target: target)
     case .fresh, .occupied:
-      await presentError(AppStrings.localized("storage.relocate.adopt.error.notGachaRoot"))
+      notice = .error(AppStrings.localized("storage.relocate.adopt.error.notGachaRoot"))
     }
   }
 
-  private func pickFolder() async -> URL? {
+  private func pickFolder(_ onPick: @escaping (URL) -> Void) {
+    guard let window = anchorWindow else {
+      preconditionFailure("anchorWindow must be set before invoking storage relocation")
+    }
+
     let panel = NSOpenPanel()
     panel.title = SettingsStrings.storageOpenPanelTitle
     panel.prompt = SettingsStrings.storageOpenPanelPrompt
@@ -110,80 +150,11 @@ final class StorageRelocationCoordinator {
     panel.canCreateDirectories = true
     panel.directoryURL = settingsStore.userStorageURL.deletingLastPathComponent()
 
-    let response = await runOpenPanel(panel)
-    return response == .OK ? panel.url : nil
-  }
-
-  private func runOpenPanel(_ panel: NSOpenPanel) async -> NSApplication.ModalResponse {
-    guard let window = anchorWindow else {
-      preconditionFailure("anchorWindow must be set before invoking storage relocation")
-    }
-    return await withCheckedContinuation { continuation in
-      panel.beginSheetModal(for: window) { response in
-        continuation.resume(returning: response)
+    panel.beginSheetModal(for: window) { response in
+      guard response == .OK, let url = panel.url else {
+        return
       }
-    }
-  }
-
-  private func confirm(title: String, message: String, confirmTitle: String) async -> Bool {
-    let alert = NSAlert()
-    alert.messageText = title
-    alert.informativeText = message
-    alert.addButton(withTitle: confirmTitle)
-    alert.addButton(withTitle: StorageStrings.cancel)
-    alert.alertStyle = .warning
-    alert.icon = NSImage(
-      systemSymbolName: "externaldrive",
-      accessibilityDescription: nil)
-    return await runAlert(alert) == .alertFirstButtonReturn
-  }
-
-  private func presentError(_ message: String) async {
-    let alert = NSAlert()
-    alert.messageText = StorageStrings.errorTitle
-    alert.informativeText = message
-    alert.alertStyle = .warning
-    alert.icon = NSImage(
-      systemSymbolName: "exclamationmark.triangle",
-      accessibilityDescription: nil)
-    alert.addButton(withTitle: StorageStrings.errorDismiss)
-    _ = await runAlert(alert)
-  }
-
-  private func presentSuccessAndRelaunch() async {
-    let alert = NSAlert()
-    alert.messageText = StorageStrings.successTitle
-    alert.informativeText = StorageStrings.successMessage(
-      newPath: settingsStore.userStorageURL.path)
-    alert.alertStyle = .informational
-    alert.icon = NSImage(
-      systemSymbolName: "checkmark.circle",
-      accessibilityDescription: nil)
-    alert.addButton(withTitle: StorageStrings.successRelaunch)
-    _ = await runAlert(alert)
-    relaunch()
-  }
-
-  private func presentFailure(_ message: String) async {
-    let alert = NSAlert()
-    alert.messageText = StorageStrings.failureTitle
-    alert.informativeText = message
-    alert.alertStyle = .critical
-    alert.icon = NSImage(
-      systemSymbolName: "xmark.octagon",
-      accessibilityDescription: nil)
-    alert.addButton(withTitle: StorageStrings.failureDismiss)
-    _ = await runAlert(alert)
-  }
-
-  private func runAlert(_ alert: NSAlert) async -> NSApplication.ModalResponse {
-    guard let window = anchorWindow else {
-      preconditionFailure("anchorWindow must be set before invoking storage relocation")
-    }
-    return await withCheckedContinuation { continuation in
-      alert.beginSheetModal(for: window) { response in
-        continuation.resume(returning: response)
-      }
+      onPick(url)
     }
   }
 }

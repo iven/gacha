@@ -52,7 +52,7 @@ extension CardManagementModel {
     }
   }
 
-  /// Destructive confirmation routed through `CardManagementView`'s `.alert(item:)`.
+  /// Destructive confirmation routed through `CardManagementView`'s alert.
   enum PendingDeletion: Identifiable {
     case card(MemoryCard)
     case category(CardCategoryItem)
