@@ -45,7 +45,7 @@
 "settings.section.memoryCards" = "记忆卡片";
 "settings.storageLocation" = "位置";
 "settings.storageLocation.move" = "移动…";
-"settings.storageLocation.adopt" = "使用现有目录…";
+"settings.storageLocation.adopt" = "使用现有…";
 "settings.storageLocation.openPanel.title" = "选择存储位置";
 "settings.storageLocation.openPanel.prompt" = "选择";
 "storage.relocate.move.title" = "将 Gacha 数据移动到「%@」？";
@@ -63,7 +63,7 @@
 "storage.relocate.error.occupied" = "所选文件夹不为空。";
 "storage.relocate.error.missingMarker" = "所选文件夹缺少 Gacha 的存储标记文件。";
 "storage.relocate.move.error.occupied" = "所选文件夹不为空。请选择一个空文件夹用于移动。";
-"storage.relocate.move.error.adoptable" = "所选文件夹已经是 Gacha 数据文件夹。请改用「使用现有目录…」切换到它。";
+"storage.relocate.move.error.adoptable" = "所选文件夹已经是 Gacha 数据文件夹。请改用「使用现有…」切换到它。";
 "storage.relocate.adopt.error.notGachaRoot" = "所选文件夹不是 Gacha 存储文件夹。如要在新位置建立数据，请改用「移动…」。";
 "storage.relocate.error.dismiss" = "知道了";
 "storage.relocate.failure.title" = "更改存储位置失败";

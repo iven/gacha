@@ -39,26 +39,6 @@ struct SettingsView: View {
 
   var body: some View {
     Form {
-      Section(SettingsStrings.sectionStorage) {
-        LabeledContent(SettingsStrings.storageLocation) {
-          VStack(alignment: .trailing, spacing: 8) {
-            Text(directories.userStorageURL.path)
-              .lineLimit(1)
-              .truncationMode(.middle)
-              .textSelection(.enabled)
-              .foregroundStyle(.secondary)
-            HStack(spacing: 8) {
-              Button(SettingsStrings.storageLocationMove) {
-                storageRelocationCoordinator.presentMoveFlow()
-              }
-              Button(SettingsStrings.storageLocationAdopt) {
-                storageRelocationCoordinator.presentAdoptFlow()
-              }
-            }
-          }
-        }
-      }
-
       Section(SettingsStrings.sectionGeneral) {
         Toggle(
           SettingsStrings.launchAtLogin,
@@ -123,6 +103,26 @@ struct SettingsView: View {
               .foregroundStyle(.secondary)
               .monospacedDigit()
               .frame(width: 36, alignment: .trailing)
+          }
+        }
+      }
+
+      Section(SettingsStrings.sectionStorage) {
+        LabeledContent(SettingsStrings.storageLocation) {
+          VStack(alignment: .trailing, spacing: 8) {
+            Text(directories.userStorageURL.path)
+              .lineLimit(1)
+              .truncationMode(.middle)
+              .textSelection(.enabled)
+              .foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+              Button(SettingsStrings.storageLocationMove) {
+                storageRelocationCoordinator.presentMoveFlow()
+              }
+              Button(SettingsStrings.storageLocationAdopt) {
+                storageRelocationCoordinator.presentAdoptFlow()
+              }
+            }
           }
         }
       }
