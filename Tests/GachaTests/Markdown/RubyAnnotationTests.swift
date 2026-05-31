@@ -93,3 +93,10 @@ private func rubyRuns(_ attributed: NSAttributedString) -> [(text: String, ruby:
   // No ruby → no raised line height.
   #expect(paragraphStyle.lineHeightMultiple == 0)
 }
+
+@Test func rubyListItemGetsRaisedLineHeight() throws {
+  let rendered = MarkdownContentRenderer(appearance: .light).render(markdown: "- 私の{猫|ねこ}")
+  let paragraphStyle = try #require(
+    rendered.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle)
+  #expect(paragraphStyle.lineHeightMultiple > 1.0)
+}

@@ -130,7 +130,8 @@ struct AttributedStringBuilder {
         let body = renderInlineChildren(
           of: paragraph,
           style: style.baseStyle(paragraphStyle: style.listParagraphStyle(lists: lists)))
-        rendered = RenderedBlock(attributedString: body, margin: style.defaultBlockMargin())
+        rendered = RenderedBlock(
+          attributedString: rubyAdjusted(body), margin: style.defaultBlockMargin())
       } else {
         rendered = renderBlock(child, lists: lists)
       }
