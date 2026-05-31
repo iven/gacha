@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-final class MemoryCardRepository {
+final class MemoryCardRepository: @unchecked Sendable {
   private let fileRepository: MemoryCardFileRepository
   private let indexStore: MemoryCardIndexStore
   private let eventSubject = PassthroughSubject<MemoryCardRepositoryEvent, Never>()

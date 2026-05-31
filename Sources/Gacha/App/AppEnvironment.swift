@@ -11,6 +11,7 @@ final class AppEnvironment {
   let memoryNotchPresenter: MemoryNotchPresenter
   let suppressionController: SuppressionController
   let storageRelocationCoordinator: StorageRelocationCoordinator
+  let cardMCPServer: CardMCPServer
 
   /// Single card-management model shared by the single-instance card window.
   private(set) lazy var cardManagementModel = CardManagementModel(
@@ -25,7 +26,8 @@ final class AppEnvironment {
     notchController: NotchController,
     memoryNotchPresenter: MemoryNotchPresenter,
     suppressionController: SuppressionController,
-    storageRelocationCoordinator: StorageRelocationCoordinator
+    storageRelocationCoordinator: StorageRelocationCoordinator,
+    cardMCPServer: CardMCPServer
   ) {
     self.directories = directories
     self.settingsStore = settingsStore
@@ -36,6 +38,7 @@ final class AppEnvironment {
     self.memoryNotchPresenter = memoryNotchPresenter
     self.suppressionController = suppressionController
     self.storageRelocationCoordinator = storageRelocationCoordinator
+    self.cardMCPServer = cardMCPServer
   }
 
   func start() throws {
@@ -58,6 +61,15 @@ final class AppEnvironment {
       },
       compactLeading: { LogoCompactView() })
     memoryNotchPresenter.start()
+
+    let server = cardMCPServer
+    Task {
+      do {
+        try await server.start(port: 7771)
+      } catch {
+        AppLogger.app.error("Failed to start MCP server: \(error.localizedDescription)")
+      }
+    }
   }
 
   // Bridges the SwiftUI Settings scene's lifecycle into the shared window

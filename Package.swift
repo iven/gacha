@@ -23,6 +23,8 @@ let package = Package(
       url: "https://github.com/open-spaced-repetition/swift-fsrs.git",
       revision: "4fbaf20184d62f82a9f44f343337c61a2c5483e9"
     ),
+    .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.12.1"),
+    .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
   ],
   targets: [
     .executableTarget(
@@ -32,6 +34,10 @@ let package = Package(
         .product(name: "FSRS", package: "swift-fsrs"),
         .product(name: "GRDB", package: "GRDB.swift"),
         .product(name: "Markdown", package: "swift-markdown"),
+        .product(name: "MCP", package: "swift-sdk"),
+        .product(name: "NIOCore", package: "swift-nio"),
+        .product(name: "NIOPosix", package: "swift-nio"),
+        .product(name: "NIOHTTP1", package: "swift-nio"),
         "Yams",
       ],
       path: "Sources/Gacha",

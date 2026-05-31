@@ -64,6 +64,8 @@ struct AppBootstrapper {
         (try? memoryCardRepository?.count()) ?? 0
       })
 
+    let cardMCPServer = CardMCPServer(repository: memoryCardRepository)
+
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
@@ -73,7 +75,8 @@ struct AppBootstrapper {
       notchController: notchController,
       memoryNotchPresenter: presenter,
       suppressionController: suppressionController,
-      storageRelocationCoordinator: storageRelocationCoordinator)
+      storageRelocationCoordinator: storageRelocationCoordinator,
+      cardMCPServer: cardMCPServer)
     try environment.start()
     return environment
   }
