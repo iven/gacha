@@ -39,6 +39,10 @@
 "cards.list.emptySummary" = "No additional content";
 "cards.empty.category" = "No Cards";
 "settings.window.title" = "Settings";
+"settings.tab.general" = "General";
+"settings.tab.integrations" = "Integrations";
+"settings.tab.advanced" = "Advanced";
+"settings.section.startup" = "Startup";
 "settings.section.storage" = "Storage";
 "settings.section.general" = "General";
 "settings.section.notch" = "Notch";

@@ -2,6 +2,10 @@ import Foundation
 
 enum SettingsStrings {
   static let windowTitle = AppStrings.localized("settings.window.title")
+  static let tabGeneral = AppStrings.localized("settings.tab.general")
+  static let tabIntegrations = AppStrings.localized("settings.tab.integrations")
+  static let tabAdvanced = AppStrings.localized("settings.tab.advanced")
+  static let sectionStartup = AppStrings.localized("settings.section.startup")
   static let sectionStorage = AppStrings.localized("settings.section.storage")
   static let sectionGeneral = AppStrings.localized("settings.section.general")
   static let sectionNotch = AppStrings.localized("settings.section.notch")
