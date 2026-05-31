@@ -10,8 +10,5 @@ struct IntegrationsSettingsTab: View {
       CLISettingsSection(environment: environment)
     }
     .formStyle(.grouped)
-    .scrollDisabled(true)
-    .frame(width: 520)
-    .fixedSize(horizontal: false, vertical: true)
   }
 }

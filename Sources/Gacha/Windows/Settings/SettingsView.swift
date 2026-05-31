@@ -32,6 +32,9 @@ struct SettingsView: View {
         Label(SettingsStrings.tabAdvanced, systemImage: "gearshape.2")
       }
     }
+    .scrollDisabled(true)
+    .fixedSize(horizontal: false, vertical: true)
+    .frame(width: 520)
     .background(
       WindowAccessor { window in
         storageRelocationCoordinator.anchorWindow = window
