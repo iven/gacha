@@ -19,6 +19,7 @@ struct CardListColumn: View {
                 contextMenu(for: card)
               }
           }
+          .listRowSeparator(.hidden)
         }
       }
     }
@@ -45,13 +46,14 @@ struct CardListColumn: View {
     let item = CardListItem(card: card)
     return VStack(alignment: .leading, spacing: 3) {
       Text(item.displayTitle)
+        .fontWeight(.bold)
         .lineLimit(1)
       Text(item.subtitle)
         .font(.caption)
-        .foregroundStyle(.secondary)
         .lineLimit(1)
     }
-    .padding(.vertical, 4)
+    .padding(.horizontal, 18)
+    .padding(.vertical, 9)
   }
 
   @ViewBuilder
