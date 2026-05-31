@@ -4,22 +4,68 @@
 /* card command */
 "card.abstract" = "管理卡片。";
 
-/* card list command */
+/* card list */
 "card.list.abstract" = "列出卡片。";
 "card.list.option.category" = "按分类名称筛选。";
 "card.list.flag.json" = "以 JSON 格式输出。";
 "card.list.option.port" = "MCP 服务器端口。";
+"card.list.header.id" = "ID";
+"card.list.header.category" = "分类";
+"card.list.header.preview" = "预览";
+
+/* card create */
+"card.create.abstract" = "创建卡片。";
+"card.create.option.body" = "卡片的 Markdown 内容。省略时从 stdin 读取。";
+"card.create.option.category" = "要创建卡片的分类。";
+"card.create.flag.json" = "以 JSON 格式输出。";
+"card.create.option.port" = "MCP 服务器端口。";
+"card.create.error.tty" = "未提供内容。请通过 --body 传入，或通过 stdin 管道输入。";
+
+/* card update */
+"card.update.abstract" = "更新卡片。";
+"card.update.arg.id" = "卡片 ID。";
+"card.update.option.body" = "新的 Markdown 内容。省略时从 stdin 读取。";
+"card.update.option.category" = "新的分类名称。";
+"card.update.flag.json" = "以 JSON 格式输出。";
+"card.update.option.port" = "MCP 服务器端口。";
+
+/* card delete */
+"card.delete.abstract" = "删除卡片。";
+"card.delete.arg.id" = "卡片 ID。";
+"card.delete.option.port" = "MCP 服务器端口。";
+
+/* card count */
+"card.count.abstract" = "统计卡片数量。";
+"card.count.flag.json" = "以 JSON 格式输出。";
+"card.count.option.port" = "MCP 服务器端口。";
 
 /* category command */
 "category.abstract" = "管理分类。";
+
+/* category list */
+"category.list.abstract" = "列出所有分类。";
+"category.list.flag.json" = "以 JSON 格式输出。";
+"category.list.option.port" = "MCP 服务器端口。";
+
+/* category create */
+"category.create.abstract" = "创建分类。";
+"category.create.arg.name" = "分类名称。";
+"category.create.option.port" = "MCP 服务器端口。";
+
+/* category rename */
+"category.rename.abstract" = "重命名分类。";
+"category.rename.arg.old" = "当前分类名称。";
+"category.rename.arg.new" = "新分类名称。";
+"category.rename.option.port" = "MCP 服务器端口。";
+
+/* category delete */
+"category.delete.abstract" = "删除分类及其中所有卡片。";
+"category.delete.arg.name" = "分类名称。";
+"category.delete.option.port" = "MCP 服务器端口。";
 
 /* CLI error messages */
 "cli.error.connectionFailed" = "无法连接到 Gacha。请确保 Gacha 正在运行且已开启 MCP 服务器。";
 "cli.error.missingSessionID" = "MCP 服务器未返回 Session ID。";
 "cli.error.unexpectedResponse" = "MCP 服务器返回了意外的响应。";
 "cli.error.parseResponse" = "解析响应失败。";
-
-/* card list column headers */
-"card.list.header.id" = "ID";
-"card.list.header.category" = "分类";
-"card.list.header.preview" = "预览";
+"cli.error.cardNotFound" = "找不到卡片：%@";

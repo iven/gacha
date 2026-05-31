@@ -4,22 +4,68 @@
 /* card command */
 "card.abstract" = "Manage cards.";
 
-/* card list command */
+/* card list */
 "card.list.abstract" = "List cards.";
 "card.list.option.category" = "Filter by category name.";
 "card.list.flag.json" = "Output as JSON.";
 "card.list.option.port" = "MCP server port.";
+"card.list.header.id" = "ID";
+"card.list.header.category" = "CATEGORY";
+"card.list.header.preview" = "PREVIEW";
+
+/* card create */
+"card.create.abstract" = "Create a card.";
+"card.create.option.body" = "Markdown content of the card. Reads from stdin if omitted.";
+"card.create.option.category" = "Category to create the card in.";
+"card.create.flag.json" = "Output as JSON.";
+"card.create.option.port" = "MCP server port.";
+"card.create.error.tty" = "No body provided. Pass --body or pipe content via stdin.";
+
+/* card update */
+"card.update.abstract" = "Update a card.";
+"card.update.arg.id" = "Card ID.";
+"card.update.option.body" = "New Markdown content. Reads from stdin if omitted.";
+"card.update.option.category" = "New category name.";
+"card.update.flag.json" = "Output as JSON.";
+"card.update.option.port" = "MCP server port.";
+
+/* card delete */
+"card.delete.abstract" = "Delete a card.";
+"card.delete.arg.id" = "Card ID.";
+"card.delete.option.port" = "MCP server port.";
+
+/* card count */
+"card.count.abstract" = "Count cards.";
+"card.count.flag.json" = "Output as JSON.";
+"card.count.option.port" = "MCP server port.";
 
 /* category command */
 "category.abstract" = "Manage categories.";
+
+/* category list */
+"category.list.abstract" = "List categories.";
+"category.list.flag.json" = "Output as JSON.";
+"category.list.option.port" = "MCP server port.";
+
+/* category create */
+"category.create.abstract" = "Create a category.";
+"category.create.arg.name" = "Category name.";
+"category.create.option.port" = "MCP server port.";
+
+/* category rename */
+"category.rename.abstract" = "Rename a category.";
+"category.rename.arg.old" = "Current category name.";
+"category.rename.arg.new" = "New category name.";
+"category.rename.option.port" = "MCP server port.";
+
+/* category delete */
+"category.delete.abstract" = "Delete a category and all its cards.";
+"category.delete.arg.name" = "Category name.";
+"category.delete.option.port" = "MCP server port.";
 
 /* CLI error messages */
 "cli.error.connectionFailed" = "Cannot connect to Gacha. Make sure Gacha is running and the MCP server is enabled.";
 "cli.error.missingSessionID" = "MCP server did not return a session ID.";
 "cli.error.unexpectedResponse" = "Unexpected response from MCP server.";
 "cli.error.parseResponse" = "Failed to parse response.";
-
-/* card list column headers */
-"card.list.header.id" = "ID";
-"card.list.header.category" = "CATEGORY";
-"card.list.header.preview" = "PREVIEW";
+"cli.error.cardNotFound" = "Card not found: %@";

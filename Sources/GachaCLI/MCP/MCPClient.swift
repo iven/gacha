@@ -142,12 +142,12 @@ struct MCPClient {
       return data
     }
 
-    // Parse SSE: find a line starting with "data: "
+    // Parse SSE: find a non-empty line starting with "data: "
     for line in text.components(separatedBy: "\n") {
       let trimmed = line.trimmingCharacters(in: .whitespaces)
       if trimmed.hasPrefix("data: ") {
-        let json = String(trimmed.dropFirst(6))
-        if let jsonData = json.data(using: .utf8) {
+        let json = String(trimmed.dropFirst(6)).trimmingCharacters(in: .whitespaces)
+        if !json.isEmpty, let jsonData = json.data(using: .utf8) {
           return jsonData
         }
       }

@@ -3,6 +3,11 @@ import Foundation
 // MARK: - CardFormatter
 
 enum CardFormatter {
+  static func printCard(_ card: CardDTO) {
+    print("\(card.id)  \(card.category)")
+    print(card.body)
+  }
+
   static func printList(_ cards: [CardDTO]) {
     guard !cards.isEmpty else { return }
 
