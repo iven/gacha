@@ -15,143 +15,143 @@ func registerMemoryCardTools(on server: Server, repository: MemoryCardRepository
 
 // MARK: - Tool definitions
 
-private let memoryCardTools: [Tool] = [
-  Tool(
-    name: "list_cards",
-    description: "List cards, optionally filtered by category.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "category": .object([
-          "type": .string("string"),
-          "description": .string("Category name to filter by. Omit to list all cards."),
-        ])
-      ]),
-    ])
-  ),
-  Tool(
-    name: "create_card",
-    description: "Create a new card.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "body": .object([
-          "type": .string("string"),
-          "description": .string("Markdown content of the card."),
+private var memoryCardTools: [Tool] {
+  [
+    Tool(
+      name: "list_cards",
+      description: MCPStrings.listCardsDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "category": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.listCardsCategoryParam),
+          ])
         ]),
-        "category": .object([
-          "type": .string("string"),
-          "description": .string(
-            "Category to create the card in. Defaults to \"\(AppMetadata.defaultCategoryDirectoryName)\"."
-          ),
+      ])
+    ),
+    Tool(
+      name: "create_card",
+      description: MCPStrings.createCardDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "body": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.createCardBodyParam),
+          ]),
+          "category": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.createCardCategoryDefault()),
+          ]),
         ]),
-      ]),
-      "required": .array([.string("body")]),
-    ])
-  ),
-  Tool(
-    name: "update_card",
-    description: "Update an existing card's content and/or category.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "id": .object([
-          "type": .string("string"),
-          "description": .string("Card ID."),
+        "required": .array([.string("body")]),
+      ])
+    ),
+    Tool(
+      name: "update_card",
+      description: MCPStrings.updateCardDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "id": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.updateCardIDParam),
+          ]),
+          "body": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.updateCardBodyParam),
+          ]),
+          "category": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.updateCardCategoryParam),
+          ]),
         ]),
-        "body": .object([
-          "type": .string("string"),
-          "description": .string("New markdown content."),
+        "required": .array([.string("id"), .string("body"), .string("category")]),
+      ])
+    ),
+    Tool(
+      name: "delete_card",
+      description: MCPStrings.deleteCardDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "id": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.updateCardIDParam),
+          ]),
+          "category": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.deleteCardCategoryParam),
+          ]),
         ]),
-        "category": .object([
-          "type": .string("string"),
-          "description": .string("New category name (moves the card if changed)."),
+        "required": .array([.string("id"), .string("category")]),
+      ])
+    ),
+    Tool(
+      name: "count_cards",
+      description: MCPStrings.countCardsDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([:]),
+      ])
+    ),
+    Tool(
+      name: "list_categories",
+      description: MCPStrings.listCategoriesDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([:]),
+      ])
+    ),
+    Tool(
+      name: "create_category",
+      description: MCPStrings.createCategoryDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "name": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.createCategoryNameParam),
+          ])
         ]),
-      ]),
-      "required": .array([.string("id"), .string("body"), .string("category")]),
-    ])
-  ),
-  Tool(
-    name: "delete_card",
-    description: "Delete a card.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "id": .object([
-          "type": .string("string"),
-          "description": .string("Card ID."),
+        "required": .array([.string("name")]),
+      ])
+    ),
+    Tool(
+      name: "rename_category",
+      description: MCPStrings.renameCategoryDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "from": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.renameCategoryFromParam),
+          ]),
+          "to": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.renameCategoryToParam),
+          ]),
         ]),
-        "category": .object([
-          "type": .string("string"),
-          "description": .string("Category the card currently belongs to."),
+        "required": .array([.string("from"), .string("to")]),
+      ])
+    ),
+    Tool(
+      name: "delete_category",
+      description: MCPStrings.deleteCategoryDescription,
+      inputSchema: .object([
+        "type": .string("object"),
+        "properties": .object([
+          "name": .object([
+            "type": .string("string"),
+            "description": .string(MCPStrings.deleteCategoryNameParam),
+          ])
         ]),
-      ]),
-      "required": .array([.string("id"), .string("category")]),
-    ])
-  ),
-  Tool(
-    name: "count_cards",
-    description: "Return the total number of cards.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([:]),
-    ])
-  ),
-  Tool(
-    name: "list_categories",
-    description: "List all card categories.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([:]),
-    ])
-  ),
-  Tool(
-    name: "create_category",
-    description: "Create a new card category.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "name": .object([
-          "type": .string("string"),
-          "description": .string("Category name."),
-        ])
-      ]),
-      "required": .array([.string("name")]),
-    ])
-  ),
-  Tool(
-    name: "rename_category",
-    description: "Rename an existing card category.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "from": .object([
-          "type": .string("string"),
-          "description": .string("Current category name."),
-        ]),
-        "to": .object([
-          "type": .string("string"),
-          "description": .string("New category name."),
-        ]),
-      ]),
-      "required": .array([.string("from"), .string("to")]),
-    ])
-  ),
-  Tool(
-    name: "delete_category",
-    description: "Delete a card category and all cards inside it.",
-    inputSchema: .object([
-      "type": .string("object"),
-      "properties": .object([
-        "name": .object([
-          "type": .string("string"),
-          "description": .string("Category name."),
-        ])
-      ]),
-      "required": .array([.string("name")]),
-    ])
-  ),
-]
+        "required": .array([.string("name")]),
+      ])
+    ),
+  ]
+}
 
 // MARK: - Handlers
 
@@ -186,7 +186,7 @@ private func handleMemoryCardToolInner(
 
   case "create_card":
     guard let body = params.arguments?["body"]?.stringValue else {
-      return errorResult("Missing required argument: body")
+      return errorResult(MCPStrings.missingBody)
     }
     let category =
       params.arguments?["category"]?.stringValue ?? AppMetadata.defaultCategoryDirectoryName
@@ -198,7 +198,7 @@ private func handleMemoryCardToolInner(
       let body = params.arguments?["body"]?.stringValue,
       let category = params.arguments?["category"]?.stringValue
     else {
-      return errorResult("Missing required arguments: id, body, category")
+      return errorResult(MCPStrings.missingIDBodyCategory)
     }
     let existing = try await MainActor.run {
       guard let card = try repository.list().first(where: { $0.id == id }) else {
@@ -216,10 +216,10 @@ private func handleMemoryCardToolInner(
     guard let id = params.arguments?["id"]?.stringValue,
       let category = params.arguments?["category"]?.stringValue
     else {
-      return errorResult("Missing required arguments: id, category")
+      return errorResult(MCPStrings.missingIDCategory)
     }
     try await MainActor.run { try repository.delete(id: id, directory: category) }
-    return .init(content: [.text(text: "Deleted.", annotations: nil, _meta: nil)], isError: false)
+    return textResult(MCPStrings.deleted)
 
   case "count_cards":
     let count = try await MainActor.run { try repository.count() }
@@ -232,36 +232,37 @@ private func handleMemoryCardToolInner(
 
   case "create_category":
     guard let name = params.arguments?["name"]?.stringValue else {
-      return errorResult("Missing required argument: name")
+      return errorResult(MCPStrings.missingName)
     }
     try await MainActor.run { try repository.createDirectory(name: name) }
-    return .init(
-      content: [.text(text: "Created.", annotations: nil, _meta: nil)], isError: false)
+    return textResult(MCPStrings.created)
 
   case "rename_category":
     guard let from = params.arguments?["from"]?.stringValue,
       let to = params.arguments?["to"]?.stringValue
     else {
-      return errorResult("Missing required arguments: from, to")
+      return errorResult(MCPStrings.missingFromTo)
     }
     try await MainActor.run { try repository.renameDirectory(from: from, to: to) }
-    return .init(
-      content: [.text(text: "Renamed.", annotations: nil, _meta: nil)], isError: false)
+    return textResult(MCPStrings.renamed)
 
   case "delete_category":
     guard let name = params.arguments?["name"]?.stringValue else {
-      return errorResult("Missing required argument: name")
+      return errorResult(MCPStrings.missingName)
     }
     try await MainActor.run { try repository.deleteDirectory(name: name) }
-    return .init(
-      content: [.text(text: "Deleted.", annotations: nil, _meta: nil)], isError: false)
+    return textResult(MCPStrings.deleted)
 
   default:
-    return errorResult("Unknown tool: \(params.name)")
+    return errorResult(MCPStrings.unknownTool(params.name))
   }
 }
 
 // MARK: - Helpers
+
+private func textResult(_ text: String) -> CallTool.Result {
+  .init(content: [.text(text: text, annotations: nil, _meta: nil)], isError: false)
+}
 
 private func textResult(_ data: Data) -> CallTool.Result {
   let text = String(data: data, encoding: .utf8) ?? "[]"
@@ -279,7 +280,7 @@ private enum MemoryCardMCPError: Error {
 
   var mcpMessage: String {
     switch self {
-    case .notFound(let id): return "Card not found: \(id)"
+    case .notFound(let id): return MCPStrings.cardNotFound(id)
     }
   }
 }
@@ -288,19 +289,19 @@ extension MemoryCardFileRepositoryError {
   var mcpMessage: String {
     switch self {
     case .invalidCategoryName(let name):
-      return "Invalid category name: \"\(name)\""
+      return MCPStrings.invalidCategoryName(name)
     case .categoryAlreadyExists(let name):
-      return "Category already exists: \"\(name)\""
+      return MCPStrings.categoryAlreadyExists(name)
     case .categoryNotFound(let name):
-      return "Category not found: \"\(name)\""
+      return MCPStrings.categoryNotFound(name)
     case .categoryNotRenamable(let name):
-      return "Category cannot be renamed: \"\(name)\""
+      return MCPStrings.categoryNotRenamable(name)
     case .categoryNotDeletable(let name):
-      return "Category cannot be deleted: \"\(name)\""
+      return MCPStrings.categoryNotDeletable(name)
     case .invalidCardID(let id):
-      return "Invalid card ID: \"\(id)\""
+      return MCPStrings.invalidCardID(id)
     case .missingFrontMatter(let url):
-      return "Missing front matter in card file: \(url.lastPathComponent)"
+      return MCPStrings.missingFrontMatter(url.lastPathComponent)
     }
   }
 }
