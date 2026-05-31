@@ -135,3 +135,13 @@
 "startup.failure.title" = "Gacha 无法启动";
 "startup.failure.message" = "Gacha 无法初始化卡片存储，因此无法继续启动。\n\n错误信息：%@";
 "startup.failure.quit" = "退出";
+"settings.section.cli" = "命令行工具";
+"settings.cli.install" = "安装 CLI";
+"settings.cli.install.alreadyLatest" = "gacha 已是最新版本。";
+"settings.cli.install.conflict" = "/usr/local/bin/gacha 已存在且指向其他位置，请手动删除后重试。";
+"settings.cli.install.success" = "gacha 已安装到 /usr/local/bin/gacha。";
+"settings.cli.install.failed" = "安装 CLI 失败：%@";
+"settings.cli.install.error.binaryNotFound" = "在 app bundle 中找不到 CLI 二进制文件。";
+"settings.cli.install.error.cancelled" = "安装被取消或失败。";
+"settings.cli.install.requiresMCP" = "CLI 工具依赖 MCP 服务器，请先在上方启用 MCP 服务器。";
+"settings.cli.install.installed" = "CLI 工具已安装到 /usr/local/bin/gacha。";

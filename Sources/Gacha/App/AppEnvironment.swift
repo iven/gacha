@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Foundation
 
 @MainActor
 final class AppEnvironment: ObservableObject {
@@ -94,5 +95,81 @@ final class AppEnvironment: ObservableObject {
   // forward) and tells the notch to stop auto-collapsing while a window is open.
   func onSettingsVisibilityChange(_ visible: Bool) {
     cardWindowBridge.setSettingsVisible(visible)
+  }
+
+  func isCLIInstalled() -> Bool {
+    guard
+      let bundleURL = Bundle.main.executableURL?.deletingLastPathComponent(),
+      let cliBinaryURL = URL(string: bundleURL.absoluteString + "gacha")
+    else { return false }
+    let linkURL = URL(fileURLWithPath: "/usr/local/bin/gacha")
+    let existing = try? FileManager.default.destinationOfSymbolicLink(atPath: linkURL.path)
+    return existing == cliBinaryURL.path
+  }
+
+  // MARK: - CLI Installation
+
+  enum CLIInstallResult {
+    case alreadyLatest
+    case conflict
+    case success
+  }
+
+  func installCLI() async throws -> CLIInstallResult {
+    guard
+      let bundleURL = Bundle.main.executableURL?.deletingLastPathComponent(),
+      let cliBinaryURL = URL(string: bundleURL.absoluteString + "gacha")
+    else {
+      throw CLIInstallError.binaryNotFound
+    }
+
+    let linkURL = URL(fileURLWithPath: "/usr/local/bin/gacha")
+    let binDirURL = linkURL.deletingLastPathComponent()
+
+    // Already points to same binary — skip
+    if let existing = try? FileManager.default.destinationOfSymbolicLink(
+      atPath: linkURL.path),
+      existing == cliBinaryURL.path
+    {
+      return .alreadyLatest
+    }
+
+    // Exists but points elsewhere — conflict
+    if FileManager.default.fileExists(atPath: linkURL.path) {
+      return .conflict
+    }
+
+    // Try without privileges first
+    if (try? FileManager.default.createSymbolicLink(
+      at: linkURL, withDestinationURL: cliBinaryURL)) != nil
+    {
+      return .success
+    }
+
+    // Escalate via NSAppleScript
+    let cmd = "mkdir -p '\(binDirURL.path)' && ln -sf '\(cliBinaryURL.path)' '\(linkURL.path)'"
+    let script = "do shell script \"\(cmd)\" with administrator privileges"
+    var error: NSDictionary?
+    NSAppleScript(source: script)?.executeAndReturnError(&error)
+    if error != nil {
+      throw CLIInstallError.osascriptFailed
+    }
+    return .success
+  }
+}
+
+// MARK: - CLIInstallError
+
+private enum CLIInstallError: LocalizedError {
+  case binaryNotFound
+  case osascriptFailed
+
+  var errorDescription: String? {
+    switch self {
+    case .binaryNotFound:
+      return AppStrings.localized("settings.cli.install.error.binaryNotFound")
+    case .osascriptFailed:
+      return AppStrings.localized("settings.cli.install.error.cancelled")
+    }
   }
 }

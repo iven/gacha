@@ -37,4 +37,15 @@ enum SettingsStrings {
       format: AppStrings.localized("settings.mcp.port.error.failed"),
       port, reason)
   }
+
+  static let sectionCLI = AppStrings.localized("settings.section.cli")
+  static let cliInstall = AppStrings.localized("settings.cli.install")
+  static let cliInstallAlreadyLatest = AppStrings.localized("settings.cli.install.alreadyLatest")
+  static let cliInstallConflict = AppStrings.localized("settings.cli.install.conflict")
+  static let cliInstallSuccess = AppStrings.localized("settings.cli.install.success")
+  static let cliInstallRequiresMCP = AppStrings.localized("settings.cli.install.requiresMCP")
+  static let cliInstallInstalled = AppStrings.localized("settings.cli.install.installed")
+  static func cliInstallFailed(reason: String) -> String {
+    String(format: AppStrings.localized("settings.cli.install.failed"), reason)
+  }
 }

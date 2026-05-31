@@ -135,3 +135,13 @@
 "startup.failure.title" = "Gacha Cannot Start";
 "startup.failure.message" = "Gacha could not initialize card storage and cannot continue starting.\n\nError: %@";
 "startup.failure.quit" = "Quit";
+"settings.section.cli" = "Command-Line Tool";
+"settings.cli.install" = "Install CLI";
+"settings.cli.install.alreadyLatest" = "gacha is already up to date.";
+"settings.cli.install.conflict" = "/usr/local/bin/gacha already exists and points elsewhere. Remove it manually and try again.";
+"settings.cli.install.success" = "gacha installed to /usr/local/bin/gacha.";
+"settings.cli.install.failed" = "Failed to install CLI: %@";
+"settings.cli.install.error.binaryNotFound" = "CLI binary not found in app bundle.";
+"settings.cli.install.error.cancelled" = "Installation was cancelled or failed.";
+"settings.cli.install.requiresMCP" = "The CLI tool requires the MCP server. Enable it above first.";
+"settings.cli.install.installed" = "The CLI tool is installed at /usr/local/bin/gacha.";
