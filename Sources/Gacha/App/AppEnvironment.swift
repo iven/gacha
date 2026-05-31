@@ -97,11 +97,17 @@ final class AppEnvironment: ObservableObject {
     cardWindowBridge.setSettingsVisible(visible)
   }
 
+  private func resolveCLIBinaryURL() -> URL? {
+    guard let bundleURL = Bundle.main.executableURL?.deletingLastPathComponent() else {
+      return nil
+    }
+    let entries = (try? FileManager.default.contentsOfDirectory(atPath: bundleURL.path)) ?? []
+    guard entries.contains("gacha-cli") else { return nil }
+    return bundleURL.appendingPathComponent("gacha-cli")
+  }
+
   func isCLIInstalled() -> Bool {
-    guard
-      let bundleURL = Bundle.main.executableURL?.deletingLastPathComponent(),
-      let cliBinaryURL = URL(string: bundleURL.absoluteString + "gacha")
-    else { return false }
+    guard let cliBinaryURL = resolveCLIBinaryURL() else { return false }
     let linkURL = URL(fileURLWithPath: "/usr/local/bin/gacha")
     let existing = try? FileManager.default.destinationOfSymbolicLink(atPath: linkURL.path)
     return existing == cliBinaryURL.path
@@ -116,10 +122,7 @@ final class AppEnvironment: ObservableObject {
   }
 
   func installCLI() async throws -> CLIInstallResult {
-    guard
-      let bundleURL = Bundle.main.executableURL?.deletingLastPathComponent(),
-      let cliBinaryURL = URL(string: bundleURL.absoluteString + "gacha")
-    else {
+    guard let cliBinaryURL = resolveCLIBinaryURL() else {
       throw CLIInstallError.binaryNotFound
     }
 

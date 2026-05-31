@@ -14,7 +14,7 @@ let package = Package(
       targets: ["Gacha"]
     ),
     .executable(
-      name: "GachaCLI",
+      name: "gacha-cli",
       targets: ["GachaCLI"]
     ),
   ],
