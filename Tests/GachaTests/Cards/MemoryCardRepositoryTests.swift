@@ -8,6 +8,7 @@ import Testing
   fixture.now = Date(timeIntervalSince1970: 1_779_548_984)
   let repository = try fixture.repository()
 
+  try repository.createDirectory(name: "english-vocabulary")
   let card = try repository.create(
     body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
@@ -16,8 +17,8 @@ import Testing
     .appendingPathComponent("english-vocabulary", isDirectory: true)
     .appendingPathComponent("\(card.id).md")
   #expect(fixture.fileManager.fileExists(atPath: cardURL.path))
-  #expect(try repository.count() == 1)
-  #expect(try repository.list() == [card])
+  try #expect(repository.count() == 1)
+  try #expect(repository.list() == [card])
 }
 
 @Test func memoryCardRepositoryUpdatesFileAndIndexRecord() throws {
@@ -37,7 +38,7 @@ import Testing
   #expect(!content.contains("title:"))
   #expect(content.contains("updated_at:"))
   #expect(content.contains("After"))
-  #expect(try repository.list() == [card])
+  try #expect(repository.list() == [card])
 }
 
 @Test func memoryCardRepositoryRemovesOldFileWhenCardMovesDirectory() throws {
@@ -47,6 +48,7 @@ import Testing
   let oldCardURL = fixture.directories.defaultMemoryCategoryURL
     .appendingPathComponent("\(card.id).md")
 
+  try repository.createDirectory(name: "philosophy")
   card.directory = "philosophy"
   card.body = "After"
   try repository.write(card)
@@ -60,8 +62,8 @@ import Testing
 
   try repository.rebuildIndex()
 
-  #expect(try repository.count() == 1)
-  #expect(try repository.list() == [card])
+  try #expect(repository.count() == 1)
+  try #expect(repository.list() == [card])
 }
 
 @Test func memoryCardRepositoryDeletesFileAndIndexRecord() throws {
@@ -74,14 +76,16 @@ import Testing
   try repository.delete(id: card.id, directory: card.directory)
 
   #expect(!fixture.fileManager.fileExists(atPath: cardURL.path))
-  #expect(try repository.count() == 0)
-  #expect(try repository.list().isEmpty)
+  try #expect(repository.count() == 0)
+  try #expect(repository.list().isEmpty)
 }
 
 @Test func memoryCardRepositoryListsFromIndexByDirectory() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
 
+  try repository.createDirectory(name: "english-vocabulary")
+  try repository.createDirectory(name: "philosophy")
   _ = try repository.create(
     body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
@@ -89,13 +93,14 @@ import Testing
     body: "transience\n\nThe state of not lasting.",
     directory: "philosophy")
 
-  #expect(try repository.list(directory: "philosophy").map(\.displayTitle) == ["transience"])
+  try #expect(repository.list(directory: "philosophy").map(\.displayTitle) == ["transience"])
 }
 
 @Test func memoryCardRepositoryRenamesDirectoryAcrossFilesAndIndex() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
 
+  try repository.createDirectory(name: "Product")
   let card = try repository.create(
     body: "serendipity\n\nA happy accident.",
     directory: "Product")
@@ -115,13 +120,17 @@ import Testing
   let cards = try repository.list(directory: "Strategy")
   #expect(cards.map(\.id) == [card.id])
   #expect(cards.allSatisfy { $0.directory == "Strategy" })
-  #expect(try repository.list(directory: "Product").isEmpty)
+  #expect(throws: MemoryCardFileRepositoryError.categoryNotFound("Product")) {
+    try repository.list(directory: "Product")
+  }
 }
 
 @Test func memoryCardRepositoryDeletesCategoryAndItsCards() throws {
   let fixture = makeMemoryCardRepositoryFixture()
   let repository = try fixture.repository()
 
+  try repository.createDirectory(name: "Product")
+  try repository.createDirectory(name: "Strategy")
   _ = try repository.create(body: "first\n\nbody", directory: "Product")
   _ = try repository.create(body: "second\n\nbody", directory: "Product")
   _ = try repository.create(body: "kept\n\nbody", directory: "Strategy")
@@ -131,9 +140,11 @@ import Testing
   let categoryURL = fixture.directories.memoryURL
     .appendingPathComponent("Product", isDirectory: true)
   #expect(!fixture.fileManager.fileExists(atPath: categoryURL.path))
-  #expect(try repository.list(directory: "Product").isEmpty)
-  #expect(try repository.list(directory: "Strategy").map(\.displayTitle) == ["kept"])
-  #expect(try repository.count() == 1)
+  #expect(throws: MemoryCardFileRepositoryError.categoryNotFound("Product")) {
+    try repository.list(directory: "Product")
+  }
+  try #expect(repository.list(directory: "Strategy").map(\.displayTitle) == ["kept"])
+  try #expect(repository.count() == 1)
 }
 
 @Test func memoryCardRepositoryRebuildsIndexFromFiles() throws {
@@ -148,8 +159,8 @@ import Testing
 
   try repository.rebuildIndex()
 
-  #expect(try repository.count() == 2)
-  #expect(try repository.list().map(\.displayTitle) == ["transience", "serendipity"])
+  try #expect(repository.count() == 2)
+  try #expect(repository.list().map(\.displayTitle) == ["transience", "serendipity"])
 }
 
 @Test func memoryCardRepositoryEmitsRebuildIndexEvent() throws {
@@ -172,6 +183,7 @@ import Testing
   let cancellable = repository.events.sink { observed.append($0) }
   defer { cancellable.cancel() }
 
+  try repository.createDirectory(name: "Product")
   let created = try repository.create(body: "first\n\nbody", directory: "Product")
   var updated = created
   updated.body = "first\n\nupdated"
@@ -250,6 +262,7 @@ private final class MemoryCardRepositoryFacadeFixture {
       fileManager: fileManager,
       randomIDSuffix: { self.fileSuffixes.next() },
       now: { self.now })
+    try? fileRepository.createDirectory(name: directory)
     return try fileRepository.create(body: body, directory: directory)
   }
 }

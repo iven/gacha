@@ -201,7 +201,7 @@ private func handleMemoryCardToolInner(
       return errorResult(MCPStrings.missingIDBodyCategory)
     }
     let existing = try await MainActor.run {
-      guard let card = try repository.list().first(where: { $0.id == id }) else {
+      guard let card = try repository.find(id: id) else {
         throw MemoryCardMCPError.notFound(id)
       }
       return card

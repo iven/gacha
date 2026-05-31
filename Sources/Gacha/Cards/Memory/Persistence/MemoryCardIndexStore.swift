@@ -55,10 +55,21 @@ final class MemoryCardIndexStore {
     }
   }
 
+  func createDirectory(name: String) throws {
+    try dbQueue.write { database in
+      try database.execute(
+        sql: "INSERT OR IGNORE INTO categories (name) VALUES (?)",
+        arguments: [name])
+    }
+  }
+
   func deleteDirectory(name: String) throws {
     try dbQueue.write { database in
       try database.execute(
         sql: "DELETE FROM memory_cards WHERE directory = ?",
+        arguments: [name])
+      try database.execute(
+        sql: "DELETE FROM categories WHERE name = ?",
         arguments: [name])
     }
   }
@@ -82,6 +93,24 @@ final class MemoryCardIndexStore {
             """,
           arguments: [newName, newFilePath, id])
       }
+      try database.execute(
+        sql: "UPDATE categories SET name = ? WHERE name = ?",
+        arguments: [newName, oldName])
+    }
+  }
+
+  func listDirectories() throws -> [String] {
+    try dbQueue.read { database in
+      try String.fetchAll(database, sql: "SELECT name FROM categories ORDER BY name")
+    }
+  }
+
+  func categoryExists(_ name: String) throws -> Bool {
+    try dbQueue.read { database in
+      try Int.fetchOne(
+        database,
+        sql: "SELECT COUNT(*) FROM categories WHERE name = ?",
+        arguments: [name]) ?? 0 > 0
     }
   }
 
@@ -125,8 +154,15 @@ final class MemoryCardIndexStore {
 
   func rebuild(from repository: MemoryCardFileRepository) throws {
     let cards = try repository.list()
+    let directories = try repository.listDirectories()
     try dbQueue.write { database in
       try database.execute(sql: "DELETE FROM memory_cards")
+      try database.execute(sql: "DELETE FROM categories")
+      for directory in directories {
+        try database.execute(
+          sql: "INSERT INTO categories (name) VALUES (?)",
+          arguments: [directory])
+      }
       for card in cards {
         try database.execute(
           sql: """
@@ -152,6 +188,8 @@ final class MemoryCardIndexStore {
       }
     }
   }
+
+  // MARK: - Private
 
   private func migrate() throws {
     var migrator = DatabaseMigrator()
@@ -198,6 +236,22 @@ final class MemoryCardIndexStore {
 
       try database.execute(
         sql: "CREATE INDEX IF NOT EXISTS idx_memory_updated_at ON memory_cards(updated_at)")
+    }
+
+    migrator.registerMigration("addCategoriesTable") { database in
+      try database.execute(
+        sql: """
+          CREATE TABLE categories (
+            name TEXT PRIMARY KEY
+          );
+          """)
+
+      // Backfill from existing memory_cards
+      try database.execute(
+        sql: """
+          INSERT OR IGNORE INTO categories (name)
+          SELECT DISTINCT directory FROM memory_cards
+          """)
     }
 
     try migrator.migrate(dbQueue)

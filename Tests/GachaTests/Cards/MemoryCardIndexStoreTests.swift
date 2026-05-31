@@ -91,6 +91,8 @@ import Testing
   let fileRepository = fixture.fileRepository()
   let store = try fixture.indexStore()
 
+  try fileRepository.createDirectory(name: "english-vocabulary")
+  try fileRepository.createDirectory(name: "philosophy")
   _ = try fileRepository.create(
     body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")

@@ -41,6 +41,7 @@ final class MemoryCardRepository: @unchecked Sendable {
 
   func createDirectory(name: String) throws {
     try fileRepository.createDirectory(name: name)
+    try indexStore.createDirectory(name: name)
   }
 
   func renameDirectory(from oldName: String, to newName: String) throws {
@@ -67,7 +68,7 @@ final class MemoryCardRepository: @unchecked Sendable {
   }
 
   func write(_ card: MemoryCard) throws {
-    if let existingCard = try indexStore.find(id: card.id),
+    if let existingCard = try find(id: card.id),
       existingCard.directory != card.directory
     {
       try fileRepository.delete(id: existingCard.id, directory: existingCard.directory)
@@ -85,11 +86,20 @@ final class MemoryCardRepository: @unchecked Sendable {
   }
 
   func listDirectories() throws -> [String] {
-    try fileRepository.listDirectories()
+    try indexStore.listDirectories()
+  }
+
+  func find(id: String) throws -> MemoryCard? {
+    try indexStore.find(id: id)
   }
 
   func list(directory: String? = nil) throws -> [MemoryCard] {
-    try indexStore.list(directory: directory)
+    if let directory {
+      guard try indexStore.categoryExists(directory) else {
+        throw MemoryCardFileRepositoryError.categoryNotFound(directory)
+      }
+    }
+    return try indexStore.list(directory: directory)
   }
 
   func count() throws -> Int {

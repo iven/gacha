@@ -63,7 +63,9 @@ final class MemoryCardFileRepository {
     let categoryURL = directories.memoryURL.appendingPathComponent(
       card.directory,
       isDirectory: true)
-    try fileManager.createDirectory(at: categoryURL, withIntermediateDirectories: true)
+    guard fileManager.fileExists(atPath: categoryURL.path) else {
+      throw MemoryCardFileRepositoryError.categoryNotFound(card.directory)
+    }
     try MemoryCardMarkdownCodec.encode(card).write(
       to: fileURL(for: card),
       atomically: true,
@@ -126,10 +128,19 @@ final class MemoryCardFileRepository {
     try validateCategoryName(directory)
     try validateCardID(id)
 
-    try fileManager.removeItem(
-      at: directories.memoryURL
-        .appendingPathComponent(directory, isDirectory: true)
-        .appendingPathComponent("\(id).md"))
+    let categoryURL = directories.memoryURL.appendingPathComponent(directory, isDirectory: true)
+    guard fileManager.fileExists(atPath: categoryURL.path) else {
+      throw MemoryCardFileRepositoryError.categoryNotFound(directory)
+    }
+
+    let fileURL = directories.memoryURL
+      .appendingPathComponent(directory, isDirectory: true)
+      .appendingPathComponent("\(id).md")
+    guard fileManager.fileExists(atPath: fileURL.path) else {
+      throw MemoryCardFileRepositoryError.invalidCardID(id)
+    }
+
+    try fileManager.removeItem(at: fileURL)
   }
 
   func listDirectories() throws -> [String] {

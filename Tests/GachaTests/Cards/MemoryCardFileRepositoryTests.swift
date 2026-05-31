@@ -52,6 +52,8 @@ import Testing
   let createdAt = Date(timeIntervalSince1970: 1_779_548_984)
   fixture.now = createdAt
 
+  try fixture.repository.createDirectory(name: "english-vocabulary")
+  try fixture.repository.createDirectory(name: "philosophy")
   _ = try fixture.repository.create(
     body: "serendipity\n\nA happy accident.",
     directory: "english-vocabulary")
@@ -184,6 +186,7 @@ import Testing
 
 @Test func memoryCardRepositoryDeletesCategoryDirectory() throws {
   let fixture = makeRepositoryFixture()
+  try fixture.repository.createDirectory(name: "Product")
   _ = try fixture.repository.create(body: "x", directory: "Product")
 
   try fixture.repository.deleteDirectory(name: "Product")
