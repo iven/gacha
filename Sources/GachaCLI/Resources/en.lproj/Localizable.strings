@@ -1,0 +1,25 @@
+/* CLI root */
+"cli.abstract" = "Control Gacha from the command line.";
+
+/* card command */
+"card.abstract" = "Manage cards.";
+
+/* card list command */
+"card.list.abstract" = "List cards.";
+"card.list.option.category" = "Filter by category name.";
+"card.list.flag.json" = "Output as JSON.";
+"card.list.option.port" = "MCP server port.";
+
+/* category command */
+"category.abstract" = "Manage categories.";
+
+/* CLI error messages */
+"cli.error.connectionFailed" = "Cannot connect to Gacha. Make sure Gacha is running and the MCP server is enabled.";
+"cli.error.missingSessionID" = "MCP server did not return a session ID.";
+"cli.error.unexpectedResponse" = "Unexpected response from MCP server.";
+"cli.error.parseResponse" = "Failed to parse response.";
+
+/* card list column headers */
+"card.list.header.id" = "ID";
+"card.list.header.category" = "CATEGORY";
+"card.list.header.preview" = "PREVIEW";

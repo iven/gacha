@@ -1,0 +1,25 @@
+/* CLI root */
+"cli.abstract" = "通过命令行控制 Gacha。";
+
+/* card command */
+"card.abstract" = "管理卡片。";
+
+/* card list command */
+"card.list.abstract" = "列出卡片。";
+"card.list.option.category" = "按分类名称筛选。";
+"card.list.flag.json" = "以 JSON 格式输出。";
+"card.list.option.port" = "MCP 服务器端口。";
+
+/* category command */
+"category.abstract" = "管理分类。";
+
+/* CLI error messages */
+"cli.error.connectionFailed" = "无法连接到 Gacha。请确保 Gacha 正在运行且已开启 MCP 服务器。";
+"cli.error.missingSessionID" = "MCP 服务器未返回 Session ID。";
+"cli.error.unexpectedResponse" = "MCP 服务器返回了意外的响应。";
+"cli.error.parseResponse" = "解析响应失败。";
+
+/* card list column headers */
+"card.list.header.id" = "ID";
+"card.list.header.category" = "分类";
+"card.list.header.preview" = "预览";

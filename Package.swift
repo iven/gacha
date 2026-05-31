@@ -12,7 +12,11 @@ let package = Package(
     .executable(
       name: "Gacha",
       targets: ["Gacha"]
-    )
+    ),
+    .executable(
+      name: "GachaCLI",
+      targets: ["GachaCLI"]
+    ),
   ],
   dependencies: [
     .package(url: "https://github.com/groue/GRDB.swift.git", from: "7.10.0"),
@@ -25,6 +29,7 @@ let package = Package(
     ),
     .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.12.1"),
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
+    .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
   ],
   targets: [
     .executableTarget(
@@ -52,6 +57,16 @@ let package = Package(
         .product(name: "GRDB", package: "GRDB.swift"),
       ],
       path: "Tests/GachaTests"
+    ),
+    .executableTarget(
+      name: "GachaCLI",
+      dependencies: [
+        .product(name: "ArgumentParser", package: "swift-argument-parser")
+      ],
+      path: "Sources/GachaCLI",
+      resources: [
+        .process("Resources")
+      ]
     ),
   ]
 )
