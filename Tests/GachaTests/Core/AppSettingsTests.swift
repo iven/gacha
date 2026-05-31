@@ -70,7 +70,9 @@ import Testing
     skipCountdownOnAnotherWindow: false,
     showKeyboardHints: false,
     fullScreenSuppressionEnabled: false,
-    screenSharingSuppressionEnabled: false)
+    screenSharingSuppressionEnabled: false,
+    mcpEnabled: true,
+    mcpPort: 8888)
 
   #expect(store.settings.userStorageURL == userStorageURL)
   #expect(!store.settings.launchAtLoginEnabled)
@@ -79,6 +81,8 @@ import Testing
   #expect(!store.settings.showKeyboardHints)
   #expect(!store.settings.fullScreenSuppressionEnabled)
   #expect(!store.settings.screenSharingSuppressionEnabled)
+  #expect(store.settings.mcpEnabled)
+  #expect(store.settings.mcpPort == 8888)
 }
 
 @Test func settingsStorePersistsSkipCountdownOnAnotherWindow() {

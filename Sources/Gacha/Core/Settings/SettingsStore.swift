@@ -12,6 +12,8 @@ struct SettingsStore {
     static let showKeyboardHints = "showKeyboardHints"
     static let fullScreenSuppressionEnabled = "fullScreenSuppressionEnabled"
     static let screenSharingSuppressionEnabled = "screenSharingSuppressionEnabled"
+    static let mcpEnabled = "mcpEnabled"
+    static let mcpPort = "mcpPort"
   }
 
   private let defaults: UserDefaults
@@ -30,6 +32,8 @@ struct SettingsStore {
       Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
       Key.fullScreenSuppressionEnabled: AppSettings.defaultFullScreenSuppressionEnabled,
       Key.screenSharingSuppressionEnabled: AppSettings.defaultScreenSharingSuppressionEnabled,
+      Key.mcpEnabled: AppSettings.defaultMCPEnabled,
+      Key.mcpPort: AppSettings.defaultMCPPort,
     ])
   }
 
@@ -49,7 +53,9 @@ struct SettingsStore {
         skipCountdownOnAnotherWindow: skipCountdownOnAnotherWindow,
         showKeyboardHints: showKeyboardHints,
         fullScreenSuppressionEnabled: fullScreenSuppressionEnabled,
-        screenSharingSuppressionEnabled: screenSharingSuppressionEnabled)
+        screenSharingSuppressionEnabled: screenSharingSuppressionEnabled,
+        mcpEnabled: mcpEnabled,
+        mcpPort: mcpPort)
     }
     nonmutating set {
       userStorageURL = newValue.userStorageURL
@@ -59,6 +65,8 @@ struct SettingsStore {
       showKeyboardHints = newValue.showKeyboardHints
       fullScreenSuppressionEnabled = newValue.fullScreenSuppressionEnabled
       screenSharingSuppressionEnabled = newValue.screenSharingSuppressionEnabled
+      mcpEnabled = newValue.mcpEnabled
+      mcpPort = newValue.mcpPort
     }
   }
 
@@ -114,6 +122,16 @@ struct SettingsStore {
   var screenSharingSuppressionEnabled: Bool {
     get { defaults.bool(forKey: Key.screenSharingSuppressionEnabled) }
     nonmutating set { defaults.set(newValue, forKey: Key.screenSharingSuppressionEnabled) }
+  }
+
+  var mcpEnabled: Bool {
+    get { defaults.bool(forKey: Key.mcpEnabled) }
+    nonmutating set { defaults.set(newValue, forKey: Key.mcpEnabled) }
+  }
+
+  var mcpPort: Int {
+    get { defaults.integer(forKey: Key.mcpPort) }
+    nonmutating set { defaults.set(newValue, forKey: Key.mcpPort) }
   }
 
   private func normalizedMemoryAutoCollapseSeconds(

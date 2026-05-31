@@ -75,6 +75,16 @@
 "settings.screenSharingSuppressionEnabled" = "Hide the notch while screen recording or sharing";
 "settings.collapseCountdown" = "Collapse countdown";
 "settings.collapseCountdown.unit" = "s";
+"settings.section.mcp" = "MCP Server";
+"settings.mcp.enabled" = "Enable MCP Server";
+"settings.mcp.port" = "Port";
+"settings.mcp.url" = "URL";
+"settings.mcp.port.apply" = "Apply";
+"settings.mcp.copyURL" = "Copy URL";
+"settings.mcp.copyConfig" = "Copy MCP Config";
+"settings.mcp.port.error.title" = "Cannot Start MCP Server";
+"settings.mcp.port.error.dismiss" = "OK";
+"settings.mcp.port.error.failed" = "Failed to start MCP server on port %d: %@";
 "presentation.emptyState.title" = "No memory cards yet";
 "presentation.emptyState.body" = "Add some content and start your efficient memorization journey!";
 "presentation.emptyState.action" = "New Card";

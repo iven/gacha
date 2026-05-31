@@ -10,16 +10,29 @@ final class CardMCPServer: Sendable {
   private let repository: MemoryCardRepository
   private let state = ServerState()
 
+  /// Observable running state — updated on MainActor after start/stop.
+  @MainActor
+  private(set) var isRunning = false
+
   init(repository: MemoryCardRepository) {
     self.repository = repository
   }
 
   func start(port: Int) async throws {
     try await state.start(port: port, repository: repository)
+    await MainActor.run { isRunning = true }
   }
 
   func stop() async {
     await state.stop()
+    await MainActor.run { isRunning = false }
+  }
+
+  func restart(port: Int) async throws {
+    await MainActor.run { isRunning = false }
+    await state.stop()
+    try await state.start(port: port, repository: repository)
+    await MainActor.run { isRunning = true }
   }
 }
 
@@ -36,9 +49,9 @@ private actor ServerState {
 
   func start(port: Int, repository: MemoryCardRepository) async throws {
     let group = MultiThreadedEventLoopGroup.singleton
-    // Capture self as nonisolated(unsafe) for the NIO closure, which is
-    // not async—actor re-entrancy is safe because childChannelInitializer
-    // is called on the NIO event loop, not from concurrent Swift tasks.
+    // childChannelInitializer runs on the NIO EventLoop thread (not in a Swift
+    // concurrency context), so we must use nonisolated(unsafe) to capture the
+    // actor without a proper async hop.
     nonisolated(unsafe) let weakSelf = self
     let bootstrap = ServerBootstrap(group: group)
       .serverChannelOption(.backlog, value: 256)

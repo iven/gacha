@@ -23,4 +23,18 @@ enum SettingsStrings {
     "settings.screenSharingSuppressionEnabled")
   static let collapseCountdown = AppStrings.localized("settings.collapseCountdown")
   static let collapseCountdownUnit = AppStrings.localized("settings.collapseCountdown.unit")
+  static let sectionMCP = AppStrings.localized("settings.section.mcp")
+  static let mcpEnabled = AppStrings.localized("settings.mcp.enabled")
+  static let mcpPort = AppStrings.localized("settings.mcp.port")
+  static let mcpURLLabel = AppStrings.localized("settings.mcp.url")
+  static let mcpPortApply = AppStrings.localized("settings.mcp.port.apply")
+  static let mcpCopyURL = AppStrings.localized("settings.mcp.copyURL")
+  static let mcpCopyConfig = AppStrings.localized("settings.mcp.copyConfig")
+  static let mcpPortErrorTitle = AppStrings.localized("settings.mcp.port.error.title")
+  static let mcpPortErrorDismiss = AppStrings.localized("settings.mcp.port.error.dismiss")
+  static func mcpPortErrorFailed(port: Int, reason: String) -> String {
+    String(
+      format: AppStrings.localized("settings.mcp.port.error.failed"),
+      port, reason)
+  }
 }

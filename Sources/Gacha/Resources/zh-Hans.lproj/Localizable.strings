@@ -75,6 +75,16 @@
 "settings.screenSharingSuppressionEnabled" = "录屏或共享屏幕时隐藏刘海";
 "settings.collapseCountdown" = "收起倒计时";
 "settings.collapseCountdown.unit" = "秒";
+"settings.section.mcp" = "MCP 服务器";
+"settings.mcp.enabled" = "启用 MCP 服务器";
+"settings.mcp.port" = "端口";
+"settings.mcp.url" = "URL";
+"settings.mcp.port.apply" = "应用";
+"settings.mcp.copyURL" = "复制 URL";
+"settings.mcp.copyConfig" = "复制 MCP 配置";
+"settings.mcp.port.error.title" = "无法启动 MCP 服务器";
+"settings.mcp.port.error.dismiss" = "好";
+"settings.mcp.port.error.failed" = "无法在端口 %d 上启动 MCP 服务器：%@";
 "presentation.emptyState.title" = "还没有记忆卡片";
 "presentation.emptyState.body" = "添加一些内容，开始你的高效记忆之旅吧！";
 "presentation.emptyState.action" = "新建卡片";

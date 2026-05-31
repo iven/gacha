@@ -1,7 +1,8 @@
 import AppKit
+import Combine
 
 @MainActor
-final class AppEnvironment {
+final class AppEnvironment: ObservableObject {
   let directories: AppDirectories
   let settingsStore: SettingsStore
   let memoryCardRepository: MemoryCardRepository
@@ -12,6 +13,7 @@ final class AppEnvironment {
   let suppressionController: SuppressionController
   let storageRelocationCoordinator: StorageRelocationCoordinator
   let cardMCPServer: CardMCPServer
+  @Published private(set) var isMCPServerRunning = false
 
   /// Single card-management model shared by the single-instance card window.
   private(set) lazy var cardManagementModel = CardManagementModel(
@@ -63,13 +65,28 @@ final class AppEnvironment {
     memoryNotchPresenter.start()
 
     let server = cardMCPServer
+    let store = settingsStore
     Task {
+      guard store.mcpEnabled else { return }
       do {
-        try await server.start(port: 7771)
+        try await server.start(port: store.mcpPort)
+        isMCPServerRunning = true
       } catch {
         AppLogger.app.error("Failed to start MCP server: \(error.localizedDescription)")
       }
     }
+  }
+
+  func applyMCPSettings(enabled: Bool, port: Int) async throws {
+    if enabled {
+      try await cardMCPServer.restart(port: port)
+      settingsStore.mcpEnabled = true
+      settingsStore.mcpPort = port
+    } else {
+      await cardMCPServer.stop()
+      settingsStore.mcpEnabled = false
+    }
+    isMCPServerRunning = cardMCPServer.isRunning
   }
 
   // Bridges the SwiftUI Settings scene's lifecycle into the shared window

@@ -72,6 +72,7 @@ private struct SettingsRootView: View {
           launchAtLoginController: environment.launchAtLoginController,
           settingsStore: environment.settingsStore,
           suppressionController: environment.suppressionController,
+          environment: environment,
           storageRelocationCoordinator: environment.storageRelocationCoordinator)
       } else {
         ProgressView()

@@ -8,6 +8,8 @@ struct AppSettings: Equatable {
   var showKeyboardHints: Bool
   var fullScreenSuppressionEnabled: Bool
   var screenSharingSuppressionEnabled: Bool
+  var mcpEnabled: Bool
+  var mcpPort: Int
 
   static let defaultLaunchAtLoginEnabled = true
   static let defaultMemoryAutoCollapseSeconds: TimeInterval = 1
@@ -15,6 +17,8 @@ struct AppSettings: Equatable {
   static let defaultShowKeyboardHints = true
   static let defaultFullScreenSuppressionEnabled = true
   static let defaultScreenSharingSuppressionEnabled = true
+  static let defaultMCPEnabled = false
+  static let defaultMCPPort = 7771
 
   static func defaults(userStorageURL: URL) -> AppSettings {
     AppSettings(
@@ -24,6 +28,8 @@ struct AppSettings: Equatable {
       skipCountdownOnAnotherWindow: defaultSkipCountdownOnAnotherWindow,
       showKeyboardHints: defaultShowKeyboardHints,
       fullScreenSuppressionEnabled: defaultFullScreenSuppressionEnabled,
-      screenSharingSuppressionEnabled: defaultScreenSharingSuppressionEnabled)
+      screenSharingSuppressionEnabled: defaultScreenSharingSuppressionEnabled,
+      mcpEnabled: defaultMCPEnabled,
+      mcpPort: defaultMCPPort)
   }
 }
