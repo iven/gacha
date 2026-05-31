@@ -159,6 +159,21 @@ private func handleMemoryCardTool(
   _ params: CallTool.Parameters,
   repository: MemoryCardRepository
 ) async throws -> CallTool.Result {
+  do {
+    return try await handleMemoryCardToolInner(params, repository: repository)
+  } catch let error as MemoryCardFileRepositoryError {
+    return errorResult(error.mcpMessage)
+  } catch let error as MemoryCardMCPError {
+    return errorResult(error.mcpMessage)
+  } catch {
+    return errorResult(error.localizedDescription)
+  }
+}
+
+private func handleMemoryCardToolInner(
+  _ params: CallTool.Parameters,
+  repository: MemoryCardRepository
+) async throws -> CallTool.Result {
   let encoder = JSONEncoder()
   encoder.dateEncodingStrategy = .iso8601
 
@@ -261,4 +276,31 @@ private func errorResult(_ message: String) -> CallTool.Result {
 
 private enum MemoryCardMCPError: Error {
   case notFound(String)
+
+  var mcpMessage: String {
+    switch self {
+    case .notFound(let id): return "Card not found: \(id)"
+    }
+  }
+}
+
+extension MemoryCardFileRepositoryError {
+  var mcpMessage: String {
+    switch self {
+    case .invalidCategoryName(let name):
+      return "Invalid category name: \"\(name)\""
+    case .categoryAlreadyExists(let name):
+      return "Category already exists: \"\(name)\""
+    case .categoryNotFound(let name):
+      return "Category not found: \"\(name)\""
+    case .categoryNotRenamable(let name):
+      return "Category cannot be renamed: \"\(name)\""
+    case .categoryNotDeletable(let name):
+      return "Category cannot be deleted: \"\(name)\""
+    case .invalidCardID(let id):
+      return "Invalid card ID: \"\(id)\""
+    case .missingFrontMatter(let url):
+      return "Missing front matter in card file: \(url.lastPathComponent)"
+    }
+  }
 }
