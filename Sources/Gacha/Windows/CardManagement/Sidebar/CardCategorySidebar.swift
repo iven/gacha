@@ -8,9 +8,9 @@ struct CardCategorySidebar: View {
   var body: some View {
     List(selection: selectionBinding) {
       Section(CardManagementStrings.sidebarTitle) {
-        ForEach(model.categories, id: \.directory) { category in
+        ForEach(model.categories, id: \.name) { category in
           row(category)
-            .tag(category.directory)
+            .tag(category.name)
             .contextMenu {
               if model.isUserCategory(category) {
                 Button {
@@ -44,7 +44,7 @@ struct CardCategorySidebar: View {
 
   private var selectionBinding: Binding<String?> {
     Binding(
-      get: { model.selectedDirectory },
+      get: { model.selectedCategoryName },
       set: { newValue in
         if let newValue {
           model.selectCategory(newValue)

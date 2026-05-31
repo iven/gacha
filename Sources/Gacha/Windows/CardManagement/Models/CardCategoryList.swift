@@ -2,24 +2,24 @@ import Foundation
 
 struct CardCategoryList {
   static func items(directories: [String], cards: [MemoryCard]) -> [CardCategoryItem] {
-    var categoryDirectories = Set(directories)
-    categoryDirectories.insert(AppMetadata.defaultCategoryDirectoryName)
-    cards.forEach { categoryDirectories.insert($0.directory) }
+    var categoryNames = Set(directories)
+    categoryNames.insert(AppMetadata.defaultCategoryDirectoryName)
+    cards.forEach { categoryNames.insert($0.directory) }
 
     let counts = Dictionary(grouping: cards, by: \.directory).mapValues(\.count)
     return
-      categoryDirectories
-      .map { directory in
+      categoryNames
+      .map { name in
         CardCategoryItem(
-          directory: directory,
-          displayName: displayName(for: directory),
-          cardCount: counts[directory, default: 0])
+          name: name,
+          displayName: displayName(for: name),
+          cardCount: counts[name, default: 0])
       }
       .sorted { lhs, rhs in
-        if lhs.directory == AppMetadata.defaultCategoryDirectoryName {
+        if lhs.name == AppMetadata.defaultCategoryDirectoryName {
           return true
         }
-        if rhs.directory == AppMetadata.defaultCategoryDirectoryName {
+        if rhs.name == AppMetadata.defaultCategoryDirectoryName {
           return false
         }
 
@@ -27,11 +27,11 @@ struct CardCategoryList {
       }
   }
 
-  private static func displayName(for directory: String) -> String {
-    if directory == AppMetadata.defaultCategoryDirectoryName {
+  private static func displayName(for name: String) -> String {
+    if name == AppMetadata.defaultCategoryDirectoryName {
       return CardManagementStrings.uncategorized
     }
 
-    return directory
+    return name
   }
 }

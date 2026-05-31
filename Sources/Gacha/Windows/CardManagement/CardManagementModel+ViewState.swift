@@ -14,25 +14,25 @@ extension CardManagementModel {
     return cards.first { $0.id == selectedCardID }
   }
 
-  var existingCategoryDirectories: [String] {
-    categories.map(\.directory)
+  var existingCategoryNames: [String] {
+    categories.map(\.name)
   }
 
   var selectedCategory: CardCategoryItem? {
-    categories.first { $0.directory == selectedDirectory }
+    categories.first { $0.name == selectedCategoryName }
   }
 
   var categoryCards: [MemoryCard] {
-    cards.filter { $0.directory == selectedDirectory }
+    cards.filter { $0.directory == selectedCategoryName }
   }
 
   /// Categories a card can be moved into (everything except its current one).
   func moveTargets(for card: MemoryCard) -> [CardCategoryItem] {
-    categories.filter { $0.directory != card.directory }
+    categories.filter { $0.name != card.directory }
   }
 
   func isUserCategory(_ category: CardCategoryItem) -> Bool {
-    category.directory != AppMetadata.defaultCategoryDirectoryName
+    category.name != AppMetadata.defaultCategoryDirectoryName
   }
 
   // MARK: - Routing
@@ -47,7 +47,7 @@ extension CardManagementModel {
       case .newCategory:
         return "newCategory"
       case .renameCategory(let category):
-        return "rename.\(category.directory)"
+        return "rename.\(category.name)"
       }
     }
   }
@@ -62,7 +62,7 @@ extension CardManagementModel {
       case .card(let card):
         return "card.\(card.id)"
       case .category(let category):
-        return "category.\(category.directory)"
+        return "category.\(category.name)"
       }
     }
   }

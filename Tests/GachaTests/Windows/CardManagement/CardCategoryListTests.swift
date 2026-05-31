@@ -13,7 +13,7 @@ import Testing
     ])
 
   #expect(
-    items.map(\.directory) == [
+    items.map(\.name) == [
       AppMetadata.defaultCategoryDirectoryName,
       "Alpha",
       "Beta",

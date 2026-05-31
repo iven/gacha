@@ -180,7 +180,7 @@ struct CardManagementView: View {
     case .renameCategory(let category):
       CategoryNameSheet(
         mode: .rename(category),
-        validate: { model.validateCategoryName($0, excluding: category.directory) },
+        validate: { model.validateCategoryName($0, excluding: category.name) },
         onSubmit: { model.renameCategory(category, to: $0) })
     }
   }

@@ -29,7 +29,7 @@ struct CategoryNameSheet: View {
     case .create:
       _name = State(initialValue: CardManagementStrings.newCategoryDefaultName)
     case .rename(let category):
-      _name = State(initialValue: category.directory)
+      _name = State(initialValue: category.name)
     }
   }
 

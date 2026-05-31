@@ -17,21 +17,21 @@ func registerMemoryCardTools(on server: Server, repository: MemoryCardRepository
 
 private let memoryCardTools: [Tool] = [
   Tool(
-    name: "list_memory_cards",
-    description: "List memory cards, optionally filtered by directory.",
+    name: "list_cards",
+    description: "List cards, optionally filtered by category.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
-        "directory": .object([
+        "category": .object([
           "type": .string("string"),
-          "description": .string("Directory name to filter by. Omit to list all cards."),
+          "description": .string("Category name to filter by. Omit to list all cards."),
         ])
       ]),
     ])
   ),
   Tool(
-    name: "create_memory_card",
-    description: "Create a new memory card.",
+    name: "create_card",
+    description: "Create a new card.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
@@ -39,10 +39,10 @@ private let memoryCardTools: [Tool] = [
           "type": .string("string"),
           "description": .string("Markdown content of the card."),
         ]),
-        "directory": .object([
+        "category": .object([
           "type": .string("string"),
           "description": .string(
-            "Directory to create the card in. Defaults to \"\(AppMetadata.defaultCategoryDirectoryName)\"."
+            "Category to create the card in. Defaults to \"\(AppMetadata.defaultCategoryDirectoryName)\"."
           ),
         ]),
       ]),
@@ -50,8 +50,8 @@ private let memoryCardTools: [Tool] = [
     ])
   ),
   Tool(
-    name: "update_memory_card",
-    description: "Update an existing memory card's content and/or directory.",
+    name: "update_card",
+    description: "Update an existing card's content and/or category.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
@@ -63,17 +63,17 @@ private let memoryCardTools: [Tool] = [
           "type": .string("string"),
           "description": .string("New markdown content."),
         ]),
-        "directory": .object([
+        "category": .object([
           "type": .string("string"),
-          "description": .string("New directory name (moves the card if changed)."),
+          "description": .string("New category name (moves the card if changed)."),
         ]),
       ]),
-      "required": .array([.string("id"), .string("body"), .string("directory")]),
+      "required": .array([.string("id"), .string("body"), .string("category")]),
     ])
   ),
   Tool(
-    name: "delete_memory_card",
-    description: "Delete a memory card.",
+    name: "delete_card",
+    description: "Delete a card.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
@@ -81,71 +81,71 @@ private let memoryCardTools: [Tool] = [
           "type": .string("string"),
           "description": .string("Card ID."),
         ]),
-        "directory": .object([
+        "category": .object([
           "type": .string("string"),
-          "description": .string("Directory the card currently belongs to."),
+          "description": .string("Category the card currently belongs to."),
         ]),
       ]),
-      "required": .array([.string("id"), .string("directory")]),
+      "required": .array([.string("id"), .string("category")]),
     ])
   ),
   Tool(
-    name: "count_memory_cards",
-    description: "Return the total number of memory cards.",
+    name: "count_cards",
+    description: "Return the total number of cards.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([:]),
     ])
   ),
   Tool(
-    name: "list_directories",
-    description: "List all memory card directories.",
+    name: "list_categories",
+    description: "List all card categories.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([:]),
     ])
   ),
   Tool(
-    name: "create_directory",
-    description: "Create a new memory card directory.",
+    name: "create_category",
+    description: "Create a new card category.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
         "name": .object([
           "type": .string("string"),
-          "description": .string("Directory name."),
+          "description": .string("Category name."),
         ])
       ]),
       "required": .array([.string("name")]),
     ])
   ),
   Tool(
-    name: "rename_directory",
-    description: "Rename an existing memory card directory.",
+    name: "rename_category",
+    description: "Rename an existing card category.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
         "from": .object([
           "type": .string("string"),
-          "description": .string("Current directory name."),
+          "description": .string("Current category name."),
         ]),
         "to": .object([
           "type": .string("string"),
-          "description": .string("New directory name."),
+          "description": .string("New category name."),
         ]),
       ]),
       "required": .array([.string("from"), .string("to")]),
     ])
   ),
   Tool(
-    name: "delete_directory",
-    description: "Delete a memory card directory and all cards inside it.",
+    name: "delete_category",
+    description: "Delete a card category and all cards inside it.",
     inputSchema: .object([
       "type": .string("object"),
       "properties": .object([
         "name": .object([
           "type": .string("string"),
-          "description": .string("Directory name."),
+          "description": .string("Category name."),
         ])
       ]),
       "required": .array([.string("name")]),
@@ -164,26 +164,26 @@ private func handleMemoryCardTool(
 
   switch params.name {
 
-  case "list_memory_cards":
-    let directory = params.arguments?["directory"]?.stringValue
-    let cards = try await MainActor.run { try repository.list(directory: directory) }
+  case "list_cards":
+    let category = params.arguments?["category"]?.stringValue
+    let cards = try await MainActor.run { try repository.list(directory: category) }
     return textResult(try encoder.encode(cards.map(MemoryCardDTO.init)))
 
-  case "create_memory_card":
+  case "create_card":
     guard let body = params.arguments?["body"]?.stringValue else {
       return errorResult("Missing required argument: body")
     }
-    let directory =
-      params.arguments?["directory"]?.stringValue ?? AppMetadata.defaultCategoryDirectoryName
-    let card = try await MainActor.run { try repository.create(body: body, directory: directory) }
+    let category =
+      params.arguments?["category"]?.stringValue ?? AppMetadata.defaultCategoryDirectoryName
+    let card = try await MainActor.run { try repository.create(body: body, directory: category) }
     return textResult(try encoder.encode(MemoryCardDTO(card)))
 
-  case "update_memory_card":
+  case "update_card":
     guard let id = params.arguments?["id"]?.stringValue,
       let body = params.arguments?["body"]?.stringValue,
-      let directory = params.arguments?["directory"]?.stringValue
+      let category = params.arguments?["category"]?.stringValue
     else {
-      return errorResult("Missing required arguments: id, body, directory")
+      return errorResult("Missing required arguments: id, body, category")
     }
     let existing = try await MainActor.run {
       guard let card = try repository.list().first(where: { $0.id == id }) else {
@@ -193,29 +193,29 @@ private func handleMemoryCardTool(
     }
     var updated = existing
     updated.body = body
-    updated.directory = directory
+    updated.directory = category
     try await MainActor.run { try repository.write(updated) }
     return textResult(try encoder.encode(MemoryCardDTO(updated)))
 
-  case "delete_memory_card":
+  case "delete_card":
     guard let id = params.arguments?["id"]?.stringValue,
-      let directory = params.arguments?["directory"]?.stringValue
+      let category = params.arguments?["category"]?.stringValue
     else {
-      return errorResult("Missing required arguments: id, directory")
+      return errorResult("Missing required arguments: id, category")
     }
-    try await MainActor.run { try repository.delete(id: id, directory: directory) }
+    try await MainActor.run { try repository.delete(id: id, directory: category) }
     return .init(content: [.text(text: "Deleted.", annotations: nil, _meta: nil)], isError: false)
 
-  case "count_memory_cards":
+  case "count_cards":
     let count = try await MainActor.run { try repository.count() }
     return .init(
       content: [.text(text: "\(count)", annotations: nil, _meta: nil)], isError: false)
 
-  case "list_directories":
-    let dirs = try await MainActor.run { try repository.listDirectories() }
-    return textResult(try JSONEncoder().encode(dirs))
+  case "list_categories":
+    let categories = try await MainActor.run { try repository.listDirectories() }
+    return textResult(try JSONEncoder().encode(categories))
 
-  case "create_directory":
+  case "create_category":
     guard let name = params.arguments?["name"]?.stringValue else {
       return errorResult("Missing required argument: name")
     }
@@ -223,7 +223,7 @@ private func handleMemoryCardTool(
     return .init(
       content: [.text(text: "Created.", annotations: nil, _meta: nil)], isError: false)
 
-  case "rename_directory":
+  case "rename_category":
     guard let from = params.arguments?["from"]?.stringValue,
       let to = params.arguments?["to"]?.stringValue
     else {
@@ -233,7 +233,7 @@ private func handleMemoryCardTool(
     return .init(
       content: [.text(text: "Renamed.", annotations: nil, _meta: nil)], isError: false)
 
-  case "delete_directory":
+  case "delete_category":
     guard let name = params.arguments?["name"]?.stringValue else {
       return errorResult("Missing required argument: name")
     }

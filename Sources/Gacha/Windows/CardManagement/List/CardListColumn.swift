@@ -58,9 +58,9 @@ struct CardListColumn: View {
   private func contextMenu(for card: MemoryCard) -> some View {
     let targets = model.moveTargets(for: card)
     Menu {
-      ForEach(targets, id: \.directory) { target in
+      ForEach(targets, id: \.name) { target in
         Button(target.displayName) {
-          model.moveCard(card, toDirectory: target.directory)
+          model.moveCard(card, toCategory: target.name)
         }
       }
     } label: {

@@ -1,7 +1,7 @@
 import Foundation
 
 struct CardCategoryItem {
-  var directory: String
+  var name: String
   var displayName: String
   var cardCount: Int
 }

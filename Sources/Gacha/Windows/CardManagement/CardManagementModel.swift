@@ -9,7 +9,7 @@ final class CardManagementModel: ObservableObject {
 
   @Published private(set) var cards: [MemoryCard] = []
   @Published private(set) var categories: [CardCategoryItem] = []
-  @Published var selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+  @Published var selectedCategoryName = AppMetadata.defaultCategoryDirectoryName
   @Published var selectedCardID: String?
   @Published private(set) var editorText = ""
   @Published var activeSheet: ActiveSheet?
@@ -40,13 +40,13 @@ final class CardManagementModel: ObservableObject {
 // MARK: - Selection
 
 extension CardManagementModel {
-  func selectCategory(_ directory: String) {
-    guard directory != selectedDirectory else {
+  func selectCategory(_ name: String) {
+    guard name != selectedCategoryName else {
       return
     }
 
     flushDraft()
-    selectedDirectory = directory
+    selectedCategoryName = name
     selectedCardID = nil
     showSelectedCategory()
   }
@@ -65,9 +65,9 @@ extension CardManagementModel {
 
   /// Switches to a card in a specific category and reloads. Internal helper for
   /// `selectCard(byID:)`.
-  fileprivate func selectCard(id: String, in directory: String) {
+  fileprivate func selectCard(id: String, inCategory categoryName: String) {
     flushDraft()
-    selectedDirectory = directory
+    selectedCategoryName = categoryName
     selectedCardID = id
     reloadData()
   }
@@ -79,7 +79,7 @@ extension CardManagementModel {
       return
     }
 
-    selectCard(id: card.id, in: card.directory)
+    selectCard(id: card.id, inCategory: card.directory)
   }
 }
 
@@ -111,7 +111,7 @@ extension CardManagementModel {
     do {
       _ = try memoryCardRepository.create(
         body: "",
-        directory: selectedDirectory,
+        directory: selectedCategoryName,
         focusEditor: true)
     } catch {
       AppLogger.app.error("Failed to create memory card: \(error)")
@@ -127,7 +127,7 @@ extension CardManagementModel {
     }
   }
 
-  func moveCard(_ card: MemoryCard, toDirectory directory: String) {
+  func moveCard(_ card: MemoryCard, toCategory categoryName: String) {
     if !flushDraft() {
       return
     }
@@ -136,11 +136,11 @@ extension CardManagementModel {
       return
     }
 
-    fresh.directory = directory
+    fresh.directory = categoryName
     fresh.updatedAt = Date()
     do {
       try memoryCardRepository.write(fresh)
-      selectedDirectory = directory
+      selectedCategoryName = categoryName
       selectedCardID = fresh.id
     } catch {
       AppLogger.app.error("Failed to move memory card: \(error)")
@@ -161,7 +161,7 @@ extension CardManagementModel {
   }
 
   func renameCategory(_ category: CardCategoryItem, to newName: String) {
-    let oldName = category.directory
+    let oldName = category.name
     guard newName != oldName else {
       return
     }
@@ -177,7 +177,7 @@ extension CardManagementModel {
   func deleteCategory(_ category: CardCategoryItem) {
     draftSession.cancelScheduledFlush()
     do {
-      try memoryCardRepository.deleteDirectory(name: category.directory)
+      try memoryCardRepository.deleteDirectory(name: category.name)
     } catch {
       AppLogger.app.error("Failed to delete category: \(error)")
     }
@@ -186,7 +186,7 @@ extension CardManagementModel {
   /// Returns a localized error message when the name is invalid, or `nil` when
   /// it is acceptable.
   func validateCategoryName(_ name: String, excluding excluded: String? = nil) -> String? {
-    var existing = Set(existingCategoryDirectories)
+    var existing = Set(existingCategoryNames)
     if let excluded {
       existing.remove(excluded)
     }
@@ -253,9 +253,9 @@ extension CardManagementModel {
 // MARK: - Data loading
 
 extension CardManagementModel {
-  fileprivate func selectCategoryAndReload(named directory: String) {
+  fileprivate func selectCategoryAndReload(named name: String) {
     flushDraft()
-    selectedDirectory = directory
+    selectedCategoryName = name
     selectedCardID = nil
     reloadData()
   }
@@ -264,8 +264,8 @@ extension CardManagementModel {
     do {
       cards = try memoryCardRepository.list()
       categories = try makeCategoryItems(cards: cards)
-      if !categories.contains(where: { $0.directory == selectedDirectory }) {
-        selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+      if !categories.contains(where: { $0.name == selectedCategoryName }) {
+        selectedCategoryName = AppMetadata.defaultCategoryDirectoryName
         selectedCardID = nil
       }
       showSelectedCategory()
@@ -273,7 +273,7 @@ extension CardManagementModel {
       AppLogger.app.error("Failed to load card management data: \(error)")
       categories = [
         CardCategoryItem(
-          directory: AppMetadata.defaultCategoryDirectoryName,
+          name: AppMetadata.defaultCategoryDirectoryName,
           displayName: CardManagementStrings.uncategorized,
           cardCount: 0)
       ]
@@ -289,15 +289,15 @@ extension CardManagementModel {
     let shouldFocusNewCard: Bool
     switch event {
     case .didCreate(let card, focusEditor: true):
-      selectedDirectory = card.directory
+      selectedCategoryName = card.directory
       selectedCardID = card.id
       shouldFocusNewCard = true
     case .didDelete(let id, _) where selectedCardID == id:
       selectedCardID = nil
       draftSession.discard()
       shouldFocusNewCard = false
-    case .didDeleteDirectory(let name) where selectedDirectory == name:
-      selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+    case .didDeleteDirectory(let name) where selectedCategoryName == name:
+      selectedCategoryName = AppMetadata.defaultCategoryDirectoryName
       selectedCardID = nil
       draftSession.discard()
       shouldFocusNewCard = false
@@ -313,8 +313,8 @@ extension CardManagementModel {
       return
     }
 
-    if !categories.contains(where: { $0.directory == selectedDirectory }) {
-      selectedDirectory = AppMetadata.defaultCategoryDirectoryName
+    if !categories.contains(where: { $0.name == selectedCategoryName }) {
+      selectedCategoryName = AppMetadata.defaultCategoryDirectoryName
       selectedCardID = nil
     }
 
