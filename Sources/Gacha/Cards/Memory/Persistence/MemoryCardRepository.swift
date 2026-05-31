@@ -42,6 +42,7 @@ final class MemoryCardRepository: @unchecked Sendable {
   func createDirectory(name: String) throws {
     try fileRepository.createDirectory(name: name)
     try indexStore.createDirectory(name: name)
+    eventSubject.send(.didCreateDirectory(name: name))
   }
 
   func renameDirectory(from oldName: String, to newName: String) throws {

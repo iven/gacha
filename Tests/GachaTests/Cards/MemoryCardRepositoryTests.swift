@@ -195,6 +195,7 @@ import Testing
   #expect(
     observed
       == [
+        .didCreateDirectory(name: "Product"),
         .didCreate(created, focusEditor: false),
         .didUpdate(updated),
         .didMoveDirectory(from: "Product", to: "Renamed"),

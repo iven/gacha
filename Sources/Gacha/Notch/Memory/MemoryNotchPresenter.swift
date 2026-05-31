@@ -146,6 +146,8 @@ final class MemoryNotchPresenter: ObservableObject {
       if case .scheduler = mode {
         refreshScheduledCard()
       }
+    case .didCreateDirectory:
+      break
     }
   }
 
