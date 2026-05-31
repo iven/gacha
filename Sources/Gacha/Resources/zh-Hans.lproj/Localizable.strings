@@ -42,6 +42,7 @@
 "settings.tab.general" = "通用";
 "settings.tab.integrations" = "集成";
 "settings.tab.advanced" = "高级";
+"settings.tab.about" = "关于";
 "settings.section.startup" = "启动";
 "settings.section.storage" = "存储";
 "settings.section.general" = "通用";
@@ -149,3 +150,9 @@
 "settings.cli.install.error.cancelled" = "安装被取消或失败。";
 "settings.cli.install.requiresMCP" = "CLI 工具依赖 MCP 服务器，请先在上方启用 MCP 服务器。";
 "settings.cli.install.installed" = "CLI 工具已被安装到 /usr/local/bin/gacha。";
+"settings.advanced.quitApp" = "退出 Gacha";
+"settings.about.version" = "版本 %@";
+"settings.about.slogan" = "偶得一笺，正合此时";
+"settings.about.copyright" = "Copyright © 2026 Iven Hsu";
+"settings.about.copyright.line1" = "Copyright ©";
+"settings.about.copyright.line2" = "2026 Iven Hsu";

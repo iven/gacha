@@ -5,6 +5,7 @@ enum SettingsStrings {
   static let tabGeneral = AppStrings.localized("settings.tab.general")
   static let tabIntegrations = AppStrings.localized("settings.tab.integrations")
   static let tabAdvanced = AppStrings.localized("settings.tab.advanced")
+  static let tabAbout = AppStrings.localized("settings.tab.about")
   static let sectionStartup = AppStrings.localized("settings.section.startup")
   static let sectionStorage = AppStrings.localized("settings.section.storage")
   static let sectionGeneral = AppStrings.localized("settings.section.general")
@@ -49,6 +50,14 @@ enum SettingsStrings {
   static let cliInstallSuccess = AppStrings.localized("settings.cli.install.success")
   static let cliInstallRequiresMCP = AppStrings.localized("settings.cli.install.requiresMCP")
   static let cliInstallInstalled = AppStrings.localized("settings.cli.install.installed")
+  static let advancedQuitApp = AppStrings.localized("settings.advanced.quitApp")
+  static func aboutVersion(_ version: String) -> String {
+    String(format: AppStrings.localized("settings.about.version"), version)
+  }
+  static let aboutSlogan = AppStrings.localized("settings.about.slogan")
+  static let aboutCopyright = AppStrings.localized("settings.about.copyright")
+  static let aboutCopyrightLine1 = AppStrings.localized("settings.about.copyright.line1")
+  static let aboutCopyrightLine2 = AppStrings.localized("settings.about.copyright.line2")
   static func cliInstallFailed(reason: String) -> String {
     String(format: AppStrings.localized("settings.cli.install.failed"), reason)
   }

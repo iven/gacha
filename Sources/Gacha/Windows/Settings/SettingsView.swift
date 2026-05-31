@@ -31,6 +31,11 @@ struct SettingsView: View {
       .tabItem {
         Label(SettingsStrings.tabAdvanced, systemImage: "gearshape.2")
       }
+
+      AboutSettingsTab()
+        .tabItem {
+          Label(SettingsStrings.tabAbout, systemImage: "info.circle")
+        }
     }
     .scrollDisabled(true)
     .fixedSize(horizontal: false, vertical: true)

@@ -5,13 +5,8 @@ struct GachaApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
   var body: some Scene {
-    MenuBarExtra {
-      MenuBarRootView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
-    } label: {
-      Text(AppMetadata.name)
-        .background(
-          WindowOpenActionRegistrar(
-            registry: appDelegate.windowOpenActionRegistry))
+    Window("", id: GachaApp.windowBrokerID) {
+      WindowBrokerView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
     }
 
     Window(CardManagementStrings.windowTitle, id: GachaApp.cardWindowID) {
@@ -25,17 +20,15 @@ struct GachaApp: App {
   }
 
   static let cardWindowID = "cards"
+  static let windowBrokerID = "window-broker"
 }
 
-private struct MenuBarRootView: View {
+private struct WindowBrokerView: View {
   let windowOpenActionRegistry: WindowOpenActionRegistry
-  @ObservedObject private var viewModel = AppDelegate.menuBarViewModel
 
   var body: some View {
-    MenuBarMenu(
-      viewModel: viewModel,
-      onOpenCards: { windowOpenActionRegistry.open(.cards) },
-      onOpenSettings: { windowOpenActionRegistry.open(.settings) })
+    WindowOpenActionRegistrar(registry: windowOpenActionRegistry)
+      .background(WindowAccessor { $0?.orderOut(nil) })
   }
 }
 

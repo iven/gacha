@@ -37,14 +37,6 @@ struct AppBootstrapper {
       notchController?.setPaused(false)
     }
 
-    let menuBarViewModel = AppDelegate.menuBarViewModel
-    menuBarViewModel.onTogglePause = { [weak notchController] paused in
-      notchController?.setPaused(paused)
-    }
-    notchController.onPausedChange = { [weak menuBarViewModel] paused in
-      menuBarViewModel?.isPaused = paused
-    }
-
     let suppressionController = SuppressionController(sources: [
       SuppressionController.Source(
         probe: FullScreenSpaceDetector(),

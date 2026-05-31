@@ -149,3 +149,10 @@
 "settings.cli.install.error.cancelled" = "Installation was cancelled or failed.";
 "settings.cli.install.requiresMCP" = "The CLI tool requires the MCP server. Enable it above first.";
 "settings.cli.install.installed" = "The CLI tool is installed at /usr/local/bin/gacha.";
+"settings.advanced.quitApp" = "Quit Gacha";
+"settings.about.version" = "Version %@";
+"settings.about.slogan" = "A serendipitous note, right on time.";
+"settings.about.copyright" = "Copyright © 2026 Iven Hsu";
+"settings.about.copyright.line1" = "Copyright ©";
+"settings.about.copyright.line2" = "2026 Iven Hsu";
+"settings.tab.about" = "About";

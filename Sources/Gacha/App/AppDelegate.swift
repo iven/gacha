@@ -3,7 +3,6 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
   static private(set) var shared: AppDelegate?
-  static let menuBarViewModel = MenuBarViewModel()
   let windowOpenActionRegistry = WindowOpenActionRegistry()
   private(set) var environment: AppEnvironment?
 
