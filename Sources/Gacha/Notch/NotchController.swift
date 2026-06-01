@@ -207,7 +207,6 @@ extension Duration {
 
 private struct NotchCompactTrailingView: View {
   @ObservedObject var viewModel: NotchControllerViewModel
-  @State private var isHovering = false
 
   var body: some View {
     if viewModel.isSuppressed {
@@ -233,25 +232,13 @@ private struct NotchCompactTrailingView: View {
   }
 
   private var pauseButton: some View {
-    Button {
-      viewModel.onResumeRequested?()
-    } label: {
-      Image(systemName: isHovering ? "play.fill" : "pause.fill")
+    HoverButton(action: { viewModel.onResumeRequested?() }) { hovering in
+      Image(systemName: hovering ? "play.fill" : "pause.fill")
         .font(.system(size: 11, weight: .bold))
         .foregroundStyle(.white.opacity(0.85))
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(isHovering ? Color.blue : Color.clear, in: Capsule())
-        .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .onHover { hovering in
-      isHovering = hovering
-      if hovering {
-        NSCursor.pointingHand.push()
-      } else {
-        NSCursor.pop()
-      }
+        .background(hovering ? Color.accentColor : Color.clear, in: Capsule())
     }
   }
 }

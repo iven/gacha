@@ -135,14 +135,16 @@ struct MemoryCardExpandedView: View {
   private func actionButton(
     _ label: String, tint: Color, hint: String?, action: @escaping () -> Void
   ) -> some View {
-    Button(action: action) {
+    HoverButton(action: action) { hovering in
       labelWithHint(label, hint: hint)
-        .foregroundStyle(.white.opacity(0.75))
+        .foregroundStyle(.white.opacity(hovering ? 1.0 : 0.75))
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(tint.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
+        .background(
+          tint.opacity(hovering ? 0.55 : 0.35),
+          in: RoundedRectangle(cornerRadius: 6)
+        )
     }
-    .buttonStyle(.plain)
   }
 
   private func labelWithHint(_ label: String, hint: String?) -> Text {
@@ -155,20 +157,18 @@ struct MemoryCardExpandedView: View {
   }
 
   private func toolButton(symbol: String, action: @escaping () -> Void) -> some View {
-    Button(action: action) {
-      toolButtonLabel(symbol: symbol)
+    HoverButton(action: action) { hovering in
+      Image(systemName: symbol)
+        .resizable()
+        .scaledToFit()
+        .frame(width: 14, height: 14)
+        .foregroundStyle(.white.opacity(hovering ? 1.0 : 0.85))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+          hovering ? Color.accentColor : .white.opacity(0.2),
+          in: Capsule()
+        )
     }
-    .buttonStyle(.plain)
-  }
-
-  private func toolButtonLabel(symbol: String) -> some View {
-    Image(systemName: symbol)
-      .resizable()
-      .scaledToFit()
-      .frame(width: 14, height: 14)
-      .foregroundStyle(.white.opacity(0.85))
-      .padding(.horizontal, 8)
-      .padding(.vertical, 4)
-      .background(.white.opacity(0.2), in: Capsule())
   }
 }
