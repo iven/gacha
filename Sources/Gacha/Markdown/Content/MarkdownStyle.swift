@@ -46,9 +46,19 @@ struct MarkdownStyle {
     baseTextColor.withAlphaComponent(Self.strongTextAlpha)
   }
 
+  private var secondaryAlphaFactor: CGFloat {
+    appearance == .dark ? 0.62 : 0.56
+  }
+
   var secondaryTextColor: NSColor {
-    let alpha: CGFloat = appearance == .dark ? 0.62 : 0.56
-    return baseTextColor.withAlphaComponent(alpha * Self.bodyTextAlpha)
+    baseTextColor.withAlphaComponent(secondaryAlphaFactor * Self.bodyTextAlpha)
+  }
+
+  /// Strong text color for contexts that already use `secondaryTextColor` for
+  /// body (e.g. block quotes). Mirrors the body→strong alpha lift so bold runs
+  /// stand out by the same proportion within the dimmed context.
+  var secondaryStrongTextColor: NSColor {
+    baseTextColor.withAlphaComponent(secondaryAlphaFactor * Self.strongTextAlpha)
   }
 
   // MARK: Inline styles

@@ -93,7 +93,17 @@ struct AttributedStringBuilder {
     }
 
     let range = NSRange(location: 0, length: inner.length)
-    inner.addAttribute(.foregroundColor, value: style.secondaryTextColor, range: range)
+    // Dim inline runs to the quote's secondary color. Strong runs keep the
+    // body→strong alpha lift relative to that dimmed body so bold text stands
+    // out within the quote without breaking out of its visual layer.
+    inner.enumerateAttribute(.foregroundColor, in: range, options: []) { value, subRange, _ in
+      if let color = value as? NSColor, color.isEqual(style.strongTextColor) {
+        inner.addAttribute(
+          .foregroundColor, value: style.secondaryStrongTextColor, range: subRange)
+        return
+      }
+      inner.addAttribute(.foregroundColor, value: style.secondaryTextColor, range: subRange)
+    }
     inner.addAttribute(.markdownBlockQuote, value: style.blockQuoteDecoration(), range: range)
     applyHeadIndent(style.blockQuoteParagraphStyle(), to: inner)
     return RenderedBlock(attributedString: inner, margin: style.blockQuoteMargin())
