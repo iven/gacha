@@ -1,3 +1,4 @@
+import KeyboardShortcuts
 import SwiftUI
 
 struct GeneralSettingsTab: View {
@@ -100,6 +101,11 @@ struct GeneralSettingsTab: View {
               .frame(width: 36, alignment: .trailing)
           }
         }
+      }
+
+      Section(SettingsStrings.sectionShortcuts) {
+        KeyboardShortcuts.Recorder(
+          SettingsStrings.shortcutToggleNotch, name: .toggleNotch)
       }
     }
     .formStyle(.grouped)

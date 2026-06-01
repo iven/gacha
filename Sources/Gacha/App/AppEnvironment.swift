@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Foundation
+import KeyboardShortcuts
 
 @MainActor
 final class AppEnvironment: ObservableObject {
@@ -64,6 +65,11 @@ final class AppEnvironment: ObservableObject {
       },
       compactLeading: { LogoCompactView() })
     memoryNotchPresenter.start()
+
+    let controller = notchController
+    KeyboardShortcuts.onKeyDown(for: .toggleNotch) { [weak controller] in
+      controller?.toggle()
+    }
 
     let server = cardMCPServer
     let store = settingsStore

@@ -47,6 +47,8 @@
 "settings.section.general" = "General";
 "settings.section.notch" = "Notch";
 "settings.section.memoryCards" = "Memory Cards";
+"settings.section.shortcuts" = "Shortcuts";
+"settings.shortcut.toggleNotch" = "Toggle notch";
 "settings.storageLocation" = "Location";
 "settings.storageLocation.move" = "Move…";
 "settings.storageLocation.adopt" = "Use Existing…";

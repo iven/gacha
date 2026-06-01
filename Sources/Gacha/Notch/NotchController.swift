@@ -12,6 +12,7 @@ final class NotchController {
   private(set) var isPaused = false
   private(set) var isSuppressed = false
   private(set) var isHovering = false
+  private(set) var isExpanded = false
   let autoCollapseSchedule = NotchAutoCollapseSchedule()
 
   private let viewModel = NotchControllerViewModel()
@@ -68,10 +69,10 @@ final class NotchController {
     viewModel.isPaused = paused
     if paused {
       cancelAutoCollapse()
-      Task { await notch?.compact() }
-    } else if isHovering, let notch {
+      performCompact()
+    } else if isHovering, notch != nil {
       cancelAutoCollapse()
-      Task { await notch.expand() }
+      performExpand()
     }
     onPausedChange?(paused)
   }
@@ -87,10 +88,10 @@ final class NotchController {
     viewModel.isSuppressed = suppressed
     if suppressed {
       cancelAutoCollapse()
-      Task { await notch?.compact() }
-    } else if isHovering, !isPaused, let notch {
+      performCompact()
+    } else if isHovering, !isPaused, notch != nil {
       cancelAutoCollapse()
-      Task { await notch.expand() }
+      performExpand()
     }
   }
 
@@ -103,16 +104,32 @@ final class NotchController {
   }
 
   func expand() {
-    guard !isPaused, !isSuppressed, let notch else {
+    guard !isPaused, !isSuppressed, notch != nil else {
       return
     }
     cancelAutoCollapse()
-    Task { await notch.expand() }
+    performExpand()
   }
 
   func compact() {
     cancelAutoCollapse()
-    Task { await notch?.compact() }
+    performCompact()
+  }
+
+  /// Global-shortcut entry point: collapses if currently expanded, otherwise
+  /// expands and starts the auto-collapse countdown (so a pointer-less expand
+  /// behaves the same as one triggered by a hover that has already left).
+  /// No-ops while paused or suppressed, matching hover semantics.
+  func toggle() {
+    guard !isPaused, !isSuppressed else {
+      return
+    }
+    if isExpanded {
+      compact()
+    } else {
+      expand()
+      scheduleAutoCollapse()
+    }
   }
 
   private func installGlobalClickMonitor() {
@@ -131,11 +148,11 @@ final class NotchController {
     }
 
     cancelAutoCollapse()
-    Task { await notch?.compact() }
+    performCompact()
   }
 
   private func handleHoverChange(_ hovering: Bool) {
-    guard let notch else {
+    guard notch != nil else {
       return
     }
 
@@ -149,12 +166,24 @@ final class NotchController {
 
     if hovering {
       cancelAutoCollapse()
-      Task {
-        await notch.expand()
-        notch.windowController?.window?.makeKey()
-      }
+      performExpand()
     } else {
       scheduleAutoCollapse()
+    }
+  }
+
+  private func performExpand() {
+    isExpanded = true
+    Task { [notch] in
+      await notch?.expand()
+      notch?.windowController?.window?.makeKey()
+    }
+  }
+
+  private func performCompact() {
+    isExpanded = false
+    Task { [notch] in
+      await notch?.compact()
     }
   }
 
@@ -180,7 +209,7 @@ final class NotchController {
       }
 
       self.autoCollapseSchedule.clear()
-      await self.notch?.compact()
+      self.performCompact()
     }
   }
 

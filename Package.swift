@@ -30,6 +30,7 @@ let package = Package(
     .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.12.1"),
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
     .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
+    .package(url: "https://github.com/sindresorhus/KeyboardShortcuts.git", from: "2.4.0"),
   ],
   targets: [
     .executableTarget(
@@ -38,6 +39,7 @@ let package = Package(
         .product(name: "DynamicNotchKit", package: "DynamicNotchKit"),
         .product(name: "FSRS", package: "swift-fsrs"),
         .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts"),
         .product(name: "Markdown", package: "swift-markdown"),
         .product(name: "MCP", package: "swift-sdk"),
         .product(name: "NIOCore", package: "swift-nio"),

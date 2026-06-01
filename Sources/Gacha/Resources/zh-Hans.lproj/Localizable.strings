@@ -48,6 +48,8 @@
 "settings.section.general" = "通用";
 "settings.section.notch" = "刘海";
 "settings.section.memoryCards" = "记忆卡片";
+"settings.section.shortcuts" = "快捷键";
+"settings.shortcut.toggleNotch" = "切换刘海";
 "settings.storageLocation" = "位置";
 "settings.storageLocation.move" = "移动…";
 "settings.storageLocation.adopt" = "使用现有…";

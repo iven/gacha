@@ -11,6 +11,8 @@ enum SettingsStrings {
   static let sectionGeneral = AppStrings.localized("settings.section.general")
   static let sectionNotch = AppStrings.localized("settings.section.notch")
   static let sectionMemoryCards = AppStrings.localized("settings.section.memoryCards")
+  static let sectionShortcuts = AppStrings.localized("settings.section.shortcuts")
+  static let shortcutToggleNotch = AppStrings.localized("settings.shortcut.toggleNotch")
   static let storageLocation = AppStrings.localized("settings.storageLocation")
   static let storageLocationMove = AppStrings.localized("settings.storageLocation.move")
   static let storageLocationAdopt = AppStrings.localized("settings.storageLocation.adopt")
