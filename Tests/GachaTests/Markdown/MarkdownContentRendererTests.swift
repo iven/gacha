@@ -34,7 +34,7 @@ import Testing
   let decoration = try #require(
     rendered.attribute(.markdownBlockQuote, at: quoteRange.location, effectiveRange: nil)
       as? BlockQuoteDecoration)
-  #expect(decoration.verticalPadding == baseFontSize * 0.15)
+  #expect(decoration.verticalPadding == baseFontSize * 0.55)
   #expect(decoration.barWidth == 3)
 }
 

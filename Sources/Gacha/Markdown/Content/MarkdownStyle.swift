@@ -17,15 +17,15 @@ struct MarkdownStyle {
 
   private static let blockSpacing: CGFloat = 0.35
   private static let blockQuoteOuterSpacing: CGFloat = 0.85
-  private static let blockQuoteVerticalPadding: CGFloat = 0.15
+  private static let blockQuoteVerticalPadding: CGFloat = 0.55
   private static let blockQuoteHeadIndent: CGFloat = 1.0
   private static let blockQuoteBarWidth: CGFloat = 3
-  private static let lineSpacing: CGFloat = 2
+  private static let lineSpacing: CGFloat = 4
 
   // Ruby annotations are drawn above the base text and TextKit reserves no room
   // for them, so ruby-bearing paragraphs need extra line height to avoid the
   // annotation clipping at the top or overlapping the line above.
-  private static let rubyLineHeightMultiple: CGFloat = 1.6
+  private static let rubyLineHeightMultiple: CGFloat = 1.5
 
   // MARK: Colors
 
