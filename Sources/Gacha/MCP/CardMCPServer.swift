@@ -49,16 +49,12 @@ private actor ServerState {
 
   func start(port: Int, repository: MemoryCardRepository) async throws {
     let group = MultiThreadedEventLoopGroup.singleton
-    // childChannelInitializer runs on the NIO EventLoop thread (not in a Swift
-    // concurrency context), so we must use nonisolated(unsafe) to capture the
-    // actor without a proper async hop.
-    nonisolated(unsafe) let weakSelf = self
     let bootstrap = ServerBootstrap(group: group)
       .serverChannelOption(.backlog, value: 256)
       .serverChannelOption(.socketOption(.so_reuseaddr), value: 1)
-      .childChannelInitializer { channel in
+      .childChannelInitializer { [self] channel in
         channel.pipeline.configureHTTPServerPipeline().flatMap {
-          let handler = HTTPHandler(state: weakSelf, repository: repository)
+          let handler = HTTPHandler(state: self, repository: repository)
           return channel.pipeline.addHandler(handler)
         }
       }
