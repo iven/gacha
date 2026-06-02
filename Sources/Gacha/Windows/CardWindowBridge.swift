@@ -16,12 +16,23 @@ final class CardWindowBridge: ObservableObject {
   /// so the notch can skip its auto-collapse countdown while one is open.
   @Published private(set) var hasVisibleManagedWindow = false
 
-  private var cardWindowVisible = false {
+  /// Whether the card management window is currently visible, used by the
+  /// notch toolbar to render the preview toggle and reflect the edit button's
+  /// "active" state.
+  @Published private(set) var cardWindowVisible = false {
     didSet { refreshManagedWindowState() }
   }
-  private var settingsVisible = false {
+
+  /// Whether the settings window is currently visible, used by the notch
+  /// toolbar to reflect the settings button's "active" state.
+  @Published private(set) var settingsVisible = false {
     didSet { refreshManagedWindowState() }
   }
+
+  /// Edge-triggered "user requested toggling preview from the notch toolbar".
+  /// CardManagementModel subscribes to this and calls togglePreview() so the
+  /// model stays the single owner of preview state.
+  let togglePreviewRequest = PassthroughSubject<Void, Never>()
 
   private let windowOpenActionRegistry: WindowOpenActionRegistry
 

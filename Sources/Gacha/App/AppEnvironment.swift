@@ -19,7 +19,8 @@ final class AppEnvironment: ObservableObject {
 
   /// Single card-management model shared by the single-instance card window.
   private(set) lazy var cardManagementModel = CardManagementModel(
-    memoryCardRepository: memoryCardRepository)
+    memoryCardRepository: memoryCardRepository,
+    cardWindowBridge: cardWindowBridge)
 
   init(
     directories: AppDirectories,
@@ -66,9 +67,9 @@ final class AppEnvironment: ObservableObject {
       compactLeading: { LogoCompactView() })
     memoryNotchPresenter.start()
 
-    let controller = notchController
-    KeyboardShortcuts.onKeyDown(for: .toggleNotch) { [weak controller] in
-      controller?.toggle()
+    let presenterRef = memoryNotchPresenter
+    KeyboardShortcuts.onKeyDown(for: .toggleNotch) { [weak presenterRef] in
+      presenterRef?.handleToggleShortcut()
     }
 
     let server = cardMCPServer

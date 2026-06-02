@@ -9,4 +9,5 @@ struct MemoryCardActions {
   let onOpenSettings: () -> Void
   let onPause: () -> Void
   let onDismiss: () -> Void
+  let onTogglePreview: () -> Void
 }

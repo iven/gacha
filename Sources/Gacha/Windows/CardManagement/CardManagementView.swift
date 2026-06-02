@@ -37,11 +37,6 @@ struct CardManagementView: View {
       message: deletionAlertMessage
     )
     .onAppear {
-      // Route the model's preview pin into the shared bridge so the notch
-      // presenter (observing the bridge) reflects it.
-      model.onPreviewCardChange = { [weak bridge] card in
-        bridge?.previewCard = card
-      }
       bridge.setCardWindowVisible(true)
       consumePendingEdit()
     }

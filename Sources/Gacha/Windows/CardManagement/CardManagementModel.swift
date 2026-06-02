@@ -3,10 +3,6 @@ import Foundation
 
 @MainActor
 final class CardManagementModel: ObservableObject {
-  // Pins the selected card to the notch for preview. The card window wires this
-  // to `CardWindowBridge.previewCard`, which the notch presenter observes.
-  var onPreviewCardChange: ((MemoryCard?) -> Void)?
-
   @Published private(set) var cards: [MemoryCard] = []
   @Published private(set) var categories: [CardCategoryItem] = []
   @Published var selectedCategoryName = AppMetadata.defaultCategoryDirectoryName
@@ -18,11 +14,14 @@ final class CardManagementModel: ObservableObject {
   @Published private(set) var editorFocusRevision: Int = 0
 
   private let memoryCardRepository: MemoryCardRepository
+  private let cardWindowBridge: CardWindowBridge
   private let draftSession: CardDraftSession
   private var repositoryEventObservation: AnyCancellable?
+  private var togglePreviewObservation: AnyCancellable?
 
-  init(memoryCardRepository: MemoryCardRepository) {
+  init(memoryCardRepository: MemoryCardRepository, cardWindowBridge: CardWindowBridge) {
     self.memoryCardRepository = memoryCardRepository
+    self.cardWindowBridge = cardWindowBridge
     draftSession = CardDraftSession(memoryCardRepository: memoryCardRepository)
     draftSession.onDebouncedFlushNeeded = { [weak self] in
       self?.flushDraft()
@@ -34,6 +33,17 @@ final class CardManagementModel: ObservableObject {
       .sink { [weak self] event in
         self?.handleRepositoryEvent(event)
       }
+    // Bridge is the single source of truth for preview state. Keeping this
+    // mirror in the model means the toolbar toggle stays in sync no matter
+    // who clears the preview (this window, the notch eye.fill button, Esc, or
+    // the global toggle shortcut).
+    cardWindowBridge.$previewCard
+      .map { $0 != nil }
+      .removeDuplicates()
+      .assign(to: &$isPreviewing)
+    togglePreviewObservation =
+      cardWindowBridge.togglePreviewRequest
+      .sink { [weak self] in self?.togglePreview() }
   }
 }
 
@@ -214,39 +224,23 @@ extension CardManagementModel {
 extension CardManagementModel {
   func togglePreview() {
     if isPreviewing {
-      exitPreview()
-      return
+      cardWindowBridge.previewCard = nil
+    } else if let card = selectedCard {
+      cardWindowBridge.previewCard = card
     }
-
-    guard selectedCard != nil else {
-      return
-    }
-
-    isPreviewing = true
-    onPreviewCardChange?(selectedCard)
   }
 
   func exitPreview() {
-    guard isPreviewing else {
-      return
-    }
-
-    isPreviewing = false
-    onPreviewCardChange?(nil)
+    cardWindowBridge.previewCard = nil
   }
 
-  // Keeps the notch preview in sync when the selected card changes; drops out of
-  // preview when no card remains selected.
+  // Keeps the notch preview in sync when the selected card changes; drops out
+  // of preview when no card remains selected.
   fileprivate func refreshPreview() {
     guard isPreviewing else {
       return
     }
-
-    if let card = selectedCard {
-      onPreviewCardChange?(card)
-    } else {
-      exitPreview()
-    }
+    cardWindowBridge.previewCard = selectedCard
   }
 }
 

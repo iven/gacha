@@ -14,6 +14,8 @@ final class MemoryNotchPresenter: ObservableObject {
 
   @Published private(set) var currentCard: any Card = EmptyStateCard()
   @Published private(set) var mode: Mode = .scheduler
+  @Published private(set) var isCardWindowVisible: Bool = false
+  @Published private(set) var isSettingsVisible: Bool = false
 
   var actions: MemoryCardActions {
     MemoryCardActions(
@@ -26,12 +28,42 @@ final class MemoryNotchPresenter: ObservableObject {
       },
       onOpenSettings: { [weak self] in self?.onSettingsRequested?() },
       onPause: { [weak self] in self?.onPauseRequested?() },
-      onDismiss: { [weak self] in self?.controller.compact() })
+      onDismiss: { [weak self] in self?.handleDismiss() },
+      onTogglePreview: { [weak self] in
+        self?.cardWindowBridge.togglePreviewRequest.send()
+      })
   }
 
   var isInteractive: Bool {
     if case .preview = mode { return false }
     return true
+  }
+
+  var isPreviewing: Bool {
+    if case .preview = mode { return true }
+    return false
+  }
+
+  /// Global-shortcut entry point for Ctrl+Option+G. Cancels preview when
+  /// previewing; otherwise toggles the notch's expand/collapse state.
+  func handleToggleShortcut() {
+    if isPreviewing {
+      cancelPreview()
+    } else {
+      controller.toggle()
+    }
+  }
+
+  private func cancelPreview() {
+    cardWindowBridge.previewCard = nil
+  }
+
+  private func handleDismiss() {
+    if isPreviewing {
+      cancelPreview()
+    } else {
+      controller.compact()
+    }
   }
 
   var showKeyboardHints: Bool {
@@ -91,6 +123,13 @@ final class MemoryNotchPresenter: ObservableObject {
         self?.setHasVisibleManagedWindow(visible)
       }
       .store(in: &bridgeObservations)
+
+    cardWindowBridge.$cardWindowVisible
+      .removeDuplicates()
+      .assign(to: &$isCardWindowVisible)
+    cardWindowBridge.$settingsVisible
+      .removeDuplicates()
+      .assign(to: &$isSettingsVisible)
   }
 
   private func setPreviewCard(_ card: MemoryCard?) {

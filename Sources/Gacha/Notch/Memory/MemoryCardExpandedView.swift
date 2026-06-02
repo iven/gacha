@@ -6,6 +6,9 @@ struct MemoryCardExpandedView: View {
   let card: MemoryCard
   let actions: MemoryCardActions
   var isInteractive: Bool = true
+  var isPreviewing: Bool = false
+  var isCardWindowVisible: Bool = false
+  var isSettingsVisible: Bool = false
   var showKeyboardHints: Bool = true
   @ObservedObject var autoCollapseSchedule: NotchAutoCollapseSchedule
 
@@ -28,13 +31,21 @@ struct MemoryCardExpandedView: View {
       HStack(spacing: 8) {
         LogoCompactView()
         Spacer()
-        toolButton(symbol: "square.and.pencil") {
+        if isCardWindowVisible {
+          toolButton(
+            symbol: isPreviewing ? "eye.fill" : "eye",
+            isActive: isPreviewing
+          ) {
+            actions.onTogglePreview()
+          }
+        }
+        toolButton(symbol: "square.and.pencil", isActive: isCardWindowVisible) {
           actions.onEditCard(card)
         }
         toolButton(symbol: "pause") {
           actions.onPause()
         }
-        toolButton(symbol: "gearshape") {
+        toolButton(symbol: "gearshape", isActive: isSettingsVisible) {
           actions.onOpenSettings()
         }
       }
@@ -156,7 +167,9 @@ struct MemoryCardExpandedView: View {
     return main + badge
   }
 
-  private func toolButton(symbol: String, action: @escaping () -> Void) -> some View {
+  private func toolButton(
+    symbol: String, isActive: Bool = false, action: @escaping () -> Void
+  ) -> some View {
     HoverButton(action: action) { hovering in
       Image(systemName: symbol)
         .resizable()
@@ -166,9 +179,13 @@ struct MemoryCardExpandedView: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(
-          hovering ? Color.accentColor : .white.opacity(0.2),
+          toolButtonBackground(isActive: isActive, hovering: hovering),
           in: Capsule()
         )
     }
+  }
+
+  private func toolButtonBackground(isActive: Bool, hovering: Bool) -> Color {
+    isActive || hovering ? Color.accentColor : .white.opacity(0.2)
   }
 }
