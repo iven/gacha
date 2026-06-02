@@ -5,7 +5,15 @@ import SwiftUI
 @MainActor
 final class MemoryNotchPresenter: ObservableObject {
   enum Mode: Equatable {
+    /// Default. Scheduler picks the next card; rating advances; auto-collapse
+    /// on hover-leave per settings.
     case scheduler
+    /// User pinned the notch from the toolbar/`p` shortcut while no card
+    /// management window is open. The notch stays expanded (no auto-collapse),
+    /// but the card is still picked by the scheduler and rating still works.
+    case pinned
+    /// Card window pinned a specific card. The notch stays expanded, the card
+    /// is locked, and rating buttons are disabled.
     case preview(MemoryCard)
   }
 
@@ -29,9 +37,7 @@ final class MemoryNotchPresenter: ObservableObject {
       onOpenSettings: { [weak self] in self?.onSettingsRequested?() },
       onPause: { [weak self] in self?.onPauseRequested?() },
       onDismiss: { [weak self] in self?.handleDismiss() },
-      onTogglePreview: { [weak self] in
-        self?.cardWindowBridge.togglePreviewRequest.send()
-      })
+      onTogglePin: { [weak self] in self?.handleTogglePin() })
   }
 
   var isInteractive: Bool {
@@ -39,30 +45,46 @@ final class MemoryNotchPresenter: ObservableObject {
     return true
   }
 
-  var isPreviewing: Bool {
-    if case .preview = mode { return true }
-    return false
+  /// True whenever the notch is held expanded by either pin or preview. View
+  /// layer reads this to decide whether the toolbar pin/eye button is
+  /// rendered as filled (active) or outlined.
+  var isPinned: Bool {
+    mode != .scheduler
   }
 
-  /// Global-shortcut entry point for Ctrl+Option+G. Cancels preview when
-  /// previewing; otherwise toggles the notch's expand/collapse state.
+  /// Global-shortcut entry point for Ctrl+Option+G. Releases whatever is
+  /// holding the notch open (preview or pin); otherwise toggles expand/collapse.
   func handleToggleShortcut() {
-    if isPreviewing {
-      cancelPreview()
-    } else {
-      controller.toggle()
+    switch mode {
+    case .preview: cardWindowBridge.previewCard = nil
+    case .pinned: mode = .scheduler
+    case .scheduler: controller.toggle()
     }
   }
 
-  private func cancelPreview() {
-    cardWindowBridge.previewCard = nil
+  /// Toolbar pin/eye button + `p` shortcut entry point. When the card window
+  /// is open, defers to the model's preview toggle (so the model stays the
+  /// single owner of preview state). Otherwise toggles the local pin state.
+  func handleTogglePin() {
+    if isCardWindowVisible {
+      cardWindowBridge.togglePreviewRequest.send()
+    } else if mode == .pinned {
+      mode = .scheduler
+    } else if case .scheduler = mode {
+      mode = .pinned
+    }
+    // .preview while card window not visible should not be reachable: closing
+    // the window clears bridge.previewCard which collapses .preview to .scheduler.
+    show(card: currentCard)
   }
 
   private func handleDismiss() {
-    if isPreviewing {
-      cancelPreview()
-    } else {
-      controller.compact()
+    switch mode {
+    case .preview: cardWindowBridge.previewCard = nil
+    case .pinned:
+      mode = .scheduler
+      show(card: currentCard)
+    case .scheduler: controller.compact()
     }
   }
 
@@ -130,6 +152,18 @@ final class MemoryNotchPresenter: ObservableObject {
     cardWindowBridge.$settingsVisible
       .removeDuplicates()
       .assign(to: &$isSettingsVisible)
+
+    // Opening the card window clears any standalone pin: the toolbar's pin
+    // button is replaced by the eye/preview toggle, so .pinned has no
+    // remaining UI affordance and would only confuse mode bookkeeping.
+    cardWindowBridge.$cardWindowVisible
+      .filter { $0 }
+      .sink { [weak self] _ in
+        guard let self, self.mode == .pinned else { return }
+        self.mode = .scheduler
+        self.show(card: self.currentCard)
+      }
+      .store(in: &bridgeObservations)
   }
 
   private func setPreviewCard(_ card: MemoryCard?) {
@@ -166,7 +200,9 @@ final class MemoryNotchPresenter: ObservableObject {
         refreshScheduledCard()
       }
     case .didCreate:
-      if case .scheduler = mode, currentCard is EmptyStateCard {
+      // currentCard is EmptyStateCard implies mode is .scheduler / .pinned
+      // (preview always carries a MemoryCard), so this also covers .pinned.
+      if currentCard is EmptyStateCard {
         refreshScheduledCard()
       }
     case .didDeleteDirectory(let name):
@@ -182,9 +218,10 @@ final class MemoryNotchPresenter: ObservableObject {
         refreshScheduledCard()
       }
     case .didRebuildIndex:
-      if case .scheduler = mode {
-        refreshScheduledCard()
-      }
+      // .pinned tracks the scheduler's pick (only timeout differs), so it
+      // refreshes alongside .scheduler. .preview keeps its locked card.
+      if case .preview = mode { break }
+      refreshScheduledCard()
     case .didCreateDirectory:
       break
     }
@@ -231,15 +268,22 @@ final class MemoryNotchPresenter: ObservableObject {
   private func show(card: any Card) {
     currentCard = card
     let timeout: Duration?
-    if case .preview = mode {
+    switch mode {
+    case .preview, .pinned:
+      // Both modes hold the notch open indefinitely.
       timeout = nil
-    } else if hasVisibleManagedWindow, settingsStore.skipCountdownOnAnotherWindow {
-      timeout = .zero
-    } else {
-      timeout = card.autoCollapseTimeout(
-        memoryAutoCollapseSeconds: settingsStore.memoryAutoCollapseSeconds)
+    case .scheduler:
+      if hasVisibleManagedWindow, settingsStore.skipCountdownOnAnotherWindow {
+        timeout = .zero
+      } else {
+        timeout = card.autoCollapseTimeout(
+          memoryAutoCollapseSeconds: settingsStore.memoryAutoCollapseSeconds)
+      }
     }
     controller.setAutoCollapseTimeout(timeout)
+    // Preview is the only mode where show() should also force-expand the
+    // notch (preview can be triggered while compact). Pin is only ever
+    // toggled while the notch is already expanded.
     if case .preview = mode {
       controller.expand()
     }

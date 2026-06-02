@@ -6,7 +6,7 @@ struct MemoryCardExpandedView: View {
   let card: MemoryCard
   let actions: MemoryCardActions
   var isInteractive: Bool = true
-  var isPreviewing: Bool = false
+  var isPinned: Bool = false
   var isCardWindowVisible: Bool = false
   var isSettingsVisible: Bool = false
   var showKeyboardHints: Bool = true
@@ -31,19 +31,14 @@ struct MemoryCardExpandedView: View {
       HStack(spacing: 8) {
         LogoCompactView()
         Spacer()
-        if isCardWindowVisible {
-          toolButton(
-            symbol: isPreviewing ? "eye.fill" : "eye",
-            isActive: isPreviewing
-          ) {
-            actions.onTogglePreview()
-          }
-        }
-        toolButton(symbol: "square.and.pencil", isActive: isCardWindowVisible) {
-          actions.onEditCard(card)
+        toolButton(symbol: pinSymbol, isActive: isPinned) {
+          actions.onTogglePin()
         }
         toolButton(symbol: "pause") {
           actions.onPause()
+        }
+        toolButton(symbol: "square.and.pencil", isActive: isCardWindowVisible) {
+          actions.onEditCard(card)
         }
         toolButton(symbol: "gearshape", isActive: isSettingsVisible) {
           actions.onOpenSettings()
@@ -92,6 +87,10 @@ struct MemoryCardExpandedView: View {
       return true
     }
     let characters = event.charactersIgnoringModifiers ?? ""
+    if characters == "p" {
+      actions.onTogglePin()
+      return true
+    }
     if isDue {
       switch characters {
       case "1":
@@ -133,6 +132,14 @@ struct MemoryCardExpandedView: View {
 
   private var isDue: Bool {
     actions.isDue(card)
+  }
+
+  // The leftmost toolbar slot toggles pin (no card window) or preview (with
+  // card window). Symbol switches between pin and eye accordingly; .fill
+  // variant indicates the notch is currently held.
+  private var pinSymbol: String {
+    let base = isCardWindowVisible ? "eye" : "pin"
+    return isPinned ? "\(base).fill" : base
   }
 
   private func rateButton(

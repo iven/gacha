@@ -71,8 +71,10 @@ final class NotchController {
       cancelAutoCollapse()
       performCompact()
     } else if isHovering, notch != nil {
+      // User just clicked ▶ to resume — they're actively interacting with the
+      // notch and likely want to keyboard-rate. Take focus.
       cancelAutoCollapse()
-      performExpand()
+      performExpand(makeKey: true)
     }
     onPausedChange?(paused)
   }
@@ -103,12 +105,17 @@ final class NotchController {
     }
   }
 
-  func expand() {
+  /// Expands the notch. `makeKey` should be true only when the user is
+  /// actively interacting *with the notch* and expects keyboard input to go
+  /// there (hover, global toggle shortcut). Programmatic expand triggered by
+  /// other windows (e.g. card management's preview) must keep `makeKey: false`
+  /// so it does not steal focus from the originating window.
+  func expand(makeKey: Bool = false) {
     guard !isPaused, !isSuppressed, notch != nil else {
       return
     }
     cancelAutoCollapse()
-    performExpand()
+    performExpand(makeKey: makeKey)
   }
 
   func compact() {
@@ -127,7 +134,7 @@ final class NotchController {
     if isExpanded {
       compact()
     } else {
-      expand()
+      expand(makeKey: true)
       scheduleAutoCollapse()
     }
   }
@@ -166,17 +173,19 @@ final class NotchController {
 
     if hovering {
       cancelAutoCollapse()
-      performExpand()
+      performExpand(makeKey: true)
     } else {
       scheduleAutoCollapse()
     }
   }
 
-  private func performExpand() {
+  private func performExpand(makeKey: Bool = false) {
     isExpanded = true
     Task { [notch] in
       await notch?.expand()
-      notch?.windowController?.window?.makeKey()
+      if makeKey {
+        notch?.windowController?.window?.makeKey()
+      }
     }
   }
 
