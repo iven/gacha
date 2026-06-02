@@ -79,6 +79,8 @@
 "settings.skipCountdownOnAnotherWindow" = "Skip countdown when opening another Gacha window";
 "settings.fullScreenSuppressionEnabled" = "Hide the notch when in full screen";
 "settings.screenSharingSuppressionEnabled" = "Hide the notch while screen recording or sharing";
+"settings.focusModeSuppressionEnabled" = "Hide the notch while a Focus is on";
+"settings.focusModeSuppressionEnabled.hint" = "Only takes effect after Gacha launches.";
 "settings.collapseCountdown" = "Collapse countdown";
 "settings.collapseCountdown.unit" = "s";
 "settings.section.mcp" = "MCP Server";
@@ -137,7 +139,7 @@
 "presentation.rating.easy" = "Easy";
 "presentation.rating.next" = "Next";
 "presentation.card.emptyBody" = "(No content)";
-"presentation.suppression.indicatorHint" = "Hidden while presenting or in full screen";
+"presentation.suppression.indicatorHint" = "Hidden while presenting, in full screen, or in Focus";
 "startup.failure.title" = "Gacha Cannot Start";
 "startup.failure.message" = "Gacha could not initialize card storage and cannot continue starting.\n\nError: %@";
 "startup.failure.quit" = "Quit";

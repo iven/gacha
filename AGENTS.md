@@ -21,6 +21,7 @@ Sources/Gacha/
 ├── Markdown/             markdown rendering + highlighting (shared)
 ├── Notch/                notch UI (controller, view model, views)
 ├── MenuBar/
+├── Suppression/          system-state probes (full screen, capture, Focus)
 └── Windows/
     ├── CardManagement/
     │   ├── Sidebar/

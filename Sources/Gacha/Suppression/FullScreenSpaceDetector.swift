@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 /// Detects whether the visible Space on any display is a full-screen Space,
@@ -10,8 +11,19 @@ import Foundation
 ///
 /// Space type constants (verified against alt-tab-macos, yabai, macos-corelibs):
 ///   0 user, 2 system, 3 tiled (Split View), 4 fullscreen.
-struct FullScreenSpaceDetector: SuppressionProbing {
+///
+/// `activeSpaceDidChange` is observed for zero-latency response on Space
+/// switches; the controller's poll timer is the backstop for full-screen
+/// toggles that don't switch Spaces.
+final class FullScreenSpaceDetector: SuppressionProbing {
   private let fullscreenSpaceType = 4
+  private var spaceObserver: NSObjectProtocol?
+
+  deinit {
+    if let token = spaceObserver {
+      NSWorkspace.shared.notificationCenter.removeObserver(token)
+    }
+  }
 
   func isSuppressingStateActive() -> Bool {
     guard
@@ -35,5 +47,15 @@ struct FullScreenSpaceDetector: SuppressionProbing {
     }
 
     return false
+  }
+
+  func startReporting(onChange: @escaping @Sendable () -> Void) {
+    spaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
+      forName: NSWorkspace.activeSpaceDidChangeNotification,
+      object: nil,
+      queue: .main
+    ) { _ in
+      onChange()
+    }
   }
 }

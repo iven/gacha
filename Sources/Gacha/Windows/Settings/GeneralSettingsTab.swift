@@ -12,6 +12,7 @@ struct GeneralSettingsTab: View {
   @State private var showKeyboardHints: Bool
   @State private var fullScreenSuppressionEnabled: Bool
   @State private var screenSharingSuppressionEnabled: Bool
+  @State private var focusModeSuppressionEnabled: Bool
 
   init(
     launchAtLoginController: LaunchAtLoginController,
@@ -31,6 +32,8 @@ struct GeneralSettingsTab: View {
       initialValue: settingsStore.fullScreenSuppressionEnabled)
     _screenSharingSuppressionEnabled = State(
       initialValue: settingsStore.screenSharingSuppressionEnabled)
+    _focusModeSuppressionEnabled = State(
+      initialValue: settingsStore.focusModeSuppressionEnabled)
   }
 
   var body: some View {
@@ -81,6 +84,23 @@ struct GeneralSettingsTab: View {
               settingsStore.screenSharingSuppressionEnabled = newValue
               suppressionController.reevaluate()
             }))
+
+        Toggle(
+          isOn: Binding(
+            get: { focusModeSuppressionEnabled },
+            set: { newValue in
+              focusModeSuppressionEnabled = newValue
+              settingsStore.focusModeSuppressionEnabled = newValue
+              suppressionController.reevaluate()
+            })
+        ) {
+          VStack(alignment: .leading, spacing: 2) {
+            Text(SettingsStrings.focusModeSuppressionEnabled)
+            Text(SettingsStrings.focusModeSuppressionHint)
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+        }
       }
 
       Section(SettingsStrings.sectionMemoryCards) {

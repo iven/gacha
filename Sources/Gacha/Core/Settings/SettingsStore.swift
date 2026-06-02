@@ -12,6 +12,7 @@ struct SettingsStore {
     static let showKeyboardHints = "showKeyboardHints"
     static let fullScreenSuppressionEnabled = "fullScreenSuppressionEnabled"
     static let screenSharingSuppressionEnabled = "screenSharingSuppressionEnabled"
+    static let focusModeSuppressionEnabled = "focusModeSuppressionEnabled"
     static let mcpEnabled = "mcpEnabled"
     static let mcpPort = "mcpPort"
   }
@@ -32,6 +33,7 @@ struct SettingsStore {
       Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
       Key.fullScreenSuppressionEnabled: AppSettings.defaultFullScreenSuppressionEnabled,
       Key.screenSharingSuppressionEnabled: AppSettings.defaultScreenSharingSuppressionEnabled,
+      Key.focusModeSuppressionEnabled: AppSettings.defaultFocusModeSuppressionEnabled,
       Key.mcpEnabled: AppSettings.defaultMCPEnabled,
       Key.mcpPort: AppSettings.defaultMCPPort,
     ])
@@ -54,6 +56,7 @@ struct SettingsStore {
         showKeyboardHints: showKeyboardHints,
         fullScreenSuppressionEnabled: fullScreenSuppressionEnabled,
         screenSharingSuppressionEnabled: screenSharingSuppressionEnabled,
+        focusModeSuppressionEnabled: focusModeSuppressionEnabled,
         mcpEnabled: mcpEnabled,
         mcpPort: mcpPort)
     }
@@ -65,6 +68,7 @@ struct SettingsStore {
       showKeyboardHints = newValue.showKeyboardHints
       fullScreenSuppressionEnabled = newValue.fullScreenSuppressionEnabled
       screenSharingSuppressionEnabled = newValue.screenSharingSuppressionEnabled
+      focusModeSuppressionEnabled = newValue.focusModeSuppressionEnabled
       mcpEnabled = newValue.mcpEnabled
       mcpPort = newValue.mcpPort
     }
@@ -122,6 +126,11 @@ struct SettingsStore {
   var screenSharingSuppressionEnabled: Bool {
     get { defaults.bool(forKey: Key.screenSharingSuppressionEnabled) }
     nonmutating set { defaults.set(newValue, forKey: Key.screenSharingSuppressionEnabled) }
+  }
+
+  var focusModeSuppressionEnabled: Bool {
+    get { defaults.bool(forKey: Key.focusModeSuppressionEnabled) }
+    nonmutating set { defaults.set(newValue, forKey: Key.focusModeSuppressionEnabled) }
   }
 
   var mcpEnabled: Bool {

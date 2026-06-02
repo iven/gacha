@@ -80,6 +80,8 @@
 "settings.skipCountdownOnAnotherWindow" = "打开其他 Gacha 窗口时跳过倒计时";
 "settings.fullScreenSuppressionEnabled" = "全屏时隐藏刘海";
 "settings.screenSharingSuppressionEnabled" = "录屏或共享屏幕时隐藏刘海";
+"settings.focusModeSuppressionEnabled" = "开启专注模式时隐藏刘海";
+"settings.focusModeSuppressionEnabled.hint" = "仅在 Gacha 启动后才会生效。";
 "settings.collapseCountdown" = "收起倒计时";
 "settings.collapseCountdown.unit" = "秒";
 "settings.section.mcp" = "MCP 服务器";
@@ -138,7 +140,7 @@
 "presentation.rating.easy" = "精通";
 "presentation.rating.next" = "下一张";
 "presentation.card.emptyBody" = "（无内容）";
-"presentation.suppression.indicatorHint" = "演示或全屏时已隐藏";
+"presentation.suppression.indicatorHint" = "演示、全屏或专注模式时已隐藏";
 "startup.failure.title" = "Gacha 无法启动";
 "startup.failure.message" = "Gacha 无法初始化卡片存储，因此无法继续启动。\n\n错误信息：%@";
 "startup.failure.quit" = "退出";

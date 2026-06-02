@@ -44,6 +44,9 @@ struct AppBootstrapper {
       SuppressionController.Source(
         probe: ScreenCaptureDetector(),
         isEnabled: { settingsStore.screenSharingSuppressionEnabled }),
+      SuppressionController.Source(
+        probe: FocusModeDetector(),
+        isEnabled: { settingsStore.focusModeSuppressionEnabled }),
     ])
     suppressionController.onChange = { [weak notchController] suppressed in
       notchController?.setSuppressed(suppressed)

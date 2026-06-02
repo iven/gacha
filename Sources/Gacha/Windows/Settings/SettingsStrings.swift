@@ -28,6 +28,10 @@ enum SettingsStrings {
     "settings.fullScreenSuppressionEnabled")
   static let screenSharingSuppressionEnabled = AppStrings.localized(
     "settings.screenSharingSuppressionEnabled")
+  static let focusModeSuppressionEnabled = AppStrings.localized(
+    "settings.focusModeSuppressionEnabled")
+  static let focusModeSuppressionHint = AppStrings.localized(
+    "settings.focusModeSuppressionEnabled.hint")
   static let collapseCountdown = AppStrings.localized("settings.collapseCountdown")
   static let collapseCountdownUnit = AppStrings.localized("settings.collapseCountdown.unit")
   static let sectionMCP = AppStrings.localized("settings.section.mcp")

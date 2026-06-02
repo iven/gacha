@@ -14,6 +14,7 @@ import Testing
   #expect(settings.showKeyboardHints)
   #expect(settings.fullScreenSuppressionEnabled)
   #expect(settings.screenSharingSuppressionEnabled)
+  #expect(settings.focusModeSuppressionEnabled)
 }
 
 @Test func settingsStoreReadsRegisteredDefaults() {
@@ -71,6 +72,7 @@ import Testing
     showKeyboardHints: false,
     fullScreenSuppressionEnabled: false,
     screenSharingSuppressionEnabled: false,
+    focusModeSuppressionEnabled: false,
     mcpEnabled: true,
     mcpPort: 8888)
 
@@ -81,6 +83,7 @@ import Testing
   #expect(!store.settings.showKeyboardHints)
   #expect(!store.settings.fullScreenSuppressionEnabled)
   #expect(!store.settings.screenSharingSuppressionEnabled)
+  #expect(!store.settings.focusModeSuppressionEnabled)
   #expect(store.settings.mcpEnabled)
   #expect(store.settings.mcpPort == 8888)
 }
@@ -127,6 +130,17 @@ import Testing
   let reloadedStore = SettingsStore(defaults: defaults)
 
   #expect(!reloadedStore.screenSharingSuppressionEnabled)
+}
+
+@Test func settingsStorePersistsFocusModeSuppressionEnabled() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.focusModeSuppressionEnabled = false
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(!reloadedStore.focusModeSuppressionEnabled)
 }
 
 @Test func settingsStoreNormalizesMemoryAutoCollapseSeconds() {
