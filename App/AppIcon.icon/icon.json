@@ -1,0 +1,70 @@
+{
+  "fill" : "system-dark",
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "linear-gradient" : [
+              "srgb:1.00000,0.35339,0.40061,1.00000",
+              "srgb:1.00000,0.86275,0.84020,1.00000"
+            ],
+            "orientation" : {
+              "start" : {
+                "x" : 0.5,
+                "y" : 0
+              },
+              "stop" : {
+                "x" : 0.5,
+                "y" : 0.7239795681986655
+              }
+            }
+          },
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "G-avenir.svg",
+          "name" : "G-avenir",
+          "opacity" : 0.83,
+          "position" : {
+            "scale" : 0.82,
+            "translation-in-points" : [
+              -8,
+              0
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "srgb:0.82113,0.97702,1.00000,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "1-Sphere.svg",
+          "name" : "1-Sphere",
+          "opacity" : 0.04,
+          "position" : {
+            "scale" : 1.06,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
