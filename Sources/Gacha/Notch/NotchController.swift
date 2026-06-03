@@ -260,11 +260,9 @@ private struct NotchCompactTrailingView: View {
   // system-driven and clears on its own, so there is nothing to tap.
   private var suppressionIndicator: some View {
     Image(systemName: "eye.slash.fill")
-      .font(.system(size: 11, weight: .bold))
+      .font(.system(size: NotchToolbarStyle.compactGlyphFontSize, weight: .bold))
       .foregroundStyle(.white.opacity(0.85))
-      .padding(.horizontal, 8)
-      .padding(.vertical, 4)
-      .background(Color.clear, in: Capsule())
+      .notchToolbarControl(restingShell: false)
       .contentShape(Rectangle())
       .help(NotchStrings.suppressionIndicatorHint)
   }
@@ -272,11 +270,9 @@ private struct NotchCompactTrailingView: View {
   private var pauseButton: some View {
     HoverButton(action: { viewModel.onResumeRequested?() }) { hovering in
       Image(systemName: hovering ? "play.fill" : "pause.fill")
-        .font(.system(size: 11, weight: .bold))
+        .font(.system(size: NotchToolbarStyle.compactGlyphFontSize, weight: .bold))
         .foregroundStyle(.white.opacity(0.85))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(hovering ? Color.accentColor : Color.clear, in: Capsule())
+        .notchToolbarControl(restingShell: false, highlighted: hovering)
     }
   }
 }

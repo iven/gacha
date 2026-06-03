@@ -181,18 +181,12 @@ struct MemoryCardExpandedView: View {
       Image(systemName: symbol)
         .resizable()
         .scaledToFit()
-        .frame(width: 14, height: 14)
-        .foregroundStyle(.white.opacity(hovering ? 1.0 : 0.85))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(
-          toolButtonBackground(isActive: isActive, hovering: hovering),
-          in: Capsule()
+        .frame(
+          width: NotchToolbarStyle.glyphSize,
+          height: NotchToolbarStyle.glyphSize
         )
+        .foregroundStyle(.white.opacity(hovering ? 1.0 : 0.85))
+        .notchToolbarControl(highlighted: isActive || hovering)
     }
-  }
-
-  private func toolButtonBackground(isActive: Bool, hovering: Bool) -> Color {
-    isActive || hovering ? Color.accentColor : .white.opacity(0.2)
   }
 }
