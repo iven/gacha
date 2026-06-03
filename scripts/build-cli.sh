@@ -13,4 +13,7 @@ bin_path="$(swift build -c "$configuration" --show-bin-path)"
 cp "$bin_path/$cli_name" "$app_path/Contents/MacOS/$cli_name"
 chmod 755 "$app_path/Contents/MacOS/$cli_name"
 
+# Re-sign the bundle so the seal covers the freshly added CLI binary.
+codesign --force --sign - --entitlements "App/Gacha.entitlements" "$app_path"
+
 echo "$app_path/Contents/MacOS/$cli_name"

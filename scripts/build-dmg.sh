@@ -9,8 +9,6 @@ app_path="$output_dir/$app_name.app"
 dmg_root="$output_dir/dmg-root"
 dmg_path="$output_dir/$app_name-$version.dmg"
 
-CONFIGURATION="$configuration" OUTPUT_DIR="$output_dir" scripts/build-app.sh
-
 rm -rf "$dmg_root" "$dmg_path"
 mkdir -p "$dmg_root"
 
