@@ -5,7 +5,7 @@ struct LogoCompactView: View {
   private static let gFill = LinearGradient(
     stops: [
       .init(color: Color(red: 1.0, green: 0.353, blue: 0.401), location: 0),
-      .init(color: .white, location: 0.72),
+      .init(color: Color(red: 1.0, green: 0.863, blue: 0.84), location: 0.72),
     ],
     startPoint: .top,
     endPoint: .bottom
