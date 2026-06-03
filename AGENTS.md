@@ -48,6 +48,6 @@ Rules:
 
 ## Development
 
-- After functional changes, kill the running `Gacha` process (`pkill -x Gacha`)
-  and rerun `make dev` without asking user. Never run `swift build` first.
+- Commit messages must use Conventional Commits.
+- After functional changes, rerun `make dev` directly without asking user. Never run `swift build` nor `make format` first. Run `make test` on demand.
 - Codex should use foreground `make dev` as the launch path and leave it running when it stays active.

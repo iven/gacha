@@ -27,4 +27,5 @@ dmg:
 	scripts/build-dmg.sh
 
 dev:
+	pkill -x Gacha || true
 	swift run Gacha
