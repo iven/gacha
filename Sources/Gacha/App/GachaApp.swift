@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 @main
@@ -6,7 +7,7 @@ struct GachaApp: App {
 
   var body: some Scene {
     Window("", id: GachaApp.windowBrokerID) {
-      WindowBrokerView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
+      WindowBrokerView(appDelegate: appDelegate)
     }
 
     Window(CardManagementStrings.windowTitle, id: GachaApp.cardWindowID) {
@@ -24,11 +25,36 @@ struct GachaApp: App {
 }
 
 private struct WindowBrokerView: View {
-  let windowOpenActionRegistry: WindowOpenActionRegistry
+  @ObservedObject var appDelegate: AppDelegate
 
   var body: some View {
-    WindowOpenActionRegistrar(registry: windowOpenActionRegistry)
-      .background(WindowAccessor { $0?.orderOut(nil) })
+    WindowOpenActionRegistrar(registry: appDelegate.windowOpenActionRegistry)
+      .alert(
+        AppStartupStrings.failureTitle,
+        isPresented: startupFailureIsPresented,
+        presenting: appDelegate.startupFailureMessage
+      ) { _ in
+        Button(AppStartupStrings.failureQuit) {
+          NSApp.terminate(nil)
+        }
+      } message: { message in
+        Text(message)
+      }
+      .appDialogIcon()
+      .background(
+        WindowAccessor { window in
+          if appDelegate.startupFailureMessage == nil {
+            window?.orderOut(nil)
+          } else {
+            window?.makeKeyAndOrderFront(nil)
+          }
+        })
+  }
+
+  private var startupFailureIsPresented: Binding<Bool> {
+    Binding(
+      get: { appDelegate.startupFailureMessage != nil },
+      set: { _ in })
   }
 }
 

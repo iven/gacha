@@ -1,9 +1,11 @@
 import AppKit
+import Combine
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
   static private(set) var shared: AppDelegate?
   let windowOpenActionRegistry = WindowOpenActionRegistry()
+  @Published private(set) var startupFailureMessage: String?
   private(set) var environment: AppEnvironment?
 
   override init() {
@@ -20,7 +22,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     } catch {
       AppLogger.app.error("Failed to start app: \(error.localizedDescription)")
       presentStartupFailure(error)
-      NSApp.terminate(nil)
     }
   }
 
@@ -32,12 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     NSApp.setActivationPolicy(.regular)
     NSApp.activate(ignoringOtherApps: true)
 
-    let alert = NSAlert()
-    alert.alertStyle = .critical
-    alert.messageText = AppStartupStrings.failureTitle
-    alert.informativeText = AppStartupStrings.failureMessage(
+    startupFailureMessage = AppStartupStrings.failureMessage(
       errorDescription: error.localizedDescription)
-    alert.addButton(withTitle: AppStartupStrings.failureQuit)
-    alert.runModal()
   }
 }

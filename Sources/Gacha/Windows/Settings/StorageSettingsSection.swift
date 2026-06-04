@@ -36,6 +36,7 @@ struct StorageSettingsSection: View {
     } message: { confirmation in
       Text(confirmation.message)
     }
+    .appDialogIcon()
     .alert(
       Text(noticeTitle),
       isPresented: noticeIsPresented,
@@ -45,6 +46,7 @@ struct StorageSettingsSection: View {
     } message: { notice in
       Text(noticeMessage(notice))
     }
+    .appDialogIcon()
   }
 
   private var confirmationIsPresented: Binding<Bool> {

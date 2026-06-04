@@ -58,5 +58,6 @@ struct CLISettingsSection: View {
     } message: {
       if let message = installMessage { Text(message) }
     }
+    .appDialogIcon()
   }
 }

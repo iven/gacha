@@ -99,6 +99,7 @@ struct MCPSettingsSection: View {
     } message: {
       if let mcpError { Text(mcpError) }
     }
+    .appDialogIcon()
   }
 
   private var mcpURL: String {

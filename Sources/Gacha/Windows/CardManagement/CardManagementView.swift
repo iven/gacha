@@ -36,6 +36,7 @@ struct CardManagementView: View {
       actions: deletionAlertActions,
       message: deletionAlertMessage
     )
+    .dialogIcon(Image(systemName: "exclamationmark.triangle.fill"))
     .onAppear {
       bridge.setCardWindowVisible(true)
       consumePendingEdit()
