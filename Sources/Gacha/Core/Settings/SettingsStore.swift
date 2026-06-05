@@ -1,8 +1,6 @@
 import Foundation
 
 struct SettingsStore {
-  static let idleReminderAnimationSecondsDidChange = Notification.Name(
-    "SettingsStore.idleReminderAnimationSecondsDidChange")
   static let memoryCardAutoCollapseRange: ClosedRange<TimeInterval> = 0...60
   static let memoryCardAutoCollapseStep: TimeInterval = 1
   static let idleReminderAnimationRange: ClosedRange<TimeInterval> = 0...(180 * 60)
@@ -129,17 +127,12 @@ struct SettingsStore {
         range: Self.idleReminderAnimationRange)
     }
     nonmutating set {
-      let normalizedValue = normalized(
-        newValue,
-        step: Self.idleReminderAnimationStep,
-        range: Self.idleReminderAnimationRange)
       defaults.set(
-        normalizedValue,
+        normalized(
+          newValue,
+          step: Self.idleReminderAnimationStep,
+          range: Self.idleReminderAnimationRange),
         forKey: Key.idleReminderAnimationSeconds)
-      NotificationCenter.default.post(
-        name: Self.idleReminderAnimationSecondsDidChange,
-        object: defaults,
-        userInfo: [Key.idleReminderAnimationSeconds: normalizedValue])
     }
   }
 

@@ -127,7 +127,12 @@ final class MemoryNotchPresenter: ObservableObject {
         self?.handleRepositoryEvent(event)
       }
     observeCardWindowBridge()
-    observeSettingsStore()
+  }
+
+  // Called by the settings UI when the idle-reminder interval changes, so a new
+  // cadence takes effect immediately instead of waiting for the next card.
+  func refreshIdleReminderTimeout() {
+    controller.setIdleReminderTimeout(.seconds(settingsStore.idleReminderAnimationSeconds))
   }
 
   // Observes the shared bridge: the card window writes preview card and managed
@@ -163,17 +168,6 @@ final class MemoryNotchPresenter: ObservableObject {
         guard let self, self.mode == .pinned else { return }
         self.mode = .scheduler
         self.show(card: self.currentCard)
-      }
-      .store(in: &bridgeObservations)
-  }
-
-  private func observeSettingsStore() {
-    NotificationCenter.default.publisher(for: SettingsStore.idleReminderAnimationSecondsDidChange)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-        self.controller.setIdleReminderTimeout(
-          .seconds(self.settingsStore.idleReminderAnimationSeconds))
       }
       .store(in: &bridgeObservations)
   }

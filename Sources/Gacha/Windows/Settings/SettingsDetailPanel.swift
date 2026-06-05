@@ -87,7 +87,11 @@ struct SettingsDetailPanel: View {
         launchAtLoginController: launchAtLoginController,
         settingsStore: settingsStore)
     case .notch:
-      NotchSection(settingsStore: settingsStore)
+      NotchSection(
+        settingsStore: settingsStore,
+        onIdleReminderTimeoutChanged: {
+          environment.memoryNotchPresenter.refreshIdleReminderTimeout()
+        })
     case .suppression:
       SuppressionSection(
         settingsStore: settingsStore,

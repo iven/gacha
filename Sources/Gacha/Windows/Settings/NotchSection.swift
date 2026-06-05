@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NotchSection: View {
   let settingsStore: SettingsStore
+  let onIdleReminderTimeoutChanged: () -> Void
 
   private static let memoryCardAutoCollapsePresetSeconds = [
     0, 1, 2, 3, 5, 10, 15, 30, 60,
@@ -15,8 +16,9 @@ struct NotchSection: View {
   @State private var skipAutoCollapseOnAnotherWindow: Bool
   @State private var showKeyboardHints: Bool
 
-  init(settingsStore: SettingsStore) {
+  init(settingsStore: SettingsStore, onIdleReminderTimeoutChanged: @escaping () -> Void) {
     self.settingsStore = settingsStore
+    self.onIdleReminderTimeoutChanged = onIdleReminderTimeoutChanged
     _memoryCardAutoCollapseSeconds = State(
       initialValue: Int(settingsStore.memoryCardAutoCollapseSeconds))
     _idleReminderAnimationMinutes = State(
@@ -107,6 +109,7 @@ struct NotchSection: View {
       set: { newValue in
         settingsStore.idleReminderAnimationSeconds = TimeInterval(newValue * 60)
         idleReminderAnimationMinutes = Int(settingsStore.idleReminderAnimationSeconds / 60)
+        onIdleReminderTimeoutChanged()
       })
   }
 }
