@@ -41,12 +41,12 @@ private struct IdleReminderLogoView: View {
     ZStack {
       Capsule()
         .fill(.red)
-        .opacity(isReminderVisible ? pulseAmount * 0.2 : 0)
+        .opacity(isReminderVisible ? pulseAmount * 0.3 : 0)
 
       Capsule()
         .strokeBorder(.red, lineWidth: 1)
         .scaleEffect(1 + pulseAmount * 0.05)
-        .opacity(isReminderVisible ? pulseAmount * 0.2 : 0)
+        .opacity(isReminderVisible ? pulseAmount * 0.3 : 0)
 
       Text("G")
         .font(.custom("Avenir-Black", size: NotchToolbarStyle.compactGlyphFontSize))
