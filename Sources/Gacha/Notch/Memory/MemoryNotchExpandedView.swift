@@ -17,7 +17,10 @@ struct MemoryNotchExpandedView: View {
         showKeyboardHints: presenter.showKeyboardHints,
         autoCollapseSchedule: autoCollapseSchedule)
     default:
-      EmptyStateExpandedView(action: presenter.actions.onNewCard)
+      EmptyStateExpandedView(
+        action: presenter.actions.onNewCard,
+        onOpenSettings: presenter.actions.onOpenSettings,
+        isSettingsVisible: presenter.isSettingsVisible)
     }
   }
 }

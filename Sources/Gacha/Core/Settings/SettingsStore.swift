@@ -45,9 +45,11 @@ struct SettingsStore {
 
   static func defaultUserStorageURL(fileManager: FileManager = .default) -> URL {
     fileManager.urls(
-      for: .documentDirectory,
+      for: .applicationSupportDirectory,
       in: .userDomainMask
-    )[0].appendingPathComponent(AppMetadata.userStorageDirectoryName, isDirectory: true)
+    )[0]
+    .appendingPathComponent(AppMetadata.applicationSupportDirectoryName, isDirectory: true)
+    .appendingPathComponent(AppMetadata.userStorageDirectoryName, isDirectory: true)
   }
 
   var settings: AppSettings {
