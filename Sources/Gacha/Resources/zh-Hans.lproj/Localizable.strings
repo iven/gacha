@@ -45,10 +45,10 @@
 "settings.window.title" = "Gacha 设置";
 "settings.section.startup" = "启动";
 "settings.section.storage" = "存储";
-"settings.section.notch" = "刘海";
+"settings.section.notch" = "灵动岛";
 "settings.section.suppression" = "免打扰";
 "settings.section.shortcuts" = "快捷键";
-"settings.shortcut.toggleNotch" = "切换刘海";
+"settings.shortcut.toggleNotch" = "切换灵动岛";
 "settings.storageLocation" = "位置";
 "settings.storageLocation.move" = "移动…";
 "settings.storageLocation.adopt" = "使用现有…";

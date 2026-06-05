@@ -45,10 +45,10 @@
 "settings.window.title" = "Gacha Settings";
 "settings.section.startup" = "Startup";
 "settings.section.storage" = "Storage";
-"settings.section.notch" = "Notch";
+"settings.section.notch" = "Dynamic Island";
 "settings.section.suppression" = "Do Not Disturb";
 "settings.section.shortcuts" = "Shortcuts";
-"settings.shortcut.toggleNotch" = "Toggle notch";
+"settings.shortcut.toggleNotch" = "Toggle Dynamic Island";
 "settings.storageLocation" = "Location";
 "settings.storageLocation.move" = "Move…";
 "settings.storageLocation.adopt" = "Use Existing…";
