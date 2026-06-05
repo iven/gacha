@@ -2,7 +2,7 @@ SWIFT_FORMAT := swift format
 SWIFTLINT := swiftlint
 SWIFT_SOURCES := Package.swift Sources Tests
 
-.PHONY: format fix lint test check cli dmg dev
+.PHONY: format fix lint test check cli dmg reset-settings dev
 
 format:
 	$(SWIFT_FORMAT) format --in-place --recursive $(SWIFT_SOURCES)
@@ -25,6 +25,12 @@ dmg:
 	scripts/build-app.sh
 	scripts/build-cli.sh
 	scripts/build-dmg.sh
+
+reset-settings:
+	pkill -x Gacha || true
+	defaults delete Gacha 2>/dev/null || true
+	rm -rf "$$HOME/Library/Saved Application State/Gacha.savedState"
+	killall cfprefsd 2>/dev/null || true
 
 dev:
 	pkill -x Gacha || true

@@ -9,6 +9,13 @@ struct GachaApp: App {
     Window("", id: GachaApp.windowBrokerID) {
       WindowBrokerView(appDelegate: appDelegate)
     }
+    .commands {
+      CommandGroup(replacing: .appInfo) {
+        Button(AppAboutStrings.menuTitle) {
+          AppAboutPanel.show()
+        }
+      }
+    }
 
     Window(CardManagementStrings.windowTitle, id: GachaApp.cardWindowID) {
       CardManagementRootView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
@@ -18,6 +25,7 @@ struct GachaApp: App {
     Settings {
       SettingsRootView(windowOpenActionRegistry: appDelegate.windowOpenActionRegistry)
     }
+    .defaultSize(width: 720, height: 500)
   }
 
   static let cardWindowID = "cards"
