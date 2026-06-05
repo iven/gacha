@@ -52,3 +52,5 @@ Rules:
 - After functional changes, rerun `make dev` directly without asking user. Never run `swift build` nor `make format` first. Run `make test` on demand.
 - `make dev` builds and launches within 5 seconds.
 - Codex should use foreground `make dev` as the launch path and leave it running when it stays active.
+- macOS Accessibility (AX) APIs may be used to inspect and operate UI during
+  development, but screenshots require user consent before capture.
