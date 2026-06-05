@@ -3,8 +3,9 @@ import Foundation
 struct AppSettings: Equatable {
   var userStorageURL: URL
   var launchAtLoginEnabled: Bool
-  var memoryAutoCollapseSeconds: TimeInterval
-  var skipCountdownOnAnotherWindow: Bool
+  var memoryCardAutoCollapseSeconds: TimeInterval
+  var idleReminderAnimationSeconds: TimeInterval
+  var skipAutoCollapseOnAnotherWindow: Bool
   var showKeyboardHints: Bool
   var fullScreenSuppressionEnabled: Bool
   var screenSharingSuppressionEnabled: Bool
@@ -13,8 +14,9 @@ struct AppSettings: Equatable {
   var mcpPort: Int
 
   static let defaultLaunchAtLoginEnabled = true
-  static let defaultMemoryAutoCollapseSeconds: TimeInterval = 1
-  static let defaultSkipCountdownOnAnotherWindow = true
+  static let defaultMemoryCardAutoCollapseSeconds: TimeInterval = 1
+  static let defaultIdleReminderAnimationSeconds: TimeInterval = 30 * 60
+  static let defaultSkipAutoCollapseOnAnotherWindow = true
   static let defaultShowKeyboardHints = true
   static let defaultFullScreenSuppressionEnabled = true
   static let defaultScreenSharingSuppressionEnabled = true
@@ -26,8 +28,9 @@ struct AppSettings: Equatable {
     AppSettings(
       userStorageURL: userStorageURL,
       launchAtLoginEnabled: defaultLaunchAtLoginEnabled,
-      memoryAutoCollapseSeconds: defaultMemoryAutoCollapseSeconds,
-      skipCountdownOnAnotherWindow: defaultSkipCountdownOnAnotherWindow,
+      memoryCardAutoCollapseSeconds: defaultMemoryCardAutoCollapseSeconds,
+      idleReminderAnimationSeconds: defaultIdleReminderAnimationSeconds,
+      skipAutoCollapseOnAnotherWindow: defaultSkipAutoCollapseOnAnotherWindow,
       showKeyboardHints: defaultShowKeyboardHints,
       fullScreenSuppressionEnabled: defaultFullScreenSuppressionEnabled,
       screenSharingSuppressionEnabled: defaultScreenSharingSuppressionEnabled,

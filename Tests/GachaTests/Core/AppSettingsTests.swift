@@ -9,8 +9,9 @@ import Testing
 
   #expect(settings.userStorageURL == defaultUserStorageURL)
   #expect(settings.launchAtLoginEnabled)
-  #expect(settings.memoryAutoCollapseSeconds == 1)
-  #expect(settings.skipCountdownOnAnotherWindow)
+  #expect(settings.memoryCardAutoCollapseSeconds == 1)
+  #expect(settings.idleReminderAnimationSeconds == 30 * 60)
+  #expect(settings.skipAutoCollapseOnAnotherWindow)
   #expect(settings.showKeyboardHints)
   #expect(settings.fullScreenSuppressionEnabled)
   #expect(settings.screenSharingSuppressionEnabled)
@@ -37,15 +38,15 @@ import Testing
   #expect(reloadedStore.userStorageURL == userStorageURL)
 }
 
-@Test func settingsStorePersistsMemoryAutoCollapseSeconds() {
+@Test func settingsStorePersistsMemoryCardAutoCollapseSeconds() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
-  store.memoryAutoCollapseSeconds = 45
+  store.memoryCardAutoCollapseSeconds = 45
 
   let reloadedStore = SettingsStore(defaults: defaults)
 
-  #expect(reloadedStore.memoryAutoCollapseSeconds == 45)
+  #expect(reloadedStore.memoryCardAutoCollapseSeconds == 45)
 }
 
 @Test func settingsStorePersistsLaunchAtLoginEnabled() {
@@ -67,8 +68,9 @@ import Testing
   store.settings = AppSettings(
     userStorageURL: userStorageURL,
     launchAtLoginEnabled: false,
-    memoryAutoCollapseSeconds: 60,
-    skipCountdownOnAnotherWindow: false,
+    memoryCardAutoCollapseSeconds: 60,
+    idleReminderAnimationSeconds: 15 * 60,
+    skipAutoCollapseOnAnotherWindow: false,
     showKeyboardHints: false,
     fullScreenSuppressionEnabled: false,
     screenSharingSuppressionEnabled: false,
@@ -78,8 +80,9 @@ import Testing
 
   #expect(store.settings.userStorageURL == userStorageURL)
   #expect(!store.settings.launchAtLoginEnabled)
-  #expect(store.settings.memoryAutoCollapseSeconds == 60)
-  #expect(!store.settings.skipCountdownOnAnotherWindow)
+  #expect(store.settings.memoryCardAutoCollapseSeconds == 60)
+  #expect(store.settings.idleReminderAnimationSeconds == 15 * 60)
+  #expect(!store.settings.skipAutoCollapseOnAnotherWindow)
   #expect(!store.settings.showKeyboardHints)
   #expect(!store.settings.fullScreenSuppressionEnabled)
   #expect(!store.settings.screenSharingSuppressionEnabled)
@@ -92,11 +95,11 @@ import Testing
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
-  store.skipCountdownOnAnotherWindow = false
+  store.skipAutoCollapseOnAnotherWindow = false
 
   let reloadedStore = SettingsStore(defaults: defaults)
 
-  #expect(!reloadedStore.skipCountdownOnAnotherWindow)
+  #expect(!reloadedStore.skipAutoCollapseOnAnotherWindow)
 }
 
 @Test func settingsStorePersistsShowKeyboardHints() {
@@ -108,6 +111,17 @@ import Testing
   let reloadedStore = SettingsStore(defaults: defaults)
 
   #expect(!reloadedStore.showKeyboardHints)
+}
+
+@Test func settingsStorePersistsIdleReminderAnimationSeconds() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.idleReminderAnimationSeconds = 15 * 60
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(reloadedStore.idleReminderAnimationSeconds == 15 * 60)
 }
 
 @Test func settingsStorePersistsFullScreenSuppressionEnabled() {
@@ -143,24 +157,41 @@ import Testing
   #expect(!reloadedStore.focusModeSuppressionEnabled)
 }
 
-@Test func settingsStoreNormalizesMemoryAutoCollapseSeconds() {
+@Test func settingsStoreNormalizesMemoryCardAutoCollapseSeconds() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
 
-  store.memoryAutoCollapseSeconds = -1
-  #expect(store.memoryAutoCollapseSeconds == 0)
+  store.memoryCardAutoCollapseSeconds = -1
+  #expect(store.memoryCardAutoCollapseSeconds == 0)
 
-  store.memoryAutoCollapseSeconds = 0
-  #expect(store.memoryAutoCollapseSeconds == 0)
+  store.memoryCardAutoCollapseSeconds = 0
+  #expect(store.memoryCardAutoCollapseSeconds == 0)
 
-  store.memoryAutoCollapseSeconds = 7.4
-  #expect(store.memoryAutoCollapseSeconds == 7)
+  store.memoryCardAutoCollapseSeconds = 7.4
+  #expect(store.memoryCardAutoCollapseSeconds == 7)
 
-  store.memoryAutoCollapseSeconds = 7.6
-  #expect(store.memoryAutoCollapseSeconds == 8)
+  store.memoryCardAutoCollapseSeconds = 7.6
+  #expect(store.memoryCardAutoCollapseSeconds == 8)
 
-  store.memoryAutoCollapseSeconds = 300
-  #expect(store.memoryAutoCollapseSeconds == 60)
+  store.memoryCardAutoCollapseSeconds = 300
+  #expect(store.memoryCardAutoCollapseSeconds == 60)
+}
+
+@Test func settingsStoreNormalizesIdleReminderAnimationSeconds() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.idleReminderAnimationSeconds = -1
+  #expect(store.idleReminderAnimationSeconds == 0)
+
+  store.idleReminderAnimationSeconds = 89
+  #expect(store.idleReminderAnimationSeconds == 60)
+
+  store.idleReminderAnimationSeconds = 91
+  #expect(store.idleReminderAnimationSeconds == 120)
+
+  store.idleReminderAnimationSeconds = 999 * 60
+  #expect(store.idleReminderAnimationSeconds == 180 * 60)
 }
 
 private func makeTestDefaults() -> UserDefaults {

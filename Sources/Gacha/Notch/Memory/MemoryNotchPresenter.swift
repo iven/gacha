@@ -127,6 +127,7 @@ final class MemoryNotchPresenter: ObservableObject {
         self?.handleRepositoryEvent(event)
       }
     observeCardWindowBridge()
+    observeSettingsStore()
   }
 
   // Observes the shared bridge: the card window writes preview card and managed
@@ -162,6 +163,17 @@ final class MemoryNotchPresenter: ObservableObject {
         guard let self, self.mode == .pinned else { return }
         self.mode = .scheduler
         self.show(card: self.currentCard)
+      }
+      .store(in: &bridgeObservations)
+  }
+
+  private func observeSettingsStore() {
+    NotificationCenter.default.publisher(for: SettingsStore.idleReminderAnimationSecondsDidChange)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.controller.setIdleReminderTimeout(
+          .seconds(self.settingsStore.idleReminderAnimationSeconds))
       }
       .store(in: &bridgeObservations)
   }
@@ -267,17 +279,18 @@ final class MemoryNotchPresenter: ObservableObject {
 
   private func show(card: any Card) {
     currentCard = card
+    controller.setIdleReminderTimeout(.seconds(settingsStore.idleReminderAnimationSeconds))
     let timeout: Duration?
     switch mode {
     case .preview, .pinned:
       // Both modes hold the notch open indefinitely.
       timeout = nil
     case .scheduler:
-      if hasVisibleManagedWindow, settingsStore.skipCountdownOnAnotherWindow {
+      if hasVisibleManagedWindow, settingsStore.skipAutoCollapseOnAnotherWindow {
         timeout = .zero
       } else {
         timeout = card.autoCollapseTimeout(
-          memoryAutoCollapseSeconds: settingsStore.memoryAutoCollapseSeconds)
+          memoryCardAutoCollapseSeconds: settingsStore.memoryCardAutoCollapseSeconds)
       }
     }
     controller.setAutoCollapseTimeout(timeout)

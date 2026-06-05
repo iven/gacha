@@ -60,11 +60,12 @@ final class AppEnvironment: ObservableObject {
     suppressionController.start()
     let presenter = memoryNotchPresenter
     let schedule = notchController.autoCollapseSchedule
+    let idleReminderState = notchController.idleReminderState
     notchController.start(
       expanded: {
         MemoryNotchExpandedView(presenter: presenter, autoCollapseSchedule: schedule)
       },
-      compactLeading: { LogoCompactView() })
+      compactLeading: { LogoCompactView(idleReminderState: idleReminderState) })
     memoryNotchPresenter.start()
 
     let presenterRef = memoryNotchPresenter

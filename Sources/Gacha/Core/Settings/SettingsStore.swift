@@ -1,14 +1,19 @@
 import Foundation
 
 struct SettingsStore {
-  static let memoryAutoCollapseRange: ClosedRange<TimeInterval> = 0...60
-  static let memoryAutoCollapseStep: TimeInterval = 1
+  static let idleReminderAnimationSecondsDidChange = Notification.Name(
+    "SettingsStore.idleReminderAnimationSecondsDidChange")
+  static let memoryCardAutoCollapseRange: ClosedRange<TimeInterval> = 0...60
+  static let memoryCardAutoCollapseStep: TimeInterval = 1
+  static let idleReminderAnimationRange: ClosedRange<TimeInterval> = 0...(180 * 60)
+  static let idleReminderAnimationStep: TimeInterval = 60
 
   private enum Key {
     static let userStoragePath = "userStoragePath"
     static let launchAtLoginEnabled = "launchAtLoginEnabled"
-    static let memoryAutoCollapseSeconds = "memoryAutoCollapseSeconds"
-    static let skipCountdownOnAnotherWindow = "skipCountdownOnAnotherWindow"
+    static let memoryCardAutoCollapseSeconds = "memoryCardAutoCollapseSeconds"
+    static let idleReminderAnimationSeconds = "idleReminderAnimationSeconds"
+    static let skipAutoCollapseOnAnotherWindow = "skipAutoCollapseOnAnotherWindow"
     static let showKeyboardHints = "showKeyboardHints"
     static let fullScreenSuppressionEnabled = "fullScreenSuppressionEnabled"
     static let screenSharingSuppressionEnabled = "screenSharingSuppressionEnabled"
@@ -28,8 +33,9 @@ struct SettingsStore {
     self.defaultUserStorageURL = defaultUserStorageURL
     defaults.register(defaults: [
       Key.launchAtLoginEnabled: AppSettings.defaultLaunchAtLoginEnabled,
-      Key.memoryAutoCollapseSeconds: AppSettings.defaultMemoryAutoCollapseSeconds,
-      Key.skipCountdownOnAnotherWindow: AppSettings.defaultSkipCountdownOnAnotherWindow,
+      Key.memoryCardAutoCollapseSeconds: AppSettings.defaultMemoryCardAutoCollapseSeconds,
+      Key.idleReminderAnimationSeconds: AppSettings.defaultIdleReminderAnimationSeconds,
+      Key.skipAutoCollapseOnAnotherWindow: AppSettings.defaultSkipAutoCollapseOnAnotherWindow,
       Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
       Key.fullScreenSuppressionEnabled: AppSettings.defaultFullScreenSuppressionEnabled,
       Key.screenSharingSuppressionEnabled: AppSettings.defaultScreenSharingSuppressionEnabled,
@@ -51,8 +57,9 @@ struct SettingsStore {
       AppSettings(
         userStorageURL: userStorageURL,
         launchAtLoginEnabled: launchAtLoginEnabled,
-        memoryAutoCollapseSeconds: memoryAutoCollapseSeconds,
-        skipCountdownOnAnotherWindow: skipCountdownOnAnotherWindow,
+        memoryCardAutoCollapseSeconds: memoryCardAutoCollapseSeconds,
+        idleReminderAnimationSeconds: idleReminderAnimationSeconds,
+        skipAutoCollapseOnAnotherWindow: skipAutoCollapseOnAnotherWindow,
         showKeyboardHints: showKeyboardHints,
         fullScreenSuppressionEnabled: fullScreenSuppressionEnabled,
         screenSharingSuppressionEnabled: screenSharingSuppressionEnabled,
@@ -63,8 +70,9 @@ struct SettingsStore {
     nonmutating set {
       userStorageURL = newValue.userStorageURL
       launchAtLoginEnabled = newValue.launchAtLoginEnabled
-      memoryAutoCollapseSeconds = newValue.memoryAutoCollapseSeconds
-      skipCountdownOnAnotherWindow = newValue.skipCountdownOnAnotherWindow
+      memoryCardAutoCollapseSeconds = newValue.memoryCardAutoCollapseSeconds
+      idleReminderAnimationSeconds = newValue.idleReminderAnimationSeconds
+      skipAutoCollapseOnAnotherWindow = newValue.skipAutoCollapseOnAnotherWindow
       showKeyboardHints = newValue.showKeyboardHints
       fullScreenSuppressionEnabled = newValue.fullScreenSuppressionEnabled
       screenSharingSuppressionEnabled = newValue.screenSharingSuppressionEnabled
@@ -96,21 +104,48 @@ struct SettingsStore {
     }
   }
 
-  var memoryAutoCollapseSeconds: TimeInterval {
+  var memoryCardAutoCollapseSeconds: TimeInterval {
     get {
-      normalizedMemoryAutoCollapseSeconds(
-        defaults.double(forKey: Key.memoryAutoCollapseSeconds))
+      normalized(
+        defaults.double(forKey: Key.memoryCardAutoCollapseSeconds),
+        step: Self.memoryCardAutoCollapseStep,
+        range: Self.memoryCardAutoCollapseRange)
     }
     nonmutating set {
       defaults.set(
-        normalizedMemoryAutoCollapseSeconds(newValue),
-        forKey: Key.memoryAutoCollapseSeconds)
+        normalized(
+          newValue,
+          step: Self.memoryCardAutoCollapseStep,
+          range: Self.memoryCardAutoCollapseRange),
+        forKey: Key.memoryCardAutoCollapseSeconds)
     }
   }
 
-  var skipCountdownOnAnotherWindow: Bool {
-    get { defaults.bool(forKey: Key.skipCountdownOnAnotherWindow) }
-    nonmutating set { defaults.set(newValue, forKey: Key.skipCountdownOnAnotherWindow) }
+  var idleReminderAnimationSeconds: TimeInterval {
+    get {
+      normalized(
+        defaults.double(forKey: Key.idleReminderAnimationSeconds),
+        step: Self.idleReminderAnimationStep,
+        range: Self.idleReminderAnimationRange)
+    }
+    nonmutating set {
+      let normalizedValue = normalized(
+        newValue,
+        step: Self.idleReminderAnimationStep,
+        range: Self.idleReminderAnimationRange)
+      defaults.set(
+        normalizedValue,
+        forKey: Key.idleReminderAnimationSeconds)
+      NotificationCenter.default.post(
+        name: Self.idleReminderAnimationSecondsDidChange,
+        object: defaults,
+        userInfo: [Key.idleReminderAnimationSeconds: normalizedValue])
+    }
+  }
+
+  var skipAutoCollapseOnAnotherWindow: Bool {
+    get { defaults.bool(forKey: Key.skipAutoCollapseOnAnotherWindow) }
+    nonmutating set { defaults.set(newValue, forKey: Key.skipAutoCollapseOnAnotherWindow) }
   }
 
   var showKeyboardHints: Bool {
@@ -143,14 +178,12 @@ struct SettingsStore {
     nonmutating set { defaults.set(newValue, forKey: Key.mcpPort) }
   }
 
-  private func normalizedMemoryAutoCollapseSeconds(
-    _ value: TimeInterval
+  private func normalized(
+    _ value: TimeInterval,
+    step: TimeInterval,
+    range: ClosedRange<TimeInterval>
   ) -> TimeInterval {
-    let steppedValue =
-      (value / Self.memoryAutoCollapseStep).rounded()
-      * Self.memoryAutoCollapseStep
-    return min(
-      max(steppedValue, Self.memoryAutoCollapseRange.lowerBound),
-      Self.memoryAutoCollapseRange.upperBound)
+    let steppedValue = (value / step).rounded() * step
+    return min(max(steppedValue, range.lowerBound), range.upperBound)
   }
 }

@@ -17,8 +17,8 @@ enum SettingsStrings {
     "settings.storageLocation.openPanel.prompt")
   static let launchAtLogin = AppStrings.localized("settings.launchAtLogin")
   static let showKeyboardHints = AppStrings.localized("settings.showKeyboardHints")
-  static let skipCountdownOnAnotherWindow = AppStrings.localized(
-    "settings.skipCountdownOnAnotherWindow")
+  static let skipAutoCollapseOnAnotherWindow = AppStrings.localized(
+    "settings.skipAutoCollapseOnAnotherWindow")
   static let fullScreenSuppressionEnabled = AppStrings.localized(
     "settings.fullScreenSuppressionEnabled")
   static let screenSharingSuppressionEnabled = AppStrings.localized(
@@ -27,10 +27,18 @@ enum SettingsStrings {
     "settings.focusModeSuppressionEnabled")
   static let focusModeSuppressionHint = AppStrings.localized(
     "settings.focusModeSuppressionEnabled.hint")
-  static let memoryCardCollapseCountdown = AppStrings.localized(
-    "settings.memoryCardCollapseCountdown")
-  static let memoryCardCollapseCountdownUnit = AppStrings.localized(
-    "settings.memoryCardCollapseCountdown.unit")
+  static let memoryCardAutoCollapse = AppStrings.localized(
+    "settings.memoryCardAutoCollapse")
+  static let memoryCardAutoCollapseUnit = AppStrings.localized(
+    "settings.memoryCardAutoCollapse.unit")
+  static let memoryCardAutoCollapseImmediately = AppStrings.localized(
+    "settings.memoryCardAutoCollapse.immediately")
+  static let idleReminderAnimation = AppStrings.localized("settings.idleReminderAnimation")
+  static let idleReminderAnimationUnit = AppStrings.localized("settings.idleReminderAnimation.unit")
+  static let idleReminderAnimationHourUnit = AppStrings.localized(
+    "settings.idleReminderAnimation.hourUnit")
+  static let idleReminderAnimationNever = AppStrings.localized(
+    "settings.idleReminderAnimation.never")
   static let sectionMCP = AppStrings.localized("settings.section.mcp")
   static let mcpEnabled = AppStrings.localized("settings.mcp.enabled")
   static let mcpPort = AppStrings.localized("settings.mcp.port")

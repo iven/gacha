@@ -9,18 +9,34 @@ final class NotchController {
   var onResumeRequested: (() -> Void)?
   var onPausedChange: ((Bool) -> Void)?
 
-  private(set) var isPaused = false
-  private(set) var isSuppressed = false
+  private(set) var isPaused = false {
+    didSet {
+      viewModel.isPaused = isPaused
+      syncSuppression()
+    }
+  }
+  private(set) var isSystemSuppressed = false {
+    didSet {
+      viewModel.isSuppressed = isSystemSuppressed
+      syncSuppression()
+    }
+  }
+  private var isSuppressed: Bool {
+    isPaused || isSystemSuppressed
+  }
   private(set) var isHovering = false
   private(set) var isExpanded = false
   let autoCollapseSchedule = NotchAutoCollapseSchedule()
+  let idleReminderState = NotchIdleReminderState()
 
   private let viewModel = NotchControllerViewModel()
   private var notch: DynamicNotch<AnyView, AnyView, AnyView>?
   private var hoverObservation: AnyCancellable?
   private var autoCollapseTask: Task<Void, Never>?
+  private var idleReminderTask: Task<Void, Never>?
   private var globalClickMonitor: Any?
   private var autoCollapseTimeout: Duration?
+  private var idleReminderTimeout: Duration?
 
   init() {}
 
@@ -41,7 +57,9 @@ final class NotchController {
       compactTrailing: { AnyView(NotchCompactTrailingView(viewModel: viewModel)) })
     self.notch = notch
     Task {
+      // DynamicNotchKit starts hidden; compact() creates and shows the compact panel.
       await notch.compact()
+      idleReminderState.trigger(pulseCount: 1)
       // Exclude the notch panel from screen recordings and sharing. The window
       // is created by DynamicNotchKit during compact(), so set sharingType
       // immediately after it resolves.
@@ -66,11 +84,12 @@ final class NotchController {
     }
 
     isPaused = paused
-    viewModel.isPaused = paused
     if paused {
       cancelAutoCollapse()
-      performCompact()
-    } else if isHovering, notch != nil {
+      if isExpanded {
+        performCompact()
+      }
+    } else if isHovering, !isSuppressed, notch != nil {
       // User just clicked ▶ to resume — they're actively interacting with the
       // notch and likely want to keyboard-rate. Take focus.
       cancelAutoCollapse()
@@ -82,16 +101,17 @@ final class NotchController {
   /// Suppression keeps the notch compact and blocks hover-expand while the user
   /// is presenting. Unlike pause it is system-driven and reverts automatically.
   func setSuppressed(_ suppressed: Bool) {
-    guard isSuppressed != suppressed else {
+    guard isSystemSuppressed != suppressed else {
       return
     }
 
-    isSuppressed = suppressed
-    viewModel.isSuppressed = suppressed
+    isSystemSuppressed = suppressed
     if suppressed {
       cancelAutoCollapse()
-      performCompact()
-    } else if isHovering, !isPaused, notch != nil {
+      if isExpanded {
+        performCompact()
+      }
+    } else if isHovering, !isSuppressed, notch != nil {
       cancelAutoCollapse()
       performExpand()
     }
@@ -105,13 +125,18 @@ final class NotchController {
     }
   }
 
+  func setIdleReminderTimeout(_ timeout: Duration?) {
+    idleReminderTimeout = timeout
+    restartIdleReminder()
+  }
+
   /// Expands the notch. `makeKey` should be true only when the user is
   /// actively interacting *with the notch* and expects keyboard input to go
   /// there (hover, global toggle shortcut). Programmatic expand triggered by
   /// other windows (e.g. card management's preview) must keep `makeKey: false`
   /// so it does not steal focus from the originating window.
   func expand(makeKey: Bool = false) {
-    guard !isPaused, !isSuppressed, notch != nil else {
+    guard !isSuppressed, notch != nil else {
       return
     }
     cancelAutoCollapse()
@@ -126,9 +151,9 @@ final class NotchController {
   /// Global-shortcut entry point: collapses if currently expanded, otherwise
   /// expands and starts the auto-collapse countdown (so a pointer-less expand
   /// behaves the same as one triggered by a hover that has already left).
-  /// No-ops while paused or suppressed, matching hover semantics.
+  /// No-ops while suppressed, matching hover semantics.
   func toggle() {
-    guard !isPaused, !isSuppressed else {
+    guard !isSuppressed else {
       return
     }
     if isExpanded {
@@ -166,7 +191,7 @@ final class NotchController {
     isHovering = hovering
     onHoverChange?(hovering)
 
-    if isPaused || isSuppressed {
+    if isSuppressed {
       cancelAutoCollapse()
       return
     }
@@ -176,11 +201,13 @@ final class NotchController {
       performExpand(makeKey: true)
     } else {
       scheduleAutoCollapse()
+      restartIdleReminder()
     }
   }
 
   private func performExpand(makeKey: Bool = false) {
     isExpanded = true
+    cancelIdleReminder()
     Task { [notch] in
       await notch?.expand()
       if makeKey {
@@ -191,6 +218,7 @@ final class NotchController {
 
   private func performCompact() {
     isExpanded = false
+    restartIdleReminder()
     Task { [notch] in
       await notch?.compact()
     }
@@ -226,6 +254,50 @@ final class NotchController {
     autoCollapseTask?.cancel()
     autoCollapseTask = nil
     autoCollapseSchedule.clear()
+  }
+
+  private func restartIdleReminder() {
+    cancelIdleReminder()
+    startIdleReminder()
+  }
+
+  // Both setters guard against no-op writes, so a didSet only fires on a real
+  // change. Reaching a non-suppressed state therefore means suppression just
+  // lifted — the moment to resume the idle reminder cadence.
+  private func syncSuppression() {
+    idleReminderState.isSuppressed = isSuppressed
+    if !isSuppressed {
+      restartIdleReminder()
+    }
+  }
+
+  // Runs a repeating cadence while the notch is compact and not suppressed.
+  // Suppression pauses the cadence; syncSuppression restarts it once lifted.
+  private func startIdleReminder() {
+    guard
+      let timeout = idleReminderTimeout,
+      timeout > .zero,
+      !isExpanded,
+      !isSuppressed
+    else {
+      return
+    }
+
+    idleReminderTask = Task { [weak self] in
+      while !Task.isCancelled {
+        try? await Task.sleep(for: timeout)
+        guard let self, !Task.isCancelled else {
+          return
+        }
+
+        self.idleReminderState.trigger(pulseCount: 5)
+      }
+    }
+  }
+
+  private func cancelIdleReminder() {
+    idleReminderTask?.cancel()
+    idleReminderTask = nil
   }
 }
 
