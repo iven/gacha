@@ -15,7 +15,7 @@ struct CLISettingsSection: View {
 
   var body: some View {
     Section {
-      LabeledContent(SettingsStrings.cliInstall) {
+      LabeledContent {
         Button(SettingsStrings.cliInstall) {
           installMessage = nil
           isRunning = true
@@ -40,15 +40,22 @@ struct CLISettingsSection: View {
           }
         }
         .disabled(isRunning || !environment.isMCPServerRunning || isCLIInstalled)
+      } label: {
+        VStack(alignment: .leading, spacing: 2) {
+          Text(SettingsStrings.cliInstall)
+          if isCLIInstalled {
+            Text(SettingsStrings.cliInstallInstalled)
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          } else if !environment.isMCPServerRunning {
+            Text(SettingsStrings.cliInstallRequiresMCP)
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+        }
       }
     } header: {
       Text(SettingsStrings.sectionCLI)
-    } footer: {
-      if isCLIInstalled {
-        Text(SettingsStrings.cliInstallInstalled)
-      } else if !environment.isMCPServerRunning {
-        Text(SettingsStrings.cliInstallRequiresMCP)
-      }
     }
     .alert(
       SettingsStrings.cliInstall,
