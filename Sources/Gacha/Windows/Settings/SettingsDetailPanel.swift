@@ -20,7 +20,7 @@ struct SettingsDetailPanel: View {
 
   private let contentCoordinateSpace = "settingsContent"
   private let formTopInset: CGFloat = -15
-  private let topThreshold: CGFloat = 16
+  private let selectionAnchorPadding: CGFloat = 16
 
   var body: some View {
     ScrollViewReader { proxy in
@@ -34,15 +34,12 @@ struct SettingsDetailPanel: View {
       }
       .contentMargins(.top, formTopInset, for: .scrollContent)
       .onScrollGeometryChange(for: ScrollSnapshot.self) { geometry in
-        ScrollSnapshot(
-          visibleRect: geometry.visibleRect,
-          contentHeight: geometry.contentSize.height)
+        ScrollSnapshot(selectionAnchorY: selectionAnchorY(for: geometry))
       } action: { _, snapshot in
         if isUserScrolling {
           updateActiveSection(
             frames: sectionFrames,
-            visibleRect: snapshot.visibleRect,
-            contentHeight: snapshot.contentHeight)
+            selectionAnchorY: snapshot.selectionAnchorY)
         }
       }
       .onScrollPhaseChange { _, phase, context in
@@ -50,8 +47,7 @@ struct SettingsDetailPanel: View {
         if isUserScrolling {
           updateActiveSection(
             frames: sectionFrames,
-            visibleRect: context.geometry.visibleRect,
-            contentHeight: context.geometry.contentSize.height)
+            selectionAnchorY: selectionAnchorY(for: context.geometry))
         }
       }
       .onPreferenceChange(SectionFrameKey.self) { frames in
@@ -119,14 +115,12 @@ struct SettingsDetailPanel: View {
 
   private func updateActiveSection(
     frames: [SettingsSection: CGRect],
-    visibleRect: CGRect,
-    contentHeight: CGFloat
+    selectionAnchorY: CGFloat
   ) {
     guard
       let visibleSection = anchoredSection(
         from: frames,
-        visibleRect: visibleRect,
-        contentHeight: contentHeight
+        selectionAnchorY: selectionAnchorY
       )
     else {
       return
@@ -138,28 +132,27 @@ struct SettingsDetailPanel: View {
 
   private func anchoredSection(
     from frames: [SettingsSection: CGRect],
-    visibleRect: CGRect,
-    contentHeight: CGFloat
+    selectionAnchorY: CGFloat
   ) -> SettingsSection? {
-    guard !visibleRect.isEmpty else {
-      return frames.min(by: { $0.value.minY < $1.value.minY })?.key
+    guard !frames.isEmpty else {
+      return nil
     }
 
-    if contentHeight > 0, visibleRect.maxY >= contentHeight - 1 {
-      return SettingsSection.allCases.last
-    }
-
-    let anchorY = visibleRect.minY + topThreshold
     return SettingsSection.allCases.last { section in
       guard let frame = frames[section] else { return false }
-      return frame.minY <= anchorY
+      return frame.minY <= selectionAnchorY
     } ?? SettingsSection.allCases.first
+  }
+
+  private func selectionAnchorY(for geometry: ScrollGeometry) -> CGFloat {
+    geometry.visibleRect.minY
+      + max(0, geometry.contentInsets.top)
+      + selectionAnchorPadding
   }
 }
 
 private struct ScrollSnapshot: Equatable {
-  var visibleRect: CGRect
-  var contentHeight: CGFloat
+  var selectionAnchorY: CGFloat
 }
 
 private struct SectionFrameKey: PreferenceKey {
