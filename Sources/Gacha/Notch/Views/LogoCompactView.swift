@@ -36,7 +36,6 @@ private struct IdleReminderLogoView: View {
   @ObservedObject var idleReminderState: NotchIdleReminderState
   @State private var reminderAnimating = false
   @State private var reminderPulse = false
-  @State private var handledTriggerID = 0
 
   var body: some View {
     ZStack {
@@ -92,10 +91,10 @@ private struct IdleReminderLogoView: View {
   }
 
   private func handleTrigger(_ triggerID: Int) {
-    guard triggerID != handledTriggerID else {
+    guard triggerID != idleReminderState.handledTriggerID else {
       return
     }
-    handledTriggerID = triggerID
+    idleReminderState.handledTriggerID = triggerID
     playReminderAnimation()
   }
 }
