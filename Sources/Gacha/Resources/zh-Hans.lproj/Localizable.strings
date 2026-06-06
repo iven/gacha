@@ -118,6 +118,8 @@
 "mcp.tool.renameCategory.from" = "当前分类名称。";
 "mcp.tool.renameCategory.to" = "新分类名称。";
 "mcp.tool.deleteCategory.description" = "删除一个卡片分类及其中所有卡片。";
+"mcp.tool.enqueueNotice.description" = "将一条通知消息加入内存队列。";
+"mcp.tool.enqueueNotice.markdown" = "通知消息的 Markdown 内容。";
 "mcp.result.deleted" = "已删除。";
 "mcp.result.created" = "已创建。";
 "mcp.result.renamed" = "已重命名。";
@@ -126,6 +128,7 @@
 "mcp.error.missingIDCategory" = "缺少必填参数：id、category";
 "mcp.error.missingName" = "缺少必填参数：name";
 "mcp.error.missingFromTo" = "缺少必填参数：from、to";
+"mcp.error.missingMarkdown" = "缺少必填参数：markdown";
 "mcp.error.cardNotFound" = "找不到卡片：%@";
 "mcp.error.invalidCategoryName" = "无效的分类名称：「%@」";
 "mcp.error.categoryAlreadyExists" = "分类已存在：「%@」";

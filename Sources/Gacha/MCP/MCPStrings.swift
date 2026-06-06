@@ -27,6 +27,10 @@ enum MCPStrings {
   static let deleteCategoryDescription = AppStrings.localized(
     "mcp.tool.deleteCategory.description")
   static let deleteCategoryNameParam = AppStrings.localized("mcp.tool.category.name")
+  static let enqueueNoticeDescription = AppStrings.localized(
+    "mcp.tool.enqueueNotice.description")
+  static let enqueueNoticeMarkdownParam = AppStrings.localized(
+    "mcp.tool.enqueueNotice.markdown")
 
   // MARK: - Success messages
 
@@ -41,6 +45,7 @@ enum MCPStrings {
   static let missingIDCategory = AppStrings.localized("mcp.error.missingIDCategory")
   static let missingName = AppStrings.localized("mcp.error.missingName")
   static let missingFromTo = AppStrings.localized("mcp.error.missingFromTo")
+  static let missingMarkdown = AppStrings.localized("mcp.error.missingMarkdown")
 
   static func cardNotFound(_ id: String) -> String {
     String(format: AppStrings.localized("mcp.error.cardNotFound"), id)

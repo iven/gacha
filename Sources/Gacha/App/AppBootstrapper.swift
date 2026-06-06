@@ -15,6 +15,7 @@ struct AppBootstrapper {
     let memoryCardRepository = try MemoryCardRepository(
       directories: directories,
       fileManager: fileManager)
+    let noticeQueue = NoticeQueue()
 
     let launchAtLoginController = LaunchAtLoginController()
     let cardWindowBridge = CardWindowBridge(
@@ -54,18 +55,21 @@ struct AppBootstrapper {
         (try? memoryCardRepository?.count()) ?? 0
       })
 
-    let cardMCPServer = CardMCPServer(repository: memoryCardRepository)
+    let gachaMCPServer = GachaMCPServer(
+      repository: memoryCardRepository,
+      noticeQueue: noticeQueue)
 
     let environment = AppEnvironment(
       directories: directories,
       settingsStore: settingsStore,
       memoryCardRepository: memoryCardRepository,
+      noticeQueue: noticeQueue,
       launchAtLoginController: launchAtLoginController,
       cardWindowBridge: cardWindowBridge,
       notchPresentationCoordinator: notchPresentationCoordinator,
       suppressionController: suppressionController,
       storageRelocationCoordinator: storageRelocationCoordinator,
-      cardMCPServer: cardMCPServer)
+      gachaMCPServer: gachaMCPServer)
     try environment.start()
     return environment
   }

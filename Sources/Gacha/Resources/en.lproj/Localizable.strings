@@ -118,6 +118,8 @@
 "mcp.tool.renameCategory.from" = "Current category name.";
 "mcp.tool.renameCategory.to" = "New category name.";
 "mcp.tool.deleteCategory.description" = "Delete a card category and all cards inside it.";
+"mcp.tool.enqueueNotice.description" = "Enqueue a notice message in memory.";
+"mcp.tool.enqueueNotice.markdown" = "Notice message content in Markdown.";
 "mcp.result.deleted" = "Deleted.";
 "mcp.result.created" = "Created.";
 "mcp.result.renamed" = "Renamed.";
@@ -126,6 +128,7 @@
 "mcp.error.missingIDCategory" = "Missing required arguments: id, category";
 "mcp.error.missingName" = "Missing required argument: name";
 "mcp.error.missingFromTo" = "Missing required arguments: from, to";
+"mcp.error.missingMarkdown" = "Missing required argument: markdown";
 "mcp.error.cardNotFound" = "Card not found: %@";
 "mcp.error.invalidCategoryName" = "Invalid category name: \"%@\"";
 "mcp.error.categoryAlreadyExists" = "Category already exists: \"%@\"";

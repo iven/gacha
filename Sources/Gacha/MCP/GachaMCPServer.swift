@@ -4,22 +4,24 @@ import NIOCore
 import NIOHTTP1
 import NIOPosix
 
-// MARK: - CardMCPServer
+// MARK: - GachaMCPServer
 
-final class CardMCPServer: Sendable {
+final class GachaMCPServer: Sendable {
   private let repository: MemoryCardRepository
+  private let noticeQueue: NoticeQueue
   private let state = ServerState()
 
   /// Observable running state — updated on MainActor after start/stop.
   @MainActor
   private(set) var isRunning = false
 
-  init(repository: MemoryCardRepository) {
+  init(repository: MemoryCardRepository, noticeQueue: NoticeQueue) {
     self.repository = repository
+    self.noticeQueue = noticeQueue
   }
 
   func start(port: Int) async throws {
-    try await state.start(port: port, repository: repository)
+    try await state.start(port: port, repository: repository, noticeQueue: noticeQueue)
     await MainActor.run { isRunning = true }
   }
 
@@ -31,7 +33,7 @@ final class CardMCPServer: Sendable {
   func restart(port: Int) async throws {
     await MainActor.run { isRunning = false }
     await state.stop()
-    try await state.start(port: port, repository: repository)
+    try await state.start(port: port, repository: repository, noticeQueue: noticeQueue)
     await MainActor.run { isRunning = true }
   }
 }
@@ -47,14 +49,21 @@ private actor ServerState {
     let transport: StatefulHTTPServerTransport
   }
 
-  func start(port: Int, repository: MemoryCardRepository) async throws {
+  func start(
+    port: Int,
+    repository: MemoryCardRepository,
+    noticeQueue: NoticeQueue
+  ) async throws {
     let group = MultiThreadedEventLoopGroup.singleton
     let bootstrap = ServerBootstrap(group: group)
       .serverChannelOption(.backlog, value: 256)
       .serverChannelOption(.socketOption(.so_reuseaddr), value: 1)
       .childChannelInitializer { [self] channel in
         channel.pipeline.configureHTTPServerPipeline().flatMap {
-          let handler = HTTPHandler(state: self, repository: repository)
+          let handler = HTTPHandler(
+            state: self,
+            repository: repository,
+            noticeQueue: noticeQueue)
           return channel.pipeline.addHandler(handler)
         }
       }
@@ -78,7 +87,8 @@ private actor ServerState {
 
   func handleHTTPRequest(
     _ request: HTTPRequest,
-    repository: MemoryCardRepository
+    repository: MemoryCardRepository,
+    noticeQueue: NoticeQueue
   ) async -> HTTPResponse {
     let sessionID = request.header(HTTPHeaderName.sessionID)
 
@@ -97,7 +107,10 @@ private actor ServerState {
       let body = request.body,
       isInitializeRequest(body)
     {
-      return await createSessionAndHandle(request, repository: repository)
+      return await createSessionAndHandle(
+        request,
+        repository: repository,
+        noticeQueue: noticeQueue)
     }
 
     if sessionID != nil {
@@ -108,7 +121,8 @@ private actor ServerState {
 
   private func createSessionAndHandle(
     _ request: HTTPRequest,
-    repository: MemoryCardRepository
+    repository: MemoryCardRepository,
+    noticeQueue: NoticeQueue
   ) async -> HTTPResponse {
     let sessionID = UUID().uuidString
 
@@ -122,7 +136,7 @@ private actor ServerState {
     )
 
     do {
-      let server = await makeServer(repository: repository)
+      let server = await makeServer(repository: repository, noticeQueue: noticeQueue)
       try await server.start(transport: transport)
       sessions[sessionID] = SessionContext(server: server, transport: transport)
 
@@ -143,14 +157,16 @@ private actor ServerState {
 
 // MARK: - Server factory
 
-private func makeServer(repository: MemoryCardRepository) async -> Server {
+private func makeServer(repository: MemoryCardRepository, noticeQueue: NoticeQueue) async -> Server
+{
   let server = Server(
     name: "Gacha",
     version: "1.0.0",
     capabilities: .init(tools: .init(listChanged: false))
   )
   let registry = MCPToolRegistry(providers: [
-    MemoryCardMCPToolProvider(repository: repository)
+    MemoryCardMCPToolProvider(repository: repository),
+    NoticeMCPToolProvider(noticeQueue: noticeQueue),
   ])
   await registry.register(on: server)
   return server
@@ -173,13 +189,15 @@ private final class HTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
   private let state: ServerState
   private let repository: MemoryCardRepository
+  private let noticeQueue: NoticeQueue
 
   private var head: HTTPRequestHead?
   private var bodyBuffer: ByteBuffer?
 
-  init(state: ServerState, repository: MemoryCardRepository) {
+  init(state: ServerState, repository: MemoryCardRepository, noticeQueue: NoticeQueue) {
     self.state = state
     self.repository = repository
+    self.noticeQueue = noticeQueue
   }
 
   func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -197,7 +215,12 @@ private final class HTTPHandler: ChannelInboundHandler, @unchecked Sendable {
 
       nonisolated(unsafe) let ctx = context
       Task {
-        await self.handle(head: head, bodyBuffer: bodyBuffer, context: ctx, repository: repository)
+        await self.handle(
+          head: head,
+          bodyBuffer: bodyBuffer,
+          context: ctx,
+          repository: repository,
+          noticeQueue: noticeQueue)
       }
     }
   }
@@ -206,10 +229,14 @@ private final class HTTPHandler: ChannelInboundHandler, @unchecked Sendable {
     head: HTTPRequestHead,
     bodyBuffer: ByteBuffer?,
     context: ChannelHandlerContext,
-    repository: MemoryCardRepository
+    repository: MemoryCardRepository,
+    noticeQueue: NoticeQueue
   ) async {
     let request = makeRequest(head: head, bodyBuffer: bodyBuffer)
-    let response = await state.handleHTTPRequest(request, repository: repository)
+    let response = await state.handleHTTPRequest(
+      request,
+      repository: repository,
+      noticeQueue: noticeQueue)
     await write(response: response, version: head.version, context: context)
   }
 

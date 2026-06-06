@@ -8,12 +8,13 @@ final class AppEnvironment: ObservableObject {
   let directories: AppDirectories
   let settingsStore: SettingsStore
   let memoryCardRepository: MemoryCardRepository
+  let noticeQueue: NoticeQueue
   let launchAtLoginController: LaunchAtLoginController
   let cardWindowBridge: CardWindowBridge
   let notchPresentationCoordinator: NotchPresentationCoordinator
   let suppressionController: SuppressionController
   let storageRelocationCoordinator: StorageRelocationCoordinator
-  let cardMCPServer: CardMCPServer
+  let gachaMCPServer: GachaMCPServer
   @Published private(set) var isMCPServerRunning = false
 
   /// Single card-management model shared by the single-instance card window.
@@ -25,22 +26,24 @@ final class AppEnvironment: ObservableObject {
     directories: AppDirectories,
     settingsStore: SettingsStore,
     memoryCardRepository: MemoryCardRepository,
+    noticeQueue: NoticeQueue,
     launchAtLoginController: LaunchAtLoginController,
     cardWindowBridge: CardWindowBridge,
     notchPresentationCoordinator: NotchPresentationCoordinator,
     suppressionController: SuppressionController,
     storageRelocationCoordinator: StorageRelocationCoordinator,
-    cardMCPServer: CardMCPServer
+    gachaMCPServer: GachaMCPServer
   ) {
     self.directories = directories
     self.settingsStore = settingsStore
     self.memoryCardRepository = memoryCardRepository
+    self.noticeQueue = noticeQueue
     self.launchAtLoginController = launchAtLoginController
     self.cardWindowBridge = cardWindowBridge
     self.notchPresentationCoordinator = notchPresentationCoordinator
     self.suppressionController = suppressionController
     self.storageRelocationCoordinator = storageRelocationCoordinator
-    self.cardMCPServer = cardMCPServer
+    self.gachaMCPServer = gachaMCPServer
   }
 
   func start() throws {
@@ -62,7 +65,7 @@ final class AppEnvironment: ObservableObject {
       coordinatorRef?.handleToggleShortcut()
     }
 
-    let server = cardMCPServer
+    let server = gachaMCPServer
     let store = settingsStore
     Task {
       guard store.mcpEnabled else { return }
@@ -77,14 +80,14 @@ final class AppEnvironment: ObservableObject {
 
   func applyMCPSettings(enabled: Bool, port: Int) async throws {
     if enabled {
-      try await cardMCPServer.restart(port: port)
+      try await gachaMCPServer.restart(port: port)
       settingsStore.mcpEnabled = true
       settingsStore.mcpPort = port
     } else {
-      await cardMCPServer.stop()
+      await gachaMCPServer.stop()
       settingsStore.mcpEnabled = false
     }
-    isMCPServerRunning = cardMCPServer.isRunning
+    isMCPServerRunning = gachaMCPServer.isRunning
   }
 
   // Bridges the SwiftUI Settings scene's lifecycle into the shared window

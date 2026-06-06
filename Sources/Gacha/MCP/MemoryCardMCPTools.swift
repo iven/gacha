@@ -182,8 +182,7 @@ private func handleMemoryCardToolInner(
   _ params: CallTool.Parameters,
   repository: MemoryCardRepository
 ) async throws -> CallTool.Result {
-  let encoder = JSONEncoder()
-  encoder.dateEncodingStrategy = .iso8601
+  let encoder = JSONEncoder.iso8601
 
   switch params.name {
 

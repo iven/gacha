@@ -13,3 +13,11 @@ func mcpTextResult(_ data: Data) -> CallTool.Result {
 func mcpErrorResult(_ message: String) -> CallTool.Result {
   .init(content: [.text(text: message, annotations: nil, _meta: nil)], isError: true)
 }
+
+extension JSONEncoder {
+  static var iso8601: JSONEncoder {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    return encoder
+  }
+}
