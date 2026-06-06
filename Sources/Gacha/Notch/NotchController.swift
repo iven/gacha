@@ -85,10 +85,7 @@ final class NotchController {
 
     isPaused = paused
     if paused {
-      cancelAutoCollapse()
-      if isExpanded {
-        performCompact()
-      }
+      collapse()
     } else if isHovering, !isSuppressed, notch != nil {
       // User just clicked ▶ to resume — they're actively interacting with the
       // notch and likely want to keyboard-rate. Take focus.
@@ -107,10 +104,7 @@ final class NotchController {
 
     isSystemSuppressed = suppressed
     if suppressed {
-      cancelAutoCollapse()
-      if isExpanded {
-        performCompact()
-      }
+      collapse()
     } else if isHovering, !isSuppressed, notch != nil {
       cancelAutoCollapse()
       performExpand()
@@ -148,8 +142,7 @@ final class NotchController {
   }
 
   func compact() {
-    cancelAutoCollapse()
-    performCompact()
+    collapse()
   }
 
   /// Global-shortcut entry point: collapses if currently expanded, otherwise
@@ -183,8 +176,7 @@ final class NotchController {
       return
     }
 
-    cancelAutoCollapse()
-    performCompact()
+    collapse()
   }
 
   private func handleHoverChange(_ hovering: Bool) {
@@ -249,9 +241,13 @@ final class NotchController {
         return
       }
 
-      self.autoCollapseSchedule.clear()
-      self.performCompact()
+      self.collapse()
     }
+  }
+
+  private func collapse() {
+    cancelAutoCollapse()
+    performCompact()
   }
 
   private func cancelAutoCollapse() {
