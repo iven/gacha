@@ -8,5 +8,4 @@ enum CardKind: String, Equatable {
 
 protocol Card {
   var kind: CardKind { get }
-  func autoCollapseTimeout(memoryCardAutoCollapseSeconds: TimeInterval) -> Duration?
 }

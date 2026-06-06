@@ -10,8 +10,7 @@ final class AppEnvironment: ObservableObject {
   let memoryCardRepository: MemoryCardRepository
   let launchAtLoginController: LaunchAtLoginController
   let cardWindowBridge: CardWindowBridge
-  let notchController: NotchController
-  let memoryNotchPresenter: MemoryNotchPresenter
+  let notchPresentationCoordinator: NotchPresentationCoordinator
   let suppressionController: SuppressionController
   let storageRelocationCoordinator: StorageRelocationCoordinator
   let cardMCPServer: CardMCPServer
@@ -28,8 +27,7 @@ final class AppEnvironment: ObservableObject {
     memoryCardRepository: MemoryCardRepository,
     launchAtLoginController: LaunchAtLoginController,
     cardWindowBridge: CardWindowBridge,
-    notchController: NotchController,
-    memoryNotchPresenter: MemoryNotchPresenter,
+    notchPresentationCoordinator: NotchPresentationCoordinator,
     suppressionController: SuppressionController,
     storageRelocationCoordinator: StorageRelocationCoordinator,
     cardMCPServer: CardMCPServer
@@ -39,8 +37,7 @@ final class AppEnvironment: ObservableObject {
     self.memoryCardRepository = memoryCardRepository
     self.launchAtLoginController = launchAtLoginController
     self.cardWindowBridge = cardWindowBridge
-    self.notchController = notchController
-    self.memoryNotchPresenter = memoryNotchPresenter
+    self.notchPresentationCoordinator = notchPresentationCoordinator
     self.suppressionController = suppressionController
     self.storageRelocationCoordinator = storageRelocationCoordinator
     self.cardMCPServer = cardMCPServer
@@ -58,19 +55,11 @@ final class AppEnvironment: ObservableObject {
     try memoryCardRepository.rebuildIndex()
 
     suppressionController.start()
-    let presenter = memoryNotchPresenter
-    let schedule = notchController.autoCollapseSchedule
-    let idleReminderState = notchController.idleReminderState
-    notchController.start(
-      expanded: {
-        MemoryNotchExpandedView(presenter: presenter, autoCollapseSchedule: schedule)
-      },
-      compactLeading: { LogoCompactView(idleReminderState: idleReminderState) })
-    memoryNotchPresenter.start()
+    notchPresentationCoordinator.start()
 
-    let presenterRef = memoryNotchPresenter
-    KeyboardShortcuts.onKeyDown(for: .toggleNotch) { [weak presenterRef] in
-      presenterRef?.handleToggleShortcut()
+    let coordinatorRef = notchPresentationCoordinator
+    KeyboardShortcuts.onKeyDown(for: .toggleNotch) { [weak coordinatorRef] in
+      coordinatorRef?.handleToggleShortcut()
     }
 
     let server = cardMCPServer

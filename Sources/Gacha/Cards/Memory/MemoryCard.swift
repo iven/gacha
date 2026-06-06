@@ -14,10 +14,6 @@ struct MemoryCard: Card, Equatable, Identifiable {
 }
 
 extension MemoryCard {
-  func autoCollapseTimeout(memoryCardAutoCollapseSeconds: TimeInterval) -> Duration? {
-    .seconds(memoryCardAutoCollapseSeconds)
-  }
-
   var displayTitle: String {
     Self.displayTitle(for: body)
   }

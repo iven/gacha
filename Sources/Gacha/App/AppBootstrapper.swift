@@ -22,19 +22,14 @@ struct AppBootstrapper {
 
     let notchController = NotchController()
     let presenter = MemoryNotchPresenter(
-      controller: notchController,
       memoryCardRepository: memoryCardRepository,
       settingsStore: settingsStore,
       cardWindowBridge: cardWindowBridge)
-    presenter.onPauseRequested = { [weak notchController] in
-      notchController?.setPaused(true)
-    }
+    let notchPresentationCoordinator = NotchPresentationCoordinator(
+      controller: notchController,
+      memoryPresenter: presenter)
     presenter.onSettingsRequested = {
       windowOpenActionRegistry.open(.settings)
-    }
-
-    notchController.onResumeRequested = { [weak notchController] in
-      notchController?.setPaused(false)
     }
 
     let suppressionController = SuppressionController(sources: [
@@ -48,8 +43,8 @@ struct AppBootstrapper {
         probe: FocusModeDetector(),
         isEnabled: { settingsStore.focusModeSuppressionEnabled }),
     ])
-    suppressionController.onChange = { [weak notchController] suppressed in
-      notchController?.setSuppressed(suppressed)
+    suppressionController.onChange = { [weak notchPresentationCoordinator] suppressed in
+      notchPresentationCoordinator?.setSuppressed(suppressed)
     }
 
     let storageRelocationCoordinator = StorageRelocationCoordinator(
@@ -67,8 +62,7 @@ struct AppBootstrapper {
       memoryCardRepository: memoryCardRepository,
       launchAtLoginController: launchAtLoginController,
       cardWindowBridge: cardWindowBridge,
-      notchController: notchController,
-      memoryNotchPresenter: presenter,
+      notchPresentationCoordinator: notchPresentationCoordinator,
       suppressionController: suppressionController,
       storageRelocationCoordinator: storageRelocationCoordinator,
       cardMCPServer: cardMCPServer)

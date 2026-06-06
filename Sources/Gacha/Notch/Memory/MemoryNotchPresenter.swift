@@ -19,6 +19,10 @@ final class MemoryNotchPresenter: ObservableObject {
 
   var onPauseRequested: (() -> Void)?
   var onSettingsRequested: (() -> Void)?
+  var onCollapseRequested: (() -> Void)?
+  var onToggleRequested: (() -> Void)?
+  var onExpandRequested: (() -> Void)?
+  var onPresentationStateChanged: (() -> Void)?
 
   @Published private(set) var currentCard: any Card = EmptyStateCard()
   @Published private(set) var mode: Mode = .scheduler
@@ -57,8 +61,10 @@ final class MemoryNotchPresenter: ObservableObject {
   func handleToggleShortcut() {
     switch mode {
     case .preview: cardWindowBridge.previewCard = nil
-    case .pinned: mode = .scheduler
-    case .scheduler: controller.toggle()
+    case .pinned:
+      mode = .scheduler
+      show(card: currentCard)
+    case .scheduler: onToggleRequested?()
     }
   }
 
@@ -84,7 +90,7 @@ final class MemoryNotchPresenter: ObservableObject {
     case .pinned:
       mode = .scheduler
       show(card: currentCard)
-    case .scheduler: controller.compact()
+    case .scheduler: onCollapseRequested?()
     }
   }
 
@@ -92,7 +98,6 @@ final class MemoryNotchPresenter: ObservableObject {
     settingsStore.showKeyboardHints
   }
 
-  private let controller: NotchController
   private let memoryCardRepository: MemoryCardRepository
   private let scheduler: MemoryCardScheduler
   private let settingsStore: SettingsStore
@@ -103,14 +108,12 @@ final class MemoryNotchPresenter: ObservableObject {
   private var hasVisibleManagedWindow = false
 
   init(
-    controller: NotchController,
     memoryCardRepository: MemoryCardRepository,
     settingsStore: SettingsStore,
     cardWindowBridge: CardWindowBridge,
     scheduler: MemoryCardScheduler = MemoryCardScheduler(),
     now: @escaping () -> Date = Date.init
   ) {
-    self.controller = controller
     self.memoryCardRepository = memoryCardRepository
     self.settingsStore = settingsStore
     self.cardWindowBridge = cardWindowBridge
@@ -129,10 +132,10 @@ final class MemoryNotchPresenter: ObservableObject {
     observeCardWindowBridge()
   }
 
-  // Called by the settings UI when the idle-reminder interval changes, so a new
-  // cadence takes effect immediately instead of waiting for the next card.
-  func refreshIdleReminderTimeout() {
-    controller.setIdleReminderTimeout(.seconds(settingsStore.idleReminderAnimationSeconds))
+  var presentationPolicy: NotchPresentationPolicy {
+    NotchPresentationPolicy(
+      autoCollapseTimeout: autoCollapseTimeout,
+      idleReminderTimeout: .seconds(settingsStore.idleReminderAnimationSeconds))
   }
 
   // Observes the shared bridge: the card window writes preview card and managed
@@ -273,26 +276,27 @@ final class MemoryNotchPresenter: ObservableObject {
 
   private func show(card: any Card) {
     currentCard = card
-    controller.setIdleReminderTimeout(.seconds(settingsStore.idleReminderAnimationSeconds))
-    let timeout: Duration?
-    switch mode {
-    case .preview, .pinned:
-      // Both modes hold the notch open indefinitely.
-      timeout = nil
-    case .scheduler:
-      if hasVisibleManagedWindow, settingsStore.skipAutoCollapseOnAnotherWindow {
-        timeout = .zero
-      } else {
-        timeout = card.autoCollapseTimeout(
-          memoryCardAutoCollapseSeconds: settingsStore.memoryCardAutoCollapseSeconds)
-      }
-    }
-    controller.setAutoCollapseTimeout(timeout)
+    onPresentationStateChanged?()
     // Preview is the only mode where show() should also force-expand the
     // notch (preview can be triggered while compact). Pin is only ever
     // toggled while the notch is already expanded.
     if case .preview = mode {
-      controller.expand()
+      onExpandRequested?()
+    }
+  }
+
+  private var autoCollapseTimeout: Duration? {
+    switch mode {
+    case .preview, .pinned:
+      return nil
+    case .scheduler:
+      if hasVisibleManagedWindow, settingsStore.skipAutoCollapseOnAnotherWindow {
+        return .zero
+      }
+      if currentCard is EmptyStateCard {
+        return .zero
+      }
+      return .seconds(settingsStore.memoryCardAutoCollapseSeconds)
     }
   }
 }
