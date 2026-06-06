@@ -28,7 +28,8 @@ struct AppBootstrapper {
       cardWindowBridge: cardWindowBridge)
     let noticePresenter = NoticeNotchPresenter(
       noticeQueue: noticeQueue,
-      cardWindowBridge: cardWindowBridge)
+      cardWindowBridge: cardWindowBridge,
+      settingsStore: settingsStore)
     let notchPresentationCoordinator = NotchPresentationCoordinator(
       controller: notchController,
       memoryPresenter: memoryPresenter,

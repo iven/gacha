@@ -4,6 +4,7 @@ struct AppSettings: Equatable {
   var userStorageURL: URL
   var launchAtLoginEnabled: Bool
   var memoryCardAutoCollapseSeconds: TimeInterval
+  var noticeAutoCollapseSeconds: TimeInterval
   var idleReminderAnimationSeconds: TimeInterval
   var skipAutoCollapseOnAnotherWindow: Bool
   var showKeyboardHints: Bool
@@ -15,6 +16,7 @@ struct AppSettings: Equatable {
 
   static let defaultLaunchAtLoginEnabled = true
   static let defaultMemoryCardAutoCollapseSeconds: TimeInterval = 1
+  static let defaultNoticeAutoCollapseSeconds: TimeInterval = 1
   static let defaultIdleReminderAnimationSeconds: TimeInterval = 30 * 60
   static let defaultSkipAutoCollapseOnAnotherWindow = true
   static let defaultShowKeyboardHints = true
@@ -29,6 +31,7 @@ struct AppSettings: Equatable {
       userStorageURL: userStorageURL,
       launchAtLoginEnabled: defaultLaunchAtLoginEnabled,
       memoryCardAutoCollapseSeconds: defaultMemoryCardAutoCollapseSeconds,
+      noticeAutoCollapseSeconds: defaultNoticeAutoCollapseSeconds,
       idleReminderAnimationSeconds: defaultIdleReminderAnimationSeconds,
       skipAutoCollapseOnAnotherWindow: defaultSkipAutoCollapseOnAnotherWindow,
       showKeyboardHints: defaultShowKeyboardHints,

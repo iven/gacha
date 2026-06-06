@@ -33,6 +33,8 @@ enum SettingsStrings {
     "settings.memoryCardAutoCollapse.unit")
   static let memoryCardAutoCollapseImmediately = AppStrings.localized(
     "settings.memoryCardAutoCollapse.immediately")
+  static let noticeAutoCollapse = AppStrings.localized("settings.noticeAutoCollapse")
+  static let noticeAutoCollapseUnit = AppStrings.localized("settings.noticeAutoCollapse.unit")
   static let idleReminderAnimation = AppStrings.localized("settings.idleReminderAnimation")
   static let idleReminderAnimationUnit = AppStrings.localized("settings.idleReminderAnimation.unit")
   static let idleReminderAnimationHourUnit = AppStrings.localized(

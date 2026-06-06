@@ -85,8 +85,8 @@ struct SettingsDetailPanel: View {
     case .notch:
       NotchSection(
         settingsStore: settingsStore,
-        onIdleReminderTimeoutChanged: {
-          environment.notchPresentationCoordinator.refreshIdleReminderTimeout()
+        onPresentationPolicyChanged: {
+          environment.notchPresentationCoordinator.refreshPresentationPolicy()
         })
     case .suppression:
       SuppressionSection(

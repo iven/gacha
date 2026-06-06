@@ -84,6 +84,8 @@
 "settings.memoryCardAutoCollapse" = "记忆卡片自动收起";
 "settings.memoryCardAutoCollapse.unit" = "秒";
 "settings.memoryCardAutoCollapse.immediately" = "立即";
+"settings.noticeAutoCollapse" = "通知卡片自动收起";
+"settings.noticeAutoCollapse.unit" = "秒";
 "settings.idleReminderAnimation" = "空闲时播放提醒动画";
 "settings.idleReminderAnimation.unit" = "分钟";
 "settings.idleReminderAnimation.hourUnit" = "小时";

@@ -3,6 +3,8 @@ import Foundation
 struct SettingsStore {
   static let memoryCardAutoCollapseRange: ClosedRange<TimeInterval> = 0...60
   static let memoryCardAutoCollapseStep: TimeInterval = 1
+  static let noticeAutoCollapseRange: ClosedRange<TimeInterval> = 1...10
+  static let noticeAutoCollapseStep: TimeInterval = 1
   static let idleReminderAnimationRange: ClosedRange<TimeInterval> = 0...(180 * 60)
   static let idleReminderAnimationStep: TimeInterval = 60
 
@@ -10,6 +12,7 @@ struct SettingsStore {
     static let userStoragePath = "userStoragePath"
     static let launchAtLoginEnabled = "launchAtLoginEnabled"
     static let memoryCardAutoCollapseSeconds = "memoryCardAutoCollapseSeconds"
+    static let noticeAutoCollapseSeconds = "noticeAutoCollapseSeconds"
     static let idleReminderAnimationSeconds = "idleReminderAnimationSeconds"
     static let skipAutoCollapseOnAnotherWindow = "skipAutoCollapseOnAnotherWindow"
     static let showKeyboardHints = "showKeyboardHints"
@@ -32,6 +35,7 @@ struct SettingsStore {
     defaults.register(defaults: [
       Key.launchAtLoginEnabled: AppSettings.defaultLaunchAtLoginEnabled,
       Key.memoryCardAutoCollapseSeconds: AppSettings.defaultMemoryCardAutoCollapseSeconds,
+      Key.noticeAutoCollapseSeconds: AppSettings.defaultNoticeAutoCollapseSeconds,
       Key.idleReminderAnimationSeconds: AppSettings.defaultIdleReminderAnimationSeconds,
       Key.skipAutoCollapseOnAnotherWindow: AppSettings.defaultSkipAutoCollapseOnAnotherWindow,
       Key.showKeyboardHints: AppSettings.defaultShowKeyboardHints,
@@ -58,6 +62,7 @@ struct SettingsStore {
         userStorageURL: userStorageURL,
         launchAtLoginEnabled: launchAtLoginEnabled,
         memoryCardAutoCollapseSeconds: memoryCardAutoCollapseSeconds,
+        noticeAutoCollapseSeconds: noticeAutoCollapseSeconds,
         idleReminderAnimationSeconds: idleReminderAnimationSeconds,
         skipAutoCollapseOnAnotherWindow: skipAutoCollapseOnAnotherWindow,
         showKeyboardHints: showKeyboardHints,
@@ -71,6 +76,7 @@ struct SettingsStore {
       userStorageURL = newValue.userStorageURL
       launchAtLoginEnabled = newValue.launchAtLoginEnabled
       memoryCardAutoCollapseSeconds = newValue.memoryCardAutoCollapseSeconds
+      noticeAutoCollapseSeconds = newValue.noticeAutoCollapseSeconds
       idleReminderAnimationSeconds = newValue.idleReminderAnimationSeconds
       skipAutoCollapseOnAnotherWindow = newValue.skipAutoCollapseOnAnotherWindow
       showKeyboardHints = newValue.showKeyboardHints
@@ -118,6 +124,23 @@ struct SettingsStore {
           step: Self.memoryCardAutoCollapseStep,
           range: Self.memoryCardAutoCollapseRange),
         forKey: Key.memoryCardAutoCollapseSeconds)
+    }
+  }
+
+  var noticeAutoCollapseSeconds: TimeInterval {
+    get {
+      normalized(
+        defaults.double(forKey: Key.noticeAutoCollapseSeconds),
+        step: Self.noticeAutoCollapseStep,
+        range: Self.noticeAutoCollapseRange)
+    }
+    nonmutating set {
+      defaults.set(
+        normalized(
+          newValue,
+          step: Self.noticeAutoCollapseStep,
+          range: Self.noticeAutoCollapseRange),
+        forKey: Key.noticeAutoCollapseSeconds)
     }
   }
 

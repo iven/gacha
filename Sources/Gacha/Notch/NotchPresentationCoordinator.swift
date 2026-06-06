@@ -105,7 +105,7 @@ final class NotchPresentationCoordinator: ObservableObject {
     controller.setSuppressed(suppressed)
   }
 
-  func refreshIdleReminderTimeout() {
+  func refreshPresentationPolicy() {
     syncPresentationState()
   }
 

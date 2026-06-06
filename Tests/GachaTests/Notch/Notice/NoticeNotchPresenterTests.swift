@@ -77,14 +77,27 @@ import Testing
 }
 
 @MainActor
+@Test func noticePresenterUsesNoticeAutoCollapseSetting() {
+  let fixture = NoticePresenterFixture()
+
+  fixture.settingsStore.noticeAutoCollapseSeconds = 8
+
+  #expect(fixture.presenter.presentationPolicy.autoCollapseTimeout == .seconds(8))
+}
+
+@MainActor
 private struct NoticePresenterFixture {
   let queue = NoticeQueue()
+  let settingsStore: SettingsStore
   let presenter: NoticeNotchPresenter
 
   init() {
+    settingsStore = SettingsStore(
+      defaults: UserDefaults(suiteName: "NoticeNotchPresenterTests-\(UUID().uuidString)")!)
     presenter = NoticeNotchPresenter(
       noticeQueue: queue,
-      cardWindowBridge: CardWindowBridge(windowOpenActionRegistry: WindowOpenActionRegistry()))
+      cardWindowBridge: CardWindowBridge(windowOpenActionRegistry: WindowOpenActionRegistry()),
+      settingsStore: settingsStore)
     presenter.start()
   }
 }

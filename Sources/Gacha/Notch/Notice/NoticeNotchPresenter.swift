@@ -3,8 +3,6 @@ import Foundation
 
 @MainActor
 final class NoticeNotchPresenter: ObservableObject {
-  private static let autoCollapseTimeout: Duration = .seconds(3)
-
   @Published private(set) var currentMessage: NoticeMessage?
   @Published private(set) var isSettingsVisible = false
 
@@ -15,12 +13,18 @@ final class NoticeNotchPresenter: ObservableObject {
 
   private let noticeQueue: NoticeQueue
   private let cardWindowBridge: CardWindowBridge
+  private let settingsStore: SettingsStore
   private var observations: Set<AnyCancellable> = []
   private var isApplyingQueueMutation = false
 
-  init(noticeQueue: NoticeQueue, cardWindowBridge: CardWindowBridge) {
+  init(
+    noticeQueue: NoticeQueue,
+    cardWindowBridge: CardWindowBridge,
+    settingsStore: SettingsStore
+  ) {
     self.noticeQueue = noticeQueue
     self.cardWindowBridge = cardWindowBridge
+    self.settingsStore = settingsStore
   }
 
   var actions: NoticeNotchActions {
@@ -37,7 +41,7 @@ final class NoticeNotchPresenter: ObservableObject {
 
   var presentationPolicy: NotchPresentationPolicy {
     NotchPresentationPolicy(
-      autoCollapseTimeout: Self.autoCollapseTimeout,
+      autoCollapseTimeout: .seconds(settingsStore.noticeAutoCollapseSeconds),
       idleReminderTimeout: nil)
   }
 

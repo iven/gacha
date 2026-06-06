@@ -10,6 +10,7 @@ import Testing
   #expect(settings.userStorageURL == defaultUserStorageURL)
   #expect(settings.launchAtLoginEnabled)
   #expect(settings.memoryCardAutoCollapseSeconds == 1)
+  #expect(settings.noticeAutoCollapseSeconds == 1)
   #expect(settings.idleReminderAnimationSeconds == 30 * 60)
   #expect(settings.skipAutoCollapseOnAnotherWindow)
   #expect(settings.showKeyboardHints)
@@ -49,6 +50,17 @@ import Testing
   #expect(reloadedStore.memoryCardAutoCollapseSeconds == 45)
 }
 
+@Test func settingsStorePersistsNoticeAutoCollapseSeconds() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.noticeAutoCollapseSeconds = 7
+
+  let reloadedStore = SettingsStore(defaults: defaults)
+
+  #expect(reloadedStore.noticeAutoCollapseSeconds == 7)
+}
+
 @Test func settingsStorePersistsLaunchAtLoginEnabled() {
   let defaults = makeTestDefaults()
   let store = SettingsStore(defaults: defaults)
@@ -69,6 +81,7 @@ import Testing
     userStorageURL: userStorageURL,
     launchAtLoginEnabled: false,
     memoryCardAutoCollapseSeconds: 60,
+    noticeAutoCollapseSeconds: 8,
     idleReminderAnimationSeconds: 15 * 60,
     skipAutoCollapseOnAnotherWindow: false,
     showKeyboardHints: false,
@@ -81,6 +94,7 @@ import Testing
   #expect(store.settings.userStorageURL == userStorageURL)
   #expect(!store.settings.launchAtLoginEnabled)
   #expect(store.settings.memoryCardAutoCollapseSeconds == 60)
+  #expect(store.settings.noticeAutoCollapseSeconds == 8)
   #expect(store.settings.idleReminderAnimationSeconds == 15 * 60)
   #expect(!store.settings.skipAutoCollapseOnAnotherWindow)
   #expect(!store.settings.showKeyboardHints)
@@ -175,6 +189,26 @@ import Testing
 
   store.memoryCardAutoCollapseSeconds = 300
   #expect(store.memoryCardAutoCollapseSeconds == 60)
+}
+
+@Test func settingsStoreNormalizesNoticeAutoCollapseSeconds() {
+  let defaults = makeTestDefaults()
+  let store = SettingsStore(defaults: defaults)
+
+  store.noticeAutoCollapseSeconds = -1
+  #expect(store.noticeAutoCollapseSeconds == 1)
+
+  store.noticeAutoCollapseSeconds = 0
+  #expect(store.noticeAutoCollapseSeconds == 1)
+
+  store.noticeAutoCollapseSeconds = 7.4
+  #expect(store.noticeAutoCollapseSeconds == 7)
+
+  store.noticeAutoCollapseSeconds = 7.6
+  #expect(store.noticeAutoCollapseSeconds == 8)
+
+  store.noticeAutoCollapseSeconds = 300
+  #expect(store.noticeAutoCollapseSeconds == 10)
 }
 
 @Test func settingsStoreNormalizesIdleReminderAnimationSeconds() {

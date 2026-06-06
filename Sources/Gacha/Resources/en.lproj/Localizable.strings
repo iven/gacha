@@ -84,6 +84,8 @@
 "settings.memoryCardAutoCollapse" = "Auto-collapse memory card";
 "settings.memoryCardAutoCollapse.unit" = "s";
 "settings.memoryCardAutoCollapse.immediately" = "Immediately";
+"settings.noticeAutoCollapse" = "Auto-collapse notice card";
+"settings.noticeAutoCollapse.unit" = "s";
 "settings.idleReminderAnimation" = "Play reminder animation while idle";
 "settings.idleReminderAnimation.unit" = "min";
 "settings.idleReminderAnimation.hourUnit" = "hr";

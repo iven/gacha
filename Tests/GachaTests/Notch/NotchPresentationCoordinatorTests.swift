@@ -78,7 +78,8 @@ private final class CoordinatorFixture {
       cardWindowBridge: cardWindowBridge)
     noticePresenter = NoticeNotchPresenter(
       noticeQueue: queue,
-      cardWindowBridge: cardWindowBridge)
+      cardWindowBridge: cardWindowBridge,
+      settingsStore: settingsStore)
     coordinator = NotchPresentationCoordinator(
       controller: controller,
       memoryPresenter: memoryPresenter,
