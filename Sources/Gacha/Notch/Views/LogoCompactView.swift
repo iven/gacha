@@ -34,67 +34,21 @@ struct LogoCompactView: View {
 
 private struct IdleReminderLogoView: View {
   @ObservedObject var idleReminderState: NotchIdleReminderState
-  @State private var reminderAnimating = false
-  @State private var reminderPulse = false
 
   var body: some View {
-    ZStack {
-      Capsule()
-        .fill(.red)
-        .opacity(isReminderVisible ? pulseAmount * 0.3 : 0)
-
-      Capsule()
-        .strokeBorder(.red, lineWidth: 1)
-        .scaleEffect(1 + pulseAmount * 0.05)
-        .opacity(isReminderVisible ? pulseAmount * 0.3 : 0)
-
+    NotchAnimatedCue(
+      triggerID: idleReminderState.triggerID,
+      pulseCount: idleReminderState.pulseCount,
+      isSuppressed: idleReminderState.isSuppressed,
+      restingShell: true,
+      externalHandledTriggerID: Binding(
+        get: { idleReminderState.handledTriggerID },
+        set: { idleReminderState.handledTriggerID = $0 })
+    ) { pulseAmount in
       Text("G")
         .font(.custom("Avenir-Black", size: NotchToolbarStyle.compactGlyphFontSize))
         .foregroundStyle(LogoCompactView.gFill)
-        .scaleEffect(isReminderVisible ? 1 + pulseAmount * 0.16 : 1)
-        .opacity(0.8 + (isReminderVisible ? pulseAmount * 0.2 : 0))
-        .shadow(color: .white.opacity(isReminderVisible ? pulseAmount * 0.6 : 0), radius: 3)
+        .opacity(0.8 + pulseAmount * 0.2)
     }
-    .notchToolbarControl()
-    .onAppear {
-      handleTrigger(idleReminderState.triggerID)
-    }
-    .onChange(of: idleReminderState.triggerID) { _, triggerID in
-      handleTrigger(triggerID)
-    }
-  }
-
-  private var isReminderVisible: Bool {
-    reminderAnimating && !idleReminderState.isSuppressed
-  }
-
-  private var pulseAmount: Double {
-    reminderPulse ? 1 : 0
-  }
-
-  private func playReminderAnimation() {
-    reminderPulse = false
-    reminderAnimating = true
-    Task { @MainActor in
-      for _ in 0..<idleReminderState.pulseCount {
-        withAnimation(.easeInOut(duration: 0.55)) {
-          reminderPulse = true
-        }
-        try? await Task.sleep(for: .seconds(0.55))
-        withAnimation(.easeInOut(duration: 0.55)) {
-          reminderPulse = false
-        }
-        try? await Task.sleep(for: .seconds(0.55))
-      }
-      reminderAnimating = false
-    }
-  }
-
-  private func handleTrigger(_ triggerID: Int) {
-    guard triggerID != idleReminderState.handledTriggerID else {
-      return
-    }
-    idleReminderState.handledTriggerID = triggerID
-    playReminderAnimation()
   }
 }

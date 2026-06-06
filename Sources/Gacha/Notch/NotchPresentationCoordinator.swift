@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 @MainActor
@@ -10,10 +11,17 @@ final class NotchPresentationCoordinator: ObservableObject {
 
   let controller: NotchController
   let memoryPresenter: MemoryNotchPresenter
+  private let noticeQueue: NoticeQueue
+  private var noticeQueueEventCancellable: AnyCancellable?
 
-  init(controller: NotchController, memoryPresenter: MemoryNotchPresenter) {
+  init(
+    controller: NotchController,
+    memoryPresenter: MemoryNotchPresenter,
+    noticeQueue: NoticeQueue
+  ) {
     self.controller = controller
     self.memoryPresenter = memoryPresenter
+    self.noticeQueue = noticeQueue
 
     memoryPresenter.onCollapseRequested = { [weak controller] in
       controller?.compact()
@@ -33,6 +41,12 @@ final class NotchPresentationCoordinator: ObservableObject {
 
     controller.onResumeRequested = { [weak controller] in
       controller?.setPaused(false)
+    }
+
+    controller.setNoticeCount(noticeQueue.pendingCount)
+    noticeQueueEventCancellable = noticeQueue.events.sink { [weak self] _ in
+      guard let self else { return }
+      self.controller.setNoticeCount(self.noticeQueue.pendingCount)
     }
   }
 

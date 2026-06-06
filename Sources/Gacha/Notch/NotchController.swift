@@ -117,6 +117,10 @@ final class NotchController {
     }
   }
 
+  func setNoticeCount(_ count: Int) {
+    viewModel.noticeCount = count
+  }
+
   /// Sets the auto-collapse timeout. `nil` disables auto-collapse entirely.
   func setAutoCollapseTimeout(_ timeout: Duration?) {
     autoCollapseTimeout = timeout
@@ -305,6 +309,7 @@ final class NotchController {
 final class NotchControllerViewModel: ObservableObject {
   @Published var isPaused = false
   @Published var isSuppressed = false
+  @Published var noticeCount = 0
   var onResumeRequested: (() -> Void)?
 }
 
@@ -319,13 +324,24 @@ private struct NotchCompactTrailingView: View {
   @ObservedObject var viewModel: NotchControllerViewModel
 
   var body: some View {
-    if viewModel.isSuppressed {
-      suppressionIndicator
-    } else if viewModel.isPaused {
-      pauseButton
-    } else {
-      pauseButton.hidden()
+    ZStack {
+      if viewModel.isSuppressed {
+        suppressionIndicator
+          .transition(indicatorTransition)
+      } else if viewModel.isPaused {
+        pauseButton
+          .transition(indicatorTransition)
+      } else if viewModel.noticeCount > 0 {
+        NoticeCountIndicator(count: viewModel.noticeCount)
+          .transition(indicatorTransition)
+      } else {
+        pauseButton.hidden()
+          .transition(.opacity)
+      }
     }
+    .animation(.easeInOut(duration: 0.22), value: viewModel.isSuppressed)
+    .animation(.easeInOut(duration: 0.22), value: viewModel.isPaused)
+    .animation(.easeInOut(duration: 0.22), value: viewModel.noticeCount > 0)
   }
 
   // Non-interactive, visually distinct from the user-pause glyph: suppression is
@@ -346,5 +362,33 @@ private struct NotchCompactTrailingView: View {
         .foregroundStyle(.white.opacity(0.85))
         .notchToolbarControl(restingShell: false, highlighted: hovering)
     }
+  }
+
+  private var indicatorTransition: AnyTransition {
+    .opacity.combined(with: .scale(scale: 0.86))
+  }
+}
+
+private struct NoticeCountIndicator: View {
+  let count: Int
+
+  var body: some View {
+    NotchAnimatedCue(
+      triggerID: count,
+      pulseCount: 5,
+      restingShell: false,
+      showsShellWhileAnimating: true
+    ) { pulseAmount in
+      Text(formattedCount)
+        .font(.custom("Avenir-Black", size: NotchToolbarStyle.compactGlyphFontSize))
+        .foregroundStyle(.white.opacity(0.85 + pulseAmount * 0.15))
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .contentTransition(.numericText(value: Double(count)))
+    }
+  }
+
+  private var formattedCount: String {
+    count > 99 ? "99+" : "\(count)"
   }
 }

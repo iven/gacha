@@ -28,7 +28,8 @@ struct AppBootstrapper {
       cardWindowBridge: cardWindowBridge)
     let notchPresentationCoordinator = NotchPresentationCoordinator(
       controller: notchController,
-      memoryPresenter: presenter)
+      memoryPresenter: presenter,
+      noticeQueue: noticeQueue)
     presenter.onSettingsRequested = {
       windowOpenActionRegistry.open(.settings)
     }

@@ -15,6 +15,10 @@ final class NoticeQueue {
     messages
   }
 
+  var pendingCount: Int {
+    messages.count
+  }
+
   var isEmpty: Bool {
     messages.isEmpty
   }
