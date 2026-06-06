@@ -1,15 +1,23 @@
 import Foundation
 import MCP
 
-// MARK: - Tool registration
+struct MemoryCardMCPToolProvider: MCPToolProvider {
+  let repository: MemoryCardRepository
 
-func registerMemoryCardTools(on server: Server, repository: MemoryCardRepository) async {
-  await server.withMethodHandler(ListTools.self) { _ in
-    .init(tools: memoryCardTools)
+  var tools: [Tool] {
+    memoryCardTools
   }
 
-  await server.withMethodHandler(CallTool.self) { params in
-    try await handleMemoryCardTool(params, repository: repository)
+  func call(_ params: CallTool.Parameters) async throws -> CallTool.Result? {
+    guard toolNames.contains(params.name) else {
+      return nil
+    }
+
+    return try await handleMemoryCardTool(params, repository: repository)
+  }
+
+  private var toolNames: Set<String> {
+    Set(memoryCardTools.map(\.name))
   }
 }
 
@@ -162,11 +170,11 @@ private func handleMemoryCardTool(
   do {
     return try await handleMemoryCardToolInner(params, repository: repository)
   } catch let error as MemoryCardFileRepositoryError {
-    return errorResult(error.mcpMessage)
+    return mcpErrorResult(error.mcpMessage)
   } catch let error as MemoryCardMCPError {
-    return errorResult(error.mcpMessage)
+    return mcpErrorResult(error.mcpMessage)
   } catch {
-    return errorResult(error.localizedDescription)
+    return mcpErrorResult(error.localizedDescription)
   }
 }
 
@@ -182,23 +190,23 @@ private func handleMemoryCardToolInner(
   case "list_cards":
     let category = params.arguments?["category"]?.stringValue
     let cards = try await MainActor.run { try repository.list(directory: category) }
-    return textResult(try encoder.encode(cards.map(MemoryCardDTO.init)))
+    return mcpTextResult(try encoder.encode(cards.map(MemoryCardDTO.init)))
 
   case "create_card":
     guard let body = params.arguments?["body"]?.stringValue else {
-      return errorResult(MCPStrings.missingBody)
+      return mcpErrorResult(MCPStrings.missingBody)
     }
     let category =
       params.arguments?["category"]?.stringValue ?? AppMetadata.defaultCategoryDirectoryName
     let card = try await MainActor.run { try repository.create(body: body, directory: category) }
-    return textResult(try encoder.encode(MemoryCardDTO(card)))
+    return mcpTextResult(try encoder.encode(MemoryCardDTO(card)))
 
   case "update_card":
     guard let id = params.arguments?["id"]?.stringValue,
       let body = params.arguments?["body"]?.stringValue,
       let category = params.arguments?["category"]?.stringValue
     else {
-      return errorResult(MCPStrings.missingIDBodyCategory)
+      return mcpErrorResult(MCPStrings.missingIDBodyCategory)
     }
     let existing = try await MainActor.run {
       guard let card = try repository.find(id: id) else {
@@ -210,67 +218,51 @@ private func handleMemoryCardToolInner(
     updated.body = body
     updated.directory = category
     try await MainActor.run { try repository.write(updated) }
-    return textResult(try encoder.encode(MemoryCardDTO(updated)))
+    return mcpTextResult(try encoder.encode(MemoryCardDTO(updated)))
 
   case "delete_card":
     guard let id = params.arguments?["id"]?.stringValue,
       let category = params.arguments?["category"]?.stringValue
     else {
-      return errorResult(MCPStrings.missingIDCategory)
+      return mcpErrorResult(MCPStrings.missingIDCategory)
     }
     try await MainActor.run { try repository.delete(id: id, directory: category) }
-    return textResult(MCPStrings.deleted)
+    return mcpTextResult(MCPStrings.deleted)
 
   case "count_cards":
     let count = try await MainActor.run { try repository.count() }
-    return .init(
-      content: [.text(text: "\(count)", annotations: nil, _meta: nil)], isError: false)
+    return mcpTextResult("\(count)")
 
   case "list_categories":
     let categories = try await MainActor.run { try repository.listDirectories() }
-    return textResult(try JSONEncoder().encode(categories))
+    return mcpTextResult(try JSONEncoder().encode(categories))
 
   case "create_category":
     guard let name = params.arguments?["name"]?.stringValue else {
-      return errorResult(MCPStrings.missingName)
+      return mcpErrorResult(MCPStrings.missingName)
     }
     try await MainActor.run { try repository.createDirectory(name: name) }
-    return textResult(MCPStrings.created)
+    return mcpTextResult(MCPStrings.created)
 
   case "rename_category":
     guard let from = params.arguments?["from"]?.stringValue,
       let to = params.arguments?["to"]?.stringValue
     else {
-      return errorResult(MCPStrings.missingFromTo)
+      return mcpErrorResult(MCPStrings.missingFromTo)
     }
     try await MainActor.run { try repository.renameDirectory(from: from, to: to) }
-    return textResult(MCPStrings.renamed)
+    return mcpTextResult(MCPStrings.renamed)
 
   case "delete_category":
     guard let name = params.arguments?["name"]?.stringValue else {
-      return errorResult(MCPStrings.missingName)
+      return mcpErrorResult(MCPStrings.missingName)
     }
     try await MainActor.run { try repository.deleteDirectory(name: name) }
-    return textResult(MCPStrings.deleted)
+    return mcpTextResult(MCPStrings.deleted)
 
   default:
-    return errorResult(MCPStrings.unknownTool(params.name))
+    return mcpErrorResult(MCPStrings.unknownTool(params.name))
   }
-}
-
-// MARK: - Helpers
-
-private func textResult(_ text: String) -> CallTool.Result {
-  .init(content: [.text(text: text, annotations: nil, _meta: nil)], isError: false)
-}
-
-private func textResult(_ data: Data) -> CallTool.Result {
-  let text = String(data: data, encoding: .utf8) ?? "[]"
-  return .init(content: [.text(text: text, annotations: nil, _meta: nil)], isError: false)
-}
-
-private func errorResult(_ message: String) -> CallTool.Result {
-  .init(content: [.text(text: message, annotations: nil, _meta: nil)], isError: true)
 }
 
 // MARK: - Errors

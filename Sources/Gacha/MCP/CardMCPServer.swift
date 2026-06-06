@@ -149,7 +149,10 @@ private func makeServer(repository: MemoryCardRepository) async -> Server {
     version: "1.0.0",
     capabilities: .init(tools: .init(listChanged: false))
   )
-  await registerMemoryCardTools(on: server, repository: repository)
+  let registry = MCPToolRegistry(providers: [
+    MemoryCardMCPToolProvider(repository: repository)
+  ])
+  await registry.register(on: server)
   return server
 }
 
