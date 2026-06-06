@@ -21,7 +21,7 @@ extension Card {
     var port = 7771
 
     mutating func run() async throws {
-      let bodyText = try readBody(body)
+      let bodyText = try readBody(body, missingInputKey: "card.create.error.tty")
       var arguments: [String: Any] = ["body": bodyText]
       if let category { arguments["category"] = category }
 

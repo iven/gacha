@@ -63,6 +63,16 @@
 "category.delete.arg.name" = "分类名称。";
 "category.delete.option.port" = "MCP 服务器端口。";
 
+/* notice command */
+"notice.abstract" = "管理通知。";
+
+/* notice enqueue */
+"notice.enqueue.abstract" = "将通知消息加入队列。";
+"notice.enqueue.option.body" = "通知的 Markdown 内容。省略时从 stdin 读取。";
+"notice.enqueue.flag.json" = "以 JSON 格式输出。";
+"notice.enqueue.option.port" = "MCP 服务器端口。";
+"notice.enqueue.error.tty" = "未提供通知内容。请通过 --body 传入，或通过 stdin 管道输入。";
+
 /* CLI error messages */
 "cli.error.connectionFailed" = "无法连接到 Gacha。请确保 Gacha 正在运行且已开启 MCP 服务器。";
 "cli.error.missingSessionID" = "MCP 服务器未返回 Session ID。";

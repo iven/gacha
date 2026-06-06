@@ -24,7 +24,7 @@ extension Card {
     var port = 7771
 
     mutating func run() async throws {
-      let bodyText = try readBody(body)
+      let bodyText = try readBody(body, missingInputKey: "card.create.error.tty")
       let arguments: [String: Any] = ["id": id, "body": bodyText, "category": category]
 
       let text = try await callMCPTool(port: port, name: "update_card", arguments: arguments)

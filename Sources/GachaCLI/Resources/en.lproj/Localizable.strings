@@ -63,6 +63,16 @@
 "category.delete.arg.name" = "Category name.";
 "category.delete.option.port" = "MCP server port.";
 
+/* notice command */
+"notice.abstract" = "Manage notices.";
+
+/* notice enqueue */
+"notice.enqueue.abstract" = "Enqueue a notice message.";
+"notice.enqueue.option.body" = "Notice Markdown content. Reads from stdin if omitted.";
+"notice.enqueue.flag.json" = "Output as JSON.";
+"notice.enqueue.option.port" = "MCP server port.";
+"notice.enqueue.error.tty" = "No notice content provided. Pass --body or pipe content via stdin.";
+
 /* CLI error messages */
 "cli.error.connectionFailed" = "Cannot connect to Gacha. Make sure Gacha is running and the MCP server is enabled.";
 "cli.error.missingSessionID" = "MCP server did not return a session ID.";

@@ -6,6 +6,6 @@ struct GachaCLI: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "gacha",
     abstract: CLILocalized("cli.abstract"),
-    subcommands: [Card.self, Category.self]
+    subcommands: [Card.self, Category.self, Notice.self]
   )
 }
