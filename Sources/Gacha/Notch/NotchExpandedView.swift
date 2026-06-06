@@ -10,6 +10,10 @@ struct NotchExpandedView: View {
       MemoryNotchExpandedView(
         presenter: coordinator.memoryPresenter,
         autoCollapseSchedule: autoCollapseSchedule)
+    case .notice:
+      NoticeNotchExpandedView(
+        presenter: coordinator.noticePresenter,
+        autoCollapseSchedule: autoCollapseSchedule)
     }
   }
 }

@@ -22,17 +22,23 @@ struct AppBootstrapper {
       windowOpenActionRegistry: windowOpenActionRegistry)
 
     let notchController = NotchController()
-    let presenter = MemoryNotchPresenter(
+    let memoryPresenter = MemoryNotchPresenter(
       memoryCardRepository: memoryCardRepository,
       settingsStore: settingsStore,
       cardWindowBridge: cardWindowBridge)
+    let noticePresenter = NoticeNotchPresenter(
+      noticeQueue: noticeQueue,
+      cardWindowBridge: cardWindowBridge)
     let notchPresentationCoordinator = NotchPresentationCoordinator(
       controller: notchController,
-      memoryPresenter: presenter,
+      memoryPresenter: memoryPresenter,
+      noticePresenter: noticePresenter,
       noticeQueue: noticeQueue)
-    presenter.onSettingsRequested = {
+    let openSettings = {
       windowOpenActionRegistry.open(.settings)
     }
+    memoryPresenter.onSettingsRequested = openSettings
+    noticePresenter.onSettingsRequested = openSettings
 
     let suppressionController = SuppressionController(sources: [
       SuppressionController.Source(

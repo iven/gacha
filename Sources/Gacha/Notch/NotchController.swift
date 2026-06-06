@@ -6,6 +6,9 @@ import SwiftUI
 @MainActor
 final class NotchController {
   var onHoverChange: ((Bool) -> Void)?
+  var onWillUserExpand: (() -> Void)?
+  var onWillCollapse: ((NotchCollapseDisposition) -> Void)?
+  var onDidCollapse: (() -> Void)?
   var onResumeRequested: (() -> Void)?
   var onPausedChange: ((Bool) -> Void)?
 
@@ -37,6 +40,7 @@ final class NotchController {
   private var globalClickMonitor: Any?
   private var autoCollapseTimeout: Duration?
   private var idleReminderTimeout: Duration?
+  private var collapseSequence = 0
 
   init() {}
 
@@ -85,7 +89,7 @@ final class NotchController {
 
     isPaused = paused
     if paused {
-      collapse()
+      collapse(disposition: .finishCurrentPresentation)
     } else if isHovering, !isSuppressed, notch != nil {
       // User just clicked ▶ to resume — they're actively interacting with the
       // notch and likely want to keyboard-rate. Take focus.
@@ -104,7 +108,7 @@ final class NotchController {
 
     isSystemSuppressed = suppressed
     if suppressed {
-      collapse()
+      collapse(disposition: .preserveCurrentPresentation)
     } else if isHovering, !isSuppressed, notch != nil {
       cancelAutoCollapse()
       performExpand()
@@ -112,6 +116,9 @@ final class NotchController {
   }
 
   func setNoticeCount(_ count: Int) {
+    if count > viewModel.noticeCount {
+      viewModel.noticeCountPulseTriggerID += 1
+    }
     viewModel.noticeCount = count
   }
 
@@ -142,7 +149,7 @@ final class NotchController {
   }
 
   func compact() {
-    collapse()
+    collapse(disposition: .finishCurrentPresentation)
   }
 
   /// Global-shortcut entry point: collapses if currently expanded, otherwise
@@ -156,6 +163,7 @@ final class NotchController {
     if isExpanded {
       compact()
     } else {
+      onWillUserExpand?()
       expand(makeKey: true)
       scheduleAutoCollapse()
     }
@@ -176,7 +184,7 @@ final class NotchController {
       return
     }
 
-    collapse()
+    collapse(disposition: .finishCurrentPresentation)
   }
 
   private func handleHoverChange(_ hovering: Bool) {
@@ -194,6 +202,7 @@ final class NotchController {
 
     if hovering {
       cancelAutoCollapse()
+      onWillUserExpand?()
       performExpand(makeKey: true)
     } else {
       scheduleAutoCollapse()
@@ -203,6 +212,7 @@ final class NotchController {
 
   private func performExpand(makeKey: Bool = false) {
     isExpanded = true
+    viewModel.showsNoticeCount = false
     cancelIdleReminder()
     Task { [notch] in
       await notch?.expand()
@@ -212,11 +222,25 @@ final class NotchController {
     }
   }
 
-  private func performCompact() {
+  private func performCompact(collapseID: Int? = nil) {
     isExpanded = false
+    viewModel.showsNoticeCount = false
     restartIdleReminder()
-    Task { [notch] in
+    Task { [weak self, notch] in
       await notch?.compact()
+      guard let collapseID else {
+        await MainActor.run {
+          self?.viewModel.showsNoticeCount = true
+        }
+        return
+      }
+      await MainActor.run {
+        guard let self, self.collapseSequence == collapseID, !self.isExpanded else {
+          return
+        }
+        self.onDidCollapse?()
+        self.viewModel.showsNoticeCount = true
+      }
     }
   }
 
@@ -241,13 +265,22 @@ final class NotchController {
         return
       }
 
-      self.collapse()
+      self.collapse(disposition: .finishCurrentPresentation)
     }
   }
 
-  private func collapse() {
+  private func collapse(disposition: NotchCollapseDisposition) {
+    let wasExpanded = isExpanded
+    let collapseID: Int?
+    if wasExpanded {
+      collapseSequence += 1
+      collapseID = collapseSequence
+      onWillCollapse?(disposition)
+    } else {
+      collapseID = nil
+    }
     cancelAutoCollapse()
-    performCompact()
+    performCompact(collapseID: collapseID)
   }
 
   private func cancelAutoCollapse() {
@@ -301,90 +334,9 @@ final class NotchController {
   }
 }
 
-@MainActor
-final class NotchControllerViewModel: ObservableObject {
-  @Published var isPaused = false
-  @Published var isSuppressed = false
-  @Published var noticeCount = 0
-  var onResumeRequested: (() -> Void)?
-}
-
 extension Duration {
   fileprivate var seconds: TimeInterval {
     let (whole, attoseconds) = components
     return TimeInterval(whole) + TimeInterval(attoseconds) / 1.0e18
-  }
-}
-
-private struct NotchCompactTrailingView: View {
-  @ObservedObject var viewModel: NotchControllerViewModel
-
-  var body: some View {
-    ZStack {
-      if viewModel.isSuppressed {
-        suppressionIndicator
-          .transition(indicatorTransition)
-      } else if viewModel.isPaused {
-        pauseButton
-          .transition(indicatorTransition)
-      } else if viewModel.noticeCount > 0 {
-        NoticeCountIndicator(count: viewModel.noticeCount)
-          .transition(indicatorTransition)
-      } else {
-        pauseButton.hidden()
-          .transition(.opacity)
-      }
-    }
-    .animation(.easeInOut(duration: 0.22), value: viewModel.isSuppressed)
-    .animation(.easeInOut(duration: 0.22), value: viewModel.isPaused)
-    .animation(.easeInOut(duration: 0.22), value: viewModel.noticeCount > 0)
-  }
-
-  // Non-interactive, visually distinct from the user-pause glyph: suppression is
-  // system-driven and clears on its own, so there is nothing to tap.
-  private var suppressionIndicator: some View {
-    Image(systemName: "eye.slash.fill")
-      .font(.system(size: NotchToolbarStyle.compactGlyphFontSize, weight: .bold))
-      .foregroundStyle(.white.opacity(0.85))
-      .notchToolbarControl(restingShell: false)
-      .contentShape(Rectangle())
-      .help(NotchStrings.suppressionIndicatorHint)
-  }
-
-  private var pauseButton: some View {
-    HoverButton(action: { viewModel.onResumeRequested?() }) { hovering in
-      Image(systemName: hovering ? "play.fill" : "pause.fill")
-        .font(.system(size: NotchToolbarStyle.compactGlyphFontSize, weight: .bold))
-        .foregroundStyle(.white.opacity(0.85))
-        .notchToolbarControl(restingShell: false, highlighted: hovering)
-    }
-  }
-
-  private var indicatorTransition: AnyTransition {
-    .opacity.combined(with: .scale(scale: 0.86))
-  }
-}
-
-private struct NoticeCountIndicator: View {
-  let count: Int
-
-  var body: some View {
-    NotchAnimatedCue(
-      triggerID: count,
-      pulseCount: 5,
-      restingShell: false,
-      showsShellWhileAnimating: true
-    ) { pulseAmount in
-      Text(formattedCount)
-        .font(.custom("Avenir-Black", size: NotchToolbarStyle.compactGlyphFontSize))
-        .foregroundStyle(.white.opacity(0.85 + pulseAmount * 0.15))
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .contentTransition(.numericText(value: Double(count)))
-    }
-  }
-
-  private var formattedCount: String {
-    count > 99 ? "99+" : "\(count)"
   }
 }

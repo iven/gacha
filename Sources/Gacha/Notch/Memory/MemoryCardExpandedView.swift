@@ -12,73 +12,53 @@ struct MemoryCardExpandedView: View {
   var showKeyboardHints: Bool = true
   @ObservedObject var autoCollapseSchedule: NotchAutoCollapseSchedule
 
-  // DynamicNotchKit panel = screen.width/2 × screen.height/2, with the expanded
-  // content sitting inside safeAreaInsets reserving the notch height on top and
-  // 48pt on each remaining edge (NotchView.swift). The card height fills the
-  // available area; the width is the PRD-specified design width.
-  private static let dynamicNotchKitEdgeInset: CGFloat = 48
-  private static let cardWidth: CGFloat = 480
-
-  private var cardMaxHeight: CGFloat {
-    let screen = NSScreen.main
-    let panelHeight = (screen?.frame.height ?? 800) / 2
-    let topInset = screen?.safeAreaInsets.top ?? 32
-    return panelHeight - topInset - Self.dynamicNotchKitEdgeInset
-  }
-
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      HStack(spacing: 8) {
-        LogoCompactView()
-        Spacer()
-        toolButton(symbol: pinSymbol, isActive: isPinned) {
+    NotchExpandedCardScaffold(
+      autoCollapseSchedule: autoCollapseSchedule,
+      onKeyDown: handleKeyDown,
+      toolbar: {
+        NotchToolbarButton(symbol: pinSymbol, isActive: isPinned) {
           actions.onTogglePin()
         }
-        toolButton(symbol: "pause") {
+        NotchToolbarButton(symbol: "pause") {
           actions.onPause()
         }
-        toolButton(symbol: "square.and.pencil", isActive: isCardWindowVisible) {
+        NotchToolbarButton(symbol: "square.and.pencil", isActive: isCardWindowVisible) {
           actions.onEditCard(card)
         }
-        toolButton(symbol: "gearshape", isActive: isSettingsVisible) {
+        NotchToolbarButton(symbol: "gearshape", isActive: isSettingsVisible) {
           actions.onOpenSettings()
         }
-      }
-      ScrollView(.vertical) {
+      },
+      content: {
         bodyView
-      }
-      .padding(.vertical, 12)
-      AutoCollapseProgressBar(schedule: autoCollapseSchedule)
-      HStack(spacing: 8) {
-        if isDue {
-          rateButton(NotchStrings.ratingAgain, tint: .ratingAgain, rating: .again, hint: "1")
-          rateButton(NotchStrings.ratingHard, tint: .ratingHard, rating: .hard, hint: "2")
-          rateButton(NotchStrings.ratingGood, tint: .ratingGood, rating: .good, hint: "3")
-          rateButton(NotchStrings.ratingEasy, tint: .ratingEasy, rating: .easy, hint: "4")
-        } else {
-          rateButton("", tint: .ratingAgain, rating: .again, hint: nil)
-            .hidden()
-            .allowsHitTesting(false)
-          rateButton("", tint: .ratingHard, rating: .hard, hint: nil)
-            .hidden()
-            .allowsHitTesting(false)
-          rateButton("", tint: .ratingGood, rating: .good, hint: nil)
-            .hidden()
-            .allowsHitTesting(false)
-          actionButton(
-            NotchStrings.ratingNext, tint: .ratingNext, hint: "␣"
-          ) {
-            actions.onNext(card)
+      },
+      footer: {
+        HStack(spacing: 8) {
+          if isDue {
+            rateButton(NotchStrings.ratingAgain, tint: .ratingAgain, rating: .again, hint: "1")
+            rateButton(NotchStrings.ratingHard, tint: .ratingHard, rating: .hard, hint: "2")
+            rateButton(NotchStrings.ratingGood, tint: .ratingGood, rating: .good, hint: "3")
+            rateButton(NotchStrings.ratingEasy, tint: .ratingEasy, rating: .easy, hint: "4")
+          } else {
+            rateButton("", tint: .ratingAgain, rating: .again, hint: nil)
+              .hidden()
+              .allowsHitTesting(false)
+            rateButton("", tint: .ratingHard, rating: .hard, hint: nil)
+              .hidden()
+              .allowsHitTesting(false)
+            rateButton("", tint: .ratingGood, rating: .good, hint: nil)
+              .hidden()
+              .allowsHitTesting(false)
+            actionButton(
+              NotchStrings.ratingNext, tint: .ratingNext, hint: "␣"
+            ) {
+              actions.onNext(card)
+            }
           }
         }
-      }
-      .disabled(!isInteractive)
-    }
-    .padding(.horizontal, 12)
-    .padding(.bottom, 12)
-    .frame(width: Self.cardWidth, alignment: .leading)
-    .frame(maxHeight: cardMaxHeight, alignment: .top)
-    .background(KeyEventHandlingView(onKeyDown: handleKeyDown))
+        .disabled(!isInteractive)
+      })
   }
 
   private func handleKeyDown(_ event: NSEvent) -> Bool {
@@ -145,48 +125,18 @@ struct MemoryCardExpandedView: View {
   private func rateButton(
     _ label: String, tint: Color, rating: MemoryCardRating, hint: String?
   ) -> some View {
-    actionButton(label, tint: tint, hint: hint) {
-      actions.onRate(card, rating)
-    }
+    actionButton(label, tint: tint, hint: hint) { actions.onRate(card, rating) }
   }
 
   private func actionButton(
     _ label: String, tint: Color, hint: String?, action: @escaping () -> Void
   ) -> some View {
-    HoverButton(action: action) { hovering in
-      labelWithHint(label, hint: hint)
-        .foregroundStyle(.white.opacity(hovering ? 1.0 : 0.75))
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .background(
-          tint.opacity(hovering ? 0.55 : 0.35),
-          in: RoundedRectangle(cornerRadius: 6)
-        )
-    }
+    NotchFooterActionButton(
+      label: label,
+      tint: tint,
+      hint: hint,
+      showKeyboardHints: showKeyboardHints,
+      action: action)
   }
 
-  private func labelWithHint(_ label: String, hint: String?) -> Text {
-    let main = Text(label)
-    guard showKeyboardHints, let hint else { return main }
-    let badge = Text(" \(hint)")
-      .font(.system(size: 8, weight: .medium))
-      .foregroundStyle(.white.opacity(0.55))
-    return main + badge
-  }
-
-  private func toolButton(
-    symbol: String, isActive: Bool = false, action: @escaping () -> Void
-  ) -> some View {
-    HoverButton(action: action) { hovering in
-      Image(systemName: symbol)
-        .resizable()
-        .scaledToFit()
-        .frame(
-          width: NotchToolbarStyle.glyphSize,
-          height: NotchToolbarStyle.glyphSize
-        )
-        .foregroundStyle(.white.opacity(hovering ? 1.0 : 0.85))
-        .notchToolbarControl(highlighted: isActive || hovering)
-    }
-  }
 }

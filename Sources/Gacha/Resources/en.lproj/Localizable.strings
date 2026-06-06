@@ -147,6 +147,7 @@
 "presentation.rating.good" = "Good";
 "presentation.rating.easy" = "Easy";
 "presentation.rating.next" = "Next";
+"presentation.notice.next" = "Next";
 "presentation.card.emptyBody" = "(No content)";
 "presentation.suppression.indicatorHint" = "Hidden while presenting, in full screen, or in Focus";
 "startup.failure.title" = "Gacha Cannot Start";

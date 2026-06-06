@@ -147,6 +147,7 @@
 "presentation.rating.good" = "熟悉";
 "presentation.rating.easy" = "精通";
 "presentation.rating.next" = "下一张";
+"presentation.notice.next" = "下一条";
 "presentation.card.emptyBody" = "（无内容）";
 "presentation.suppression.indicatorHint" = "演示、全屏或专注模式时已隐藏";
 "startup.failure.title" = "Gacha 无法启动";
