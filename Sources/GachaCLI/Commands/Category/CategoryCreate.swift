@@ -15,13 +15,7 @@ extension Category {
     var port = 7771
 
     mutating func run() async throws {
-      let client = MCPClient(port: port)
-      do {
-        _ = try await client.callTool(name: "create_category", arguments: ["name": name])
-      } catch {
-        fputs("\(error.localizedDescription)\n", stderr)
-        throw ExitCode.failure
-      }
+      _ = try await callMCPTool(port: port, name: "create_category", arguments: ["name": name])
     }
   }
 }

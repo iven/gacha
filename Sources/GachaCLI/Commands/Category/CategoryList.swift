@@ -15,23 +15,15 @@ extension Category {
     var port = 7771
 
     mutating func run() async throws {
-      let client = MCPClient(port: port)
-      let text: String
-      do {
-        text = try await client.callTool(name: "list_categories", arguments: [:])
-      } catch {
-        fputs("\(error.localizedDescription)\n", stderr)
-        throw ExitCode.failure
-      }
+      let text = try await callMCPTool(port: port, name: "list_categories")
 
       if json {
         print(text)
         return
       }
 
-      if let categories = try? JSONDecoder().decode([String].self, from: Data(text.utf8)) {
-        categories.forEach { print($0) }
-      }
+      let categories = try decodeCLIJSON([String].self, from: text)
+      categories.forEach { print($0) }
     }
   }
 }

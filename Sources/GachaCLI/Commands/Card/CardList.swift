@@ -18,34 +18,20 @@ extension Card {
     var port = 7771
 
     mutating func run() async throws {
-      let client = MCPClient(port: port)
       var arguments: [String: Any] = [:]
       if let category {
         arguments["category"] = category
       }
 
-      let text: String
-      do {
-        text = try await client.callTool(name: "list_cards", arguments: arguments)
-      } catch {
-        fputs("\(error.localizedDescription)\n", stderr)
-        throw ExitCode.failure
-      }
+      let text = try await callMCPTool(port: port, name: "list_cards", arguments: arguments)
 
       if json {
         print(text)
         return
       }
 
-      let decoder = JSONDecoder()
-      decoder.dateDecodingStrategy = .iso8601
-      do {
-        let cards = try decoder.decode([CardDTO].self, from: Data(text.utf8))
-        CardFormatter.printList(cards)
-      } catch {
-        fputs("\(CLILocalized("cli.error.parseResponse")): \(error.localizedDescription)\n", stderr)
-        throw ExitCode.failure
-      }
+      let cards = try decodeCLIJSON([CardDTO].self, from: text)
+      CardFormatter.printList(cards)
     }
   }
 }

@@ -25,23 +25,14 @@ extension Card {
       var arguments: [String: Any] = ["body": bodyText]
       if let category { arguments["category"] = category }
 
-      let client = MCPClient(port: port)
-      let text: String
-      do {
-        text = try await client.callTool(name: "create_card", arguments: arguments)
-      } catch {
-        fputs("\(error.localizedDescription)\n", stderr)
-        throw ExitCode.failure
-      }
+      let text = try await callMCPTool(port: port, name: "create_card", arguments: arguments)
 
       if json {
         print(text)
         return
       }
 
-      let decoder = JSONDecoder()
-      decoder.dateDecodingStrategy = .iso8601
-      if let card = try? decoder.decode(CardDTO.self, from: Data(text.utf8)) {
+      if let card = decodeCLIJSONIfPresent(CardDTO.self, from: text) {
         CardFormatter.printCard(card)
       }
     }
