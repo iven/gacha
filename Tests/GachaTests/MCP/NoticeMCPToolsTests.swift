@@ -41,6 +41,19 @@ import Testing
 }
 
 @MainActor
+@Test func enqueueNoticeToolReportsBlankMarkdown() async throws {
+  let queue = NoticeQueue()
+  let provider = NoticeMCPToolProvider(noticeQueue: queue)
+
+  let result = try await provider.call(
+    CallTool.Parameters(name: "enqueue_notice", arguments: ["markdown": .string(" \n\t ")]))
+
+  #expect(queue.pending.isEmpty)
+  #expect(result?.isError == true)
+  #expect(result?.textContent == MCPStrings.blankMarkdown)
+}
+
+@MainActor
 @Test func noticeToolProviderIgnoresUnknownTools() async throws {
   let queue = NoticeQueue()
   let provider = NoticeMCPToolProvider(noticeQueue: queue)

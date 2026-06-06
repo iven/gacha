@@ -129,6 +129,7 @@
 "mcp.error.missingName" = "Missing required argument: name";
 "mcp.error.missingFromTo" = "Missing required arguments: from, to";
 "mcp.error.missingMarkdown" = "Missing required argument: markdown";
+"mcp.error.blankMarkdown" = "Notice content cannot be empty.";
 "mcp.error.cardNotFound" = "Card not found: %@";
 "mcp.error.invalidCategoryName" = "Invalid category name: \"%@\"";
 "mcp.error.categoryAlreadyExists" = "Category already exists: \"%@\"";

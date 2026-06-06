@@ -46,6 +46,7 @@ enum MCPStrings {
   static let missingName = AppStrings.localized("mcp.error.missingName")
   static let missingFromTo = AppStrings.localized("mcp.error.missingFromTo")
   static let missingMarkdown = AppStrings.localized("mcp.error.missingMarkdown")
+  static let blankMarkdown = AppStrings.localized("mcp.error.blankMarkdown")
 
   static func cardNotFound(_ id: String) -> String {
     String(format: AppStrings.localized("mcp.error.cardNotFound"), id)

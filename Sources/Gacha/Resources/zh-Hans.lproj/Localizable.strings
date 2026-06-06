@@ -129,6 +129,7 @@
 "mcp.error.missingName" = "缺少必填参数：name";
 "mcp.error.missingFromTo" = "缺少必填参数：from、to";
 "mcp.error.missingMarkdown" = "缺少必填参数：markdown";
+"mcp.error.blankMarkdown" = "通知内容不能为空。";
 "mcp.error.cardNotFound" = "找不到卡片：%@";
 "mcp.error.invalidCategoryName" = "无效的分类名称：「%@」";
 "mcp.error.categoryAlreadyExists" = "分类已存在：「%@」";

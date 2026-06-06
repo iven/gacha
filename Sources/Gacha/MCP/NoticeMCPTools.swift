@@ -31,6 +31,9 @@ struct NoticeMCPToolProvider: MCPToolProvider {
     guard let markdown = params.arguments?["markdown"]?.stringValue else {
       return mcpErrorResult(MCPStrings.missingMarkdown)
     }
+    guard !markdown.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      return mcpErrorResult(MCPStrings.blankMarkdown)
+    }
 
     let message = await MainActor.run {
       noticeQueue.enqueue(markdown: markdown)
