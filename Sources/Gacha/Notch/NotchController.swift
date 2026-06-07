@@ -228,6 +228,15 @@ final class NotchController {
     restartIdleReminder()
     Task { [weak self, notch] in
       await notch?.compact()
+      await MainActor.run {
+        guard let self, !self.isExpanded else {
+          return
+        }
+        if let collapseID, self.collapseSequence != collapseID {
+          return
+        }
+        NSApp.deactivate()
+      }
       guard let collapseID else {
         await MainActor.run {
           self?.viewModel.showsNoticeCount = true
