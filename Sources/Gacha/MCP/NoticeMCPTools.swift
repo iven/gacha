@@ -7,14 +7,14 @@ struct NoticeMCPToolProvider: MCPToolProvider {
   var tools: [Tool] {
     [
       Tool(
-        name: "enqueue_notice",
-        description: MCPStrings.enqueueNoticeDescription,
+        name: "send_notice",
+        description: MCPStrings.sendNoticeDescription,
         inputSchema: .object([
           "type": .string("object"),
           "properties": .object([
             "markdown": .object([
               "type": .string("string"),
-              "description": .string(MCPStrings.enqueueNoticeMarkdownParam),
+              "description": .string(MCPStrings.sendNoticeMarkdownParam),
             ])
           ]),
           "required": .array([.string("markdown")]),
@@ -24,7 +24,7 @@ struct NoticeMCPToolProvider: MCPToolProvider {
   }
 
   func call(_ params: CallTool.Parameters) async throws -> CallTool.Result? {
-    guard params.name == "enqueue_notice" else {
+    guard params.name == "send_notice" else {
       return nil
     }
 

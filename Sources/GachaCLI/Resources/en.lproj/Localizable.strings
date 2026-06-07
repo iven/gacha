@@ -66,12 +66,12 @@
 /* notice command */
 "notice.abstract" = "Manage notices.";
 
-/* notice enqueue */
-"notice.enqueue.abstract" = "Enqueue a notice message.";
-"notice.enqueue.option.body" = "Notice Markdown content. Reads from stdin if omitted.";
-"notice.enqueue.flag.json" = "Output as JSON.";
-"notice.enqueue.option.port" = "MCP server port.";
-"notice.enqueue.error.tty" = "No notice content provided. Pass --body or pipe content via stdin.";
+/* notice send */
+"notice.send.abstract" = "Send a notice to Gacha.";
+"notice.send.option.body" = "Notice Markdown content. Reads from stdin if omitted.";
+"notice.send.flag.json" = "Output as JSON.";
+"notice.send.option.port" = "MCP server port.";
+"notice.send.error.tty" = "No notice content provided. Pass --body or pipe content via stdin.";
 
 /* CLI error messages */
 "cli.error.connectionFailed" = "Cannot connect to Gacha. Make sure Gacha is running and the MCP server is enabled.";

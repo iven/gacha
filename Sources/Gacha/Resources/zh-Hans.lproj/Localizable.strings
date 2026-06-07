@@ -120,8 +120,8 @@
 "mcp.tool.renameCategory.from" = "当前分类名称。";
 "mcp.tool.renameCategory.to" = "新分类名称。";
 "mcp.tool.deleteCategory.description" = "删除一个卡片分类及其中所有卡片。";
-"mcp.tool.enqueueNotice.description" = "将一条通知消息加入内存队列。";
-"mcp.tool.enqueueNotice.markdown" = "通知消息的 Markdown 内容。";
+"mcp.tool.sendNotice.description" = "向 Gacha 发送一条通知。";
+"mcp.tool.sendNotice.markdown" = "通知的 Markdown 内容。";
 "mcp.result.deleted" = "已删除。";
 "mcp.result.created" = "已创建。";
 "mcp.result.renamed" = "已重命名。";

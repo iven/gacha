@@ -27,10 +27,8 @@ enum MCPStrings {
   static let deleteCategoryDescription = AppStrings.localized(
     "mcp.tool.deleteCategory.description")
   static let deleteCategoryNameParam = AppStrings.localized("mcp.tool.category.name")
-  static let enqueueNoticeDescription = AppStrings.localized(
-    "mcp.tool.enqueueNotice.description")
-  static let enqueueNoticeMarkdownParam = AppStrings.localized(
-    "mcp.tool.enqueueNotice.markdown")
+  static let sendNoticeDescription = AppStrings.localized("mcp.tool.sendNotice.description")
+  static let sendNoticeMarkdownParam = AppStrings.localized("mcp.tool.sendNotice.markdown")
 
   // MARK: - Success messages
 

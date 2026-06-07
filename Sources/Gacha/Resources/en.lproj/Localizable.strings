@@ -120,8 +120,8 @@
 "mcp.tool.renameCategory.from" = "Current category name.";
 "mcp.tool.renameCategory.to" = "New category name.";
 "mcp.tool.deleteCategory.description" = "Delete a card category and all cards inside it.";
-"mcp.tool.enqueueNotice.description" = "Enqueue a notice message in memory.";
-"mcp.tool.enqueueNotice.markdown" = "Notice message content in Markdown.";
+"mcp.tool.sendNotice.description" = "Send a notice to Gacha.";
+"mcp.tool.sendNotice.markdown" = "Notice content in Markdown.";
 "mcp.result.deleted" = "Deleted.";
 "mcp.result.created" = "Created.";
 "mcp.result.renamed" = "Renamed.";

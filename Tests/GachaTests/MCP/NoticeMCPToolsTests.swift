@@ -5,14 +5,14 @@ import Testing
 @testable import Gacha
 
 @MainActor
-@Test func enqueueNoticeToolAppendsMarkdownToNoticeQueue() async throws {
+@Test func sendNoticeToolAppendsMarkdownToNoticeQueue() async throws {
   let createdAt = Date(timeIntervalSince1970: 1_800_000_000)
   let queue = NoticeQueue(now: { createdAt })
   let provider = NoticeMCPToolProvider(noticeQueue: queue)
 
   let result = try await provider.call(
     CallTool.Parameters(
-      name: "enqueue_notice",
+      name: "send_notice",
       arguments: ["markdown": .string("## Build finished")]))
 
   #expect(
@@ -29,11 +29,11 @@ import Testing
 }
 
 @MainActor
-@Test func enqueueNoticeToolReportsMissingMarkdown() async throws {
+@Test func sendNoticeToolReportsMissingMarkdown() async throws {
   let queue = NoticeQueue()
   let provider = NoticeMCPToolProvider(noticeQueue: queue)
 
-  let result = try await provider.call(CallTool.Parameters(name: "enqueue_notice"))
+  let result = try await provider.call(CallTool.Parameters(name: "send_notice"))
 
   #expect(queue.pending.isEmpty)
   #expect(result?.isError == true)
@@ -41,12 +41,12 @@ import Testing
 }
 
 @MainActor
-@Test func enqueueNoticeToolReportsBlankMarkdown() async throws {
+@Test func sendNoticeToolReportsBlankMarkdown() async throws {
   let queue = NoticeQueue()
   let provider = NoticeMCPToolProvider(noticeQueue: queue)
 
   let result = try await provider.call(
-    CallTool.Parameters(name: "enqueue_notice", arguments: ["markdown": .string(" \n\t ")]))
+    CallTool.Parameters(name: "send_notice", arguments: ["markdown": .string(" \n\t ")]))
 
   #expect(queue.pending.isEmpty)
   #expect(result?.isError == true)
