@@ -61,5 +61,9 @@ Rules:
 - Run `make dmg`.
 - Create and push a `vX.Y.Z` tag.
 - Create the GitHub Release and upload `build/Gacha-X.Y.Z.dmg`.
+- Write release notes in Keep a Changelog style:
+  https://keepachangelog.com/en/1.1.0/.
+- Release notes must describe the net user-visible changes between the previous
+  release and the new release, not individual commits or intermediate states.
 - Update the Homebrew tap cask with the new version and DMG SHA-256, then run
   Homebrew style/audit/install checks.
