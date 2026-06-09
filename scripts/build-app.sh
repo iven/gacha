@@ -30,7 +30,7 @@ xcrun actool \
   --output-partial-info-plist "$icon_partial_plist" \
   --enable-on-demand-resources NO \
   --target-device mac \
-  --minimum-deployment-target 13.0 \
+  --minimum-deployment-target 15.0 \
   --platform macosx \
   --product-type com.apple.product-type.application \
   --bundle-identifier com.iven.gacha \
