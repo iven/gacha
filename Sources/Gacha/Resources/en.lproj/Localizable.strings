@@ -165,5 +165,6 @@
 "settings.cli.install.error.binaryNotFound" = "CLI binary not found in app bundle.";
 "settings.cli.install.error.cancelled" = "Installation was cancelled or failed.";
 "settings.cli.install.requiresMCP" = "The CLI tool requires the MCP server. Enable it above first.";
-"settings.cli.install.installed" = "The CLI tool is installed at /usr/local/bin/gacha.";
+"settings.cli.install.installed" = "The CLI tool is installed.";
+"settings.cli.install.installedAt" = "The CLI tool is installed at %@.";
 "settings.quitApp" = "Quit Gacha";

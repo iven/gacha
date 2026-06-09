@@ -5,6 +5,13 @@ import KeyboardShortcuts
 
 @MainActor
 final class AppEnvironment: ObservableObject {
+  static let manualCLIInstallURL = URL(fileURLWithPath: "/usr/local/bin/gacha")
+
+  private static let cliDetectionURLs = [
+    URL(fileURLWithPath: "/opt/homebrew/bin/gacha"),
+    manualCLIInstallURL,
+  ]
+
   let directories: AppDirectories
   let settingsStore: SettingsStore
   let memoryCardRepository: MemoryCardRepository
@@ -107,10 +114,14 @@ final class AppEnvironment: ObservableObject {
   }
 
   func isCLIInstalled() -> Bool {
-    guard let cliBinaryURL = resolveCLIBinaryURL() else { return false }
-    let linkURL = URL(fileURLWithPath: "/usr/local/bin/gacha")
-    let existing = try? FileManager.default.destinationOfSymbolicLink(atPath: linkURL.path)
-    return existing == cliBinaryURL.path
+    installedCLIURL() != nil
+  }
+
+  func installedCLIURL() -> URL? {
+    return Self.cliDetectionURLs.first { linkURL in
+      let existing = try? FileManager.default.destinationOfSymbolicLink(atPath: linkURL.path)
+      return existing == resolveCLIBinaryURL()?.path
+    }
   }
 
   // MARK: - CLI Installation
@@ -126,7 +137,7 @@ final class AppEnvironment: ObservableObject {
       throw CLIInstallError.binaryNotFound
     }
 
-    let linkURL = URL(fileURLWithPath: "/usr/local/bin/gacha")
+    let linkURL = Self.manualCLIInstallURL
     let binDirURL = linkURL.deletingLastPathComponent()
 
     // Already points to same binary — skip

@@ -165,5 +165,6 @@
 "settings.cli.install.error.binaryNotFound" = "在 app bundle 中找不到 CLI 二进制文件。";
 "settings.cli.install.error.cancelled" = "安装被取消或失败。";
 "settings.cli.install.requiresMCP" = "CLI 工具依赖 MCP 服务器，请先在上方启用 MCP 服务器。";
-"settings.cli.install.installed" = "CLI 工具已被安装到 /usr/local/bin/gacha。";
+"settings.cli.install.installed" = "CLI 工具已安装。";
+"settings.cli.install.installedAt" = "CLI 工具已安装到 %@。";
 "settings.quitApp" = "退出 Gacha";

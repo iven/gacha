@@ -62,9 +62,14 @@ enum SettingsStrings {
   static let cliInstallConflict = AppStrings.localized("settings.cli.install.conflict")
   static let cliInstallSuccess = AppStrings.localized("settings.cli.install.success")
   static let cliInstallRequiresMCP = AppStrings.localized("settings.cli.install.requiresMCP")
-  static let cliInstallInstalled = AppStrings.localized("settings.cli.install.installed")
   static let quitApp = AppStrings.localized("settings.quitApp")
   static func cliInstallFailed(reason: String) -> String {
     String(format: AppStrings.localized("settings.cli.install.failed"), reason)
+  }
+  static func cliInstallInstalled(path: String?) -> String {
+    guard let path else {
+      return AppStrings.localized("settings.cli.install.installed")
+    }
+    return String(format: AppStrings.localized("settings.cli.install.installedAt"), path)
   }
 }

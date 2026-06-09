@@ -4,13 +4,16 @@ struct CLISettingsSection: View {
   @ObservedObject var environment: AppEnvironment
 
   @State private var isCLIInstalled: Bool
+  @State private var installedCLIPath: String?
   @State private var installMessage: String?
   @State private var isRunning = false
   @State private var showAlert = false
 
   init(environment: AppEnvironment) {
     self.environment = environment
-    _isCLIInstalled = State(initialValue: environment.isCLIInstalled())
+    let installedURL = environment.installedCLIURL()
+    _isCLIInstalled = State(initialValue: installedURL != nil)
+    _installedCLIPath = State(initialValue: installedURL?.path)
   }
 
   var body: some View {
@@ -35,7 +38,7 @@ struct CLISettingsSection: View {
               installMessage = SettingsStrings.cliInstallFailed(
                 reason: error.localizedDescription)
             }
-            isCLIInstalled = environment.isCLIInstalled()
+            refreshCLIInstallState()
             showAlert = true
           }
         }
@@ -44,7 +47,7 @@ struct CLISettingsSection: View {
         VStack(alignment: .leading, spacing: 2) {
           Text(SettingsStrings.cliInstall)
           if isCLIInstalled {
-            Text(SettingsStrings.cliInstallInstalled)
+            Text(SettingsStrings.cliInstallInstalled(path: installedCLIPath))
               .font(.caption)
               .foregroundStyle(.secondary)
           } else if !environment.isMCPServerRunning {
@@ -66,5 +69,14 @@ struct CLISettingsSection: View {
       if let message = installMessage { Text(message) }
     }
     .appDialogIcon()
+    .onAppear {
+      refreshCLIInstallState()
+    }
+  }
+
+  private func refreshCLIInstallState() {
+    let installedURL = environment.installedCLIURL()
+    isCLIInstalled = installedURL != nil
+    installedCLIPath = installedURL?.path
   }
 }
