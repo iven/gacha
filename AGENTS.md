@@ -54,3 +54,12 @@ Rules:
 - Codex should use foreground `make dev` as the launch path and leave it running when it stays active.
 - macOS Accessibility (AX) APIs may be used to inspect and operate UI during
   development, but screenshots require user consent before capture.
+
+## Release
+
+- Bump `CFBundleShortVersionString` and `CFBundleVersion` in `App/Info.plist`.
+- Run `make dmg`.
+- Create and push a `vX.Y.Z` tag.
+- Create the GitHub Release and upload `build/Gacha-X.Y.Z.dmg`.
+- Update the Homebrew tap cask with the new version and DMG SHA-256, then run
+  Homebrew style/audit/install checks.
