@@ -31,7 +31,7 @@ brew install --cask iven/tap/gacha
 
 从 GitHub Releases 下载最新的 `Gacha-*.dmg`，打开后将 `Gacha.app` 拖到 Applications。
 
-Gacha 目前没有使用 Apple Developer ID 签名，也没有 notarization。首次启动时，macOS 可能会要求你在 System Settings > Privacy & Security 中批准打开。
+Gacha 目前没有使用 Apple Developer ID 签名，也没有 notarization。首次启动时，macOS 可能会提示无法验证 Gacha，并提供「移到废纸篓」选项。点击「完成」后，打开 System Settings > Privacy & Security，在 Gacha 的提示旁点击「仍要打开」。
 
 ## AI Agent 集成
 

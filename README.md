@@ -36,8 +36,9 @@ Download the latest `Gacha-*.dmg` from GitHub Releases, open it, and drag
 `Gacha.app` to Applications.
 
 Gacha is distributed without Apple Developer ID signing or notarization. On
-first launch, macOS may ask you to approve it in System Settings > Privacy &
-Security.
+first launch, macOS may say it cannot verify Gacha and offer to move it to the
+Trash. Choose Done, then open System Settings > Privacy & Security and click
+Open Anyway for Gacha.
 
 ## AI Agent Integrations
 
