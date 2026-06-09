@@ -27,7 +27,7 @@ Gacha currently requires macOS 15 or later.
 
 ```sh
 brew tap iven/tap
-brew install --cask gacha
+brew install --cask iven/tap/gacha
 ```
 
 ### DMG
