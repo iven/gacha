@@ -8,6 +8,7 @@
 "app.about.version" = "版本 %@";
 "app.about.slogan" = "偶得一笺，正合此时";
 "app.about.copyright" = "Copyright © 2026 Iven Hsu";
+"app.about.license" = "MIT License";
 "cards.window.title" = "卡片";
 "cards.toolbar.newCategory" = "新建分类";
 "cards.toolbar.newCard" = "新建卡片";

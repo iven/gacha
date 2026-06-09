@@ -8,6 +8,7 @@
 "app.about.version" = "Version %@";
 "app.about.slogan" = "A serendipitous note, right on time.";
 "app.about.copyright" = "Copyright © 2026 Iven Hsu";
+"app.about.license" = "MIT License";
 "cards.window.title" = "Cards";
 "cards.toolbar.newCategory" = "New Category";
 "cards.toolbar.newCard" = "New Card";
