@@ -17,6 +17,7 @@ FSRS scheduling decide what should come next.
 - FSRS-powered spaced repetition
 - System-aware suppression during full-screen apps, screen recording, and Focus
   mode
+- Scriptable Markdown notices for reminders, alerts, and update pushes
 - AI agent integrations through a local MCP server and bundled CLI
 
 ## Install
@@ -42,10 +43,14 @@ Open Anyway for Gacha.
 
 ## AI Agent Integrations
 
-Gacha exposes local tools for AI agents to create cards, manage categories, and
-send notices to the app.
+Gacha exposes local MCP tools for AI agents to create cards, manage categories,
+and send notices to the app. Configure the MCP server from Gacha Settings.
 
-Configure the MCP server and CLI from Gacha Settings.
+## Send Notices to Gacha
+
+Gacha can receive and display Markdown notices from scripts or AI agents. Send
+notices through the bundled CLI or local MCP server for health reminders such as
+stretching, posture, and water breaks, usage alerts, or update pushes.
 
 ## License
 
