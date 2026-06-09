@@ -40,6 +40,7 @@ struct NoticeNotchExpandedView: View {
           NotchFooterActionButton(
             label: NotchStrings.noticeNext,
             tint: .ratingNext,
+            hint: "→",
             isEnabled: presenter.canShowNext
           ) {
             presenter.actions.onNext()
@@ -51,6 +52,10 @@ struct NoticeNotchExpandedView: View {
   private func handleKeyDown(_ event: NSEvent) -> Bool {
     if Int(event.keyCode) == kVK_Escape {
       presenter.actions.onDismiss()
+      return true
+    }
+    if Int(event.keyCode) == kVK_RightArrow, presenter.canShowNext {
+      presenter.actions.onNext()
       return true
     }
     return false

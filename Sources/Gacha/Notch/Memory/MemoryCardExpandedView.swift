@@ -51,7 +51,7 @@ struct MemoryCardExpandedView: View {
               .hidden()
               .allowsHitTesting(false)
             actionButton(
-              NotchStrings.ratingNext, tint: .ratingNext, hint: "␣"
+              NotchStrings.ratingNext, tint: .ratingNext, hint: "→"
             ) {
               actions.onNext(card)
             }
@@ -87,7 +87,7 @@ struct MemoryCardExpandedView: View {
         return true
       default: return false
       }
-    } else if characters == " " {
+    } else if Int(event.keyCode) == kVK_RightArrow {
       actions.onNext(card)
       return true
     }
