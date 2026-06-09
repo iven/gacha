@@ -64,14 +64,6 @@ final class NotchController {
       // DynamicNotchKit starts hidden; compact() creates and shows the compact panel.
       await notch.compact()
       idleReminderState.trigger(pulseCount: 1)
-      // Exclude the notch panel from screen recordings and sharing. The window
-      // is created by DynamicNotchKit during compact(), so set sharingType
-      // immediately after it resolves.
-      if let window = notch.windowController?.window {
-        window.sharingType = .none
-      } else {
-        AppLogger.app.warning("Notch window unavailable after compact(); sharingType not set")
-      }
     }
     hoverObservation =
       notch.$isHovering
