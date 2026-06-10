@@ -1,12 +1,12 @@
 {
-  "originHash" : "ca345305ef041d17a22c7ae996bdc09cc2065ac61c57cdbb98dbcbaf484f7988",
+  "originHash" : "482d9c1269390d0f0cc90b5f13f913f0bb8c732579b3b5586a9b77ef4c507222",
   "pins" : [
     {
       "identity" : "dynamicnotchkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/iven/DynamicNotchKit.git",
       "state" : {
-        "revision" : "f428cd3c693aca1cc8da138426c21345457b92a0"
+        "revision" : "5126804727767849df8fbda6bb65292c4c8f6943"
       }
     },
     {

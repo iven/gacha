@@ -24,7 +24,7 @@ let package = Package(
     .package(url: "https://github.com/swiftlang/swift-markdown.git", branch: "main"),
     .package(
       url: "https://github.com/iven/DynamicNotchKit.git",
-      revision: "f428cd3c693aca1cc8da138426c21345457b92a0"
+      revision: "5126804727767849df8fbda6bb65292c4c8f6943"
     ),
     .package(
       url: "https://github.com/open-spaced-repetition/swift-fsrs.git",
