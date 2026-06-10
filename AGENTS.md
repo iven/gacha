@@ -61,9 +61,16 @@ Rules:
 - Run `make dmg`.
 - Create and push a `vX.Y.Z` tag.
 - Create the GitHub Release and upload `build/Gacha-X.Y.Z.dmg`.
-- Write release notes in Keep a Changelog style:
-  https://keepachangelog.com/en/1.1.0/.
-- Release notes must describe the net user-visible changes between the previous
-  release and the new release, not individual commits or intermediate states.
-- Update the Homebrew tap cask with the new version and DMG SHA-256, then run
-  Homebrew style/audit/install checks.
+- Before writing release notes, always fetch and read
+  https://keepachangelog.com/en/1.1.0/ during the release task.
+- Inspect the previous two GitHub Releases for this project before drafting
+  release notes.
+- Release notes must describe net changes since the previous release.
+- Use the same release-note skeleton for every release: version/date heading,
+  relevant Keep a Changelog change sections, and the version compare reference.
+- Update the Homebrew tap cask with the new version and DMG SHA-256 in the
+  checked-out tap returned by `brew --repository iven/tap`.
+- Run Homebrew checks with the cask token:
+  `HOMEBREW_NO_AUTO_UPDATE=1 brew style --cask iven/tap/gacha`,
+  `HOMEBREW_NO_AUTO_UPDATE=1 brew audit --cask iven/tap/gacha --strict --online`,
+  and `HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall --cask iven/tap/gacha`.
