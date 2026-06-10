@@ -11,7 +11,7 @@ struct MemoryCardScheduler {
   private let random: () -> Double
 
   init(
-    parameters: FSRS::FSRSParameters = FSRS::FSRSParameters(),
+    parameters: FSRS::FSRSParameters = FSRS::FSRSParameters(w: FSRS::FSRSDefaults.defaultWv6),
     random: @escaping () -> Double = { Double.random(in: 0..<1) }
   ) {
     self.fsrs = FSRS::FSRS(parameters: parameters)

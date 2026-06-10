@@ -7,14 +7,15 @@
 Gacha is a macOS memory card app that keeps reviews close without pulling you
 out of your work.
 
-Review cards in a compact notch surface, organize them by category, and let
-FSRS scheduling decide what should come next.
+Review cards in a compact notch surface. Gacha uses FSRS, a memory scheduling
+model that builds a review curve from your own history, to decide when each
+card should return before the memory fades.
 
 ## Features
 
 - Markdown memory cards with ruby annotation support
 - Notch-based review flow with keyboard shortcuts
-- FSRS-powered spaced repetition
+- FSRS v6-powered spaced repetition
 - System-aware suppression during full-screen apps, screen recording, and Focus
   mode
 - Scriptable Markdown notices for reminders, alerts, and update pushes

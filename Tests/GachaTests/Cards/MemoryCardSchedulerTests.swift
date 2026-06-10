@@ -229,6 +229,16 @@ private let secondsPerDay: TimeInterval = 86_400
   #expect(updated.stability != nil)
 }
 
+@Test func defaultSchedulerUsesFSRSV6Parameters() throws {
+  let scheduler = MemoryCardScheduler()
+  let now = Date(timeIntervalSince1970: 1_800_000_000)
+  let card = makeCard(createdAt: now, due: now)
+
+  let updated = try scheduler.apply(rating: .easy, to: card, now: now)
+
+  #expect(updated.due == now.addingTimeInterval(secondsPerDay * 8))
+}
+
 private func makeCard(
   id: String = "20260524-000000-aaaaaa",
   createdAt: Date,
