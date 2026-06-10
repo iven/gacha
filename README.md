@@ -14,6 +14,8 @@ card should return before the memory fades.
 ## Features
 
 - Markdown memory cards with ruby annotation support
+- Plain-text storage for cards and review state, ready for your own file sync
+  setup
 - Notch-based review flow with keyboard shortcuts
 - FSRS v6-powered spaced repetition
 - System-aware suppression during full-screen apps, screen recording, and Focus
@@ -52,6 +54,12 @@ and send notices to the app. Configure the MCP server from Gacha Settings.
 Gacha can receive and display Markdown notices from scripts or AI agents. Send
 notices through the bundled CLI or local MCP server for health reminders such as
 stretching, posture, and water breaks, usage alerts, or update pushes.
+
+## Known Issues
+
+- Markdown images, tables, and code highlighting are not supported.
+- CSV and Anki card imports are not supported; an external AI agent can turn
+  those sources into Markdown cards for Gacha.
 
 ## License
 
