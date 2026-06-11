@@ -1,18 +1,26 @@
 import SwiftUI
 
+enum NotchCueFill {
+  case none
+  case pulse(AnyShapeStyle)
+  case ambient(AnyShapeStyle)
+}
+
 struct NotchAnimatedCue<Content: View>: View {
   let triggerID: Int
   let pulseCount: Int
   let isSuppressed: Bool
   let restingShell: Bool
   let showsShellWhileAnimating: Bool
+  let fill: NotchCueFill
+  let restingContentGlowAmount: Double
   /// Persists trigger progress outside the view when callers rebuild frequently.
   let externalHandledTriggerID: Binding<Int>?
   let content: (Double) -> Content
 
   @State private var localHandledTriggerID = Int.min
   @State private var isAnimating = false
-  @State private var pulseOn = false
+  @State private var pulseAmount = 0.0
   @State private var animationTask: Task<Void, Never>?
 
   init(
@@ -21,6 +29,8 @@ struct NotchAnimatedCue<Content: View>: View {
     isSuppressed: Bool = false,
     restingShell: Bool = true,
     showsShellWhileAnimating: Bool = false,
+    fill: NotchCueFill = .pulse(AnyShapeStyle(.red)),
+    restingContentGlowAmount: Double = 0,
     externalHandledTriggerID: Binding<Int>? = nil,
     @ViewBuilder content: @escaping (Double) -> Content
   ) {
@@ -29,6 +39,8 @@ struct NotchAnimatedCue<Content: View>: View {
     self.isSuppressed = isSuppressed
     self.restingShell = restingShell
     self.showsShellWhileAnimating = showsShellWhileAnimating
+    self.fill = fill
+    self.restingContentGlowAmount = restingContentGlowAmount
     self.externalHandledTriggerID = externalHandledTriggerID
     self.content = content
   }
@@ -38,9 +50,7 @@ struct NotchAnimatedCue<Content: View>: View {
       NotchToolbarStyle.background(restingShell: true)
         .opacity(visibleAnimationShellOpacity)
 
-      Capsule()
-        .fill(.red)
-        .opacity(visiblePulseAmount * Metrics.redFillOpacity)
+      fillLayer
 
       Capsule()
         .strokeBorder(.red, lineWidth: 1)
@@ -50,7 +60,7 @@ struct NotchAnimatedCue<Content: View>: View {
       content(visiblePulseAmount)
         .scaleEffect(1 + visiblePulseAmount * Metrics.contentScaleDelta)
         .shadow(
-          color: .white.opacity(visiblePulseAmount * Metrics.contentShadowOpacity),
+          color: .white.opacity(visibleContentGlowAmount * Metrics.contentShadowOpacity),
           radius: Metrics.contentShadowRadius)
     }
     .notchToolbarControl(restingShell: restingShell)
@@ -66,7 +76,36 @@ struct NotchAnimatedCue<Content: View>: View {
   }
 
   private var visiblePulseAmount: Double {
-    isAnimating && !isSuppressed && pulseOn ? 1 : 0
+    isAnimating && !isSuppressed ? pulseAmount : 0
+  }
+
+  private var visibleContentGlowAmount: Double {
+    guard !isSuppressed else {
+      return 0
+    }
+
+    return max(restingContentGlowAmount, visiblePulseAmount)
+  }
+
+  @ViewBuilder private var fillLayer: some View {
+    switch fill {
+    case .none:
+      EmptyView()
+    case .pulse(let style):
+      Capsule()
+        .fill(style)
+        .opacity(isSuppressed ? 0 : visiblePulseAmount * Metrics.redFillOpacity)
+    case .ambient(let style):
+      Group {
+        NotchToolbarStyle.background(restingShell: true)
+          .opacity(
+            isAnimating && !isSuppressed ? (1 - visiblePulseAmount) * Metrics.redFillOpacity : 0)
+        Capsule()
+          .fill(style)
+          .opacity(
+            isSuppressed ? 0 : (isAnimating ? visiblePulseAmount : 1) * Metrics.redFillOpacity)
+      }
+    }
   }
 
   private var visibleAnimationShellOpacity: Double {
@@ -91,15 +130,15 @@ struct NotchAnimatedCue<Content: View>: View {
 
   private func playAnimation() {
     animationTask?.cancel()
-    pulseOn = false
+    pulseAmount = 0
     withAnimation(.easeInOut(duration: Timing.shellFadeIn)) {
       isAnimating = true
     }
 
     animationTask = Task { @MainActor in
-      for _ in 0..<pulseCount {
+      for index in 0..<pulseCount {
         withAnimation(.easeInOut(duration: Timing.pulsePhase)) {
-          pulseOn = true
+          pulseAmount = 1
         }
         do {
           try await Task.sleep(for: .seconds(Timing.pulsePhase))
@@ -107,8 +146,12 @@ struct NotchAnimatedCue<Content: View>: View {
           return
         }
 
+        guard index < pulseCount - 1 else {
+          break
+        }
+
         withAnimation(.easeInOut(duration: Timing.pulsePhase)) {
-          pulseOn = false
+          pulseAmount = 0
         }
         do {
           try await Task.sleep(for: .seconds(Timing.pulsePhase))
@@ -119,6 +162,7 @@ struct NotchAnimatedCue<Content: View>: View {
 
       withAnimation(.easeInOut(duration: Timing.shellFadeOut)) {
         isAnimating = false
+        pulseAmount = 0
       }
     }
   }

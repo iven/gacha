@@ -107,11 +107,11 @@ final class NotchController {
     }
   }
 
-  func setNoticeCount(_ count: Int) {
-    if count > viewModel.noticeCount {
-      viewModel.noticeCountPulseTriggerID += 1
+  func setPendingNoticeCount(_ count: Int) {
+    if count > viewModel.pendingNoticeCount {
+      viewModel.noticeBellPulseTriggerID += 1
     }
-    viewModel.noticeCount = count
+    viewModel.pendingNoticeCount = count
   }
 
   /// Sets the auto-collapse timeout. `nil` disables auto-collapse entirely.
@@ -204,7 +204,7 @@ final class NotchController {
 
   private func performExpand(makeKey: Bool = false) {
     isExpanded = true
-    viewModel.showsNoticeCount = false
+    viewModel.showsNoticeBell = false
     cancelIdleReminder()
     Task { [notch] in
       await notch?.expand()
@@ -216,7 +216,7 @@ final class NotchController {
 
   private func performCompact(collapseID: Int? = nil) {
     isExpanded = false
-    viewModel.showsNoticeCount = false
+    viewModel.showsNoticeBell = false
     restartIdleReminder()
     Task { [weak self, notch] in
       let notchWindow = await MainActor.run {
@@ -236,7 +236,7 @@ final class NotchController {
       }
       guard let collapseID else {
         await MainActor.run {
-          self?.viewModel.showsNoticeCount = true
+          self?.viewModel.showsNoticeBell = true
         }
         return
       }
@@ -245,7 +245,7 @@ final class NotchController {
           return
         }
         self.onDidCollapse?()
-        self.viewModel.showsNoticeCount = true
+        self.viewModel.showsNoticeBell = true
       }
     }
   }

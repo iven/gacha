@@ -1,16 +1,13 @@
 import SwiftUI
 
-struct NoticeCountIndicator: View {
-  let count: Int
+struct NoticeBellIndicator: View {
   let pulseTriggerID: Int
   let handledPulseTriggerID: Binding<Int>?
 
   init(
-    count: Int,
     pulseTriggerID: Int,
     handledPulseTriggerID: Binding<Int>? = nil
   ) {
-    self.count = count
     self.pulseTriggerID = pulseTriggerID
     self.handledPulseTriggerID = handledPulseTriggerID
   }
@@ -19,20 +16,14 @@ struct NoticeCountIndicator: View {
     NotchAnimatedCue(
       triggerID: pulseTriggerID,
       pulseCount: 5,
-      restingShell: false,
-      showsShellWhileAnimating: true,
+      restingShell: true,
+      fill: .ambient(AnyShapeStyle(.red)),
+      restingContentGlowAmount: 1,
       externalHandledTriggerID: handledPulseTriggerID
     ) { pulseAmount in
-      Text(formattedCount)
-        .font(.custom("Avenir-Black", size: NotchToolbarStyle.compactGlyphFontSize))
+      Image(systemName: "bell.fill")
+        .font(.system(size: NotchToolbarStyle.compactGlyphFontSize, weight: .bold))
         .foregroundStyle(.white.opacity(0.85 + pulseAmount * 0.15))
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .contentTransition(.numericText(value: Double(count)))
     }
-  }
-
-  private var formattedCount: String {
-    count > 99 ? "99+" : "\(count)"
   }
 }

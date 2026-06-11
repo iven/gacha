@@ -11,11 +11,10 @@ struct NotchCompactTrailingView: View {
       } else if viewModel.isPaused {
         pauseButton
           .transition(indicatorTransition)
-      } else if viewModel.showsNoticeCount, viewModel.noticeCount > 0 {
-        NoticeCountIndicator(
-          count: viewModel.noticeCount,
-          pulseTriggerID: viewModel.noticeCountPulseTriggerID,
-          handledPulseTriggerID: handledNoticeCountPulseTriggerID
+      } else if viewModel.showsNoticeBell, viewModel.pendingNoticeCount > 0 {
+        NoticeBellIndicator(
+          pulseTriggerID: viewModel.noticeBellPulseTriggerID,
+          handledPulseTriggerID: handledNoticeBellPulseTriggerID
         )
         .transition(indicatorTransition)
       } else {
@@ -25,8 +24,8 @@ struct NotchCompactTrailingView: View {
     }
     .animation(.easeInOut(duration: 0.22), value: viewModel.isSuppressed)
     .animation(.easeInOut(duration: 0.22), value: viewModel.isPaused)
-    .animation(.easeInOut(duration: 0.22), value: viewModel.showsNoticeCount)
-    .animation(.easeInOut(duration: 0.22), value: viewModel.noticeCount > 0)
+    .animation(.easeInOut(duration: 0.22), value: viewModel.showsNoticeBell)
+    .animation(.easeInOut(duration: 0.22), value: viewModel.pendingNoticeCount > 0)
   }
 
   // Suppression is system-driven and clears on its own, so there is nothing to tap.
@@ -52,9 +51,9 @@ struct NotchCompactTrailingView: View {
     .opacity.combined(with: .scale(scale: 0.86))
   }
 
-  private var handledNoticeCountPulseTriggerID: Binding<Int> {
+  private var handledNoticeBellPulseTriggerID: Binding<Int> {
     Binding(
-      get: { viewModel.handledNoticeCountPulseTriggerID },
-      set: { viewModel.handledNoticeCountPulseTriggerID = $0 })
+      get: { viewModel.handledNoticeBellPulseTriggerID },
+      set: { viewModel.handledNoticeBellPulseTriggerID = $0 })
   }
 }

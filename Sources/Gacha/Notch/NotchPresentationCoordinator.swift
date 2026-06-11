@@ -66,10 +66,10 @@ final class NotchPresentationCoordinator: ObservableObject {
       controller?.setPaused(false)
     }
 
-    controller.setNoticeCount(noticeQueue.pendingCount)
+    controller.setPendingNoticeCount(noticeQueue.pendingCount)
     noticeQueueEventCancellable = noticeQueue.events.sink { [weak self] _ in
       guard let self else { return }
-      self.controller.setNoticeCount(self.noticeQueue.pendingCount)
+      self.controller.setPendingNoticeCount(self.noticeQueue.pendingCount)
     }
   }
 
